@@ -17,7 +17,7 @@ You may use whatever language and library you like, but you may not use an exist
 
 * Python and PyGame (strongly suggested)
 * Java and LWJGL (much more complicated but also more sophisticated)
-* C or C++ with SDL2 (this is what PyGame uses behind the scenes). This will be the most complex, but you will also cause you to want to die learn the most.
+* C or C++ with SDL2 (this is what PyGame uses behind the scenes). This will be the most complex, but you will also cause you to ~~want to die~~ learn the most.
 
 Regardless of what you choose, your submission should meet the following specifications:
 

@@ -56,7 +56,11 @@ class Player(pygame.sprite.DirtySprite):
         self.body = pygame.draw.circle(self.surf, self.color, (18, 18), 15)
 
     def can_move(self, squares, row, col):
-        return squares[row][col].color != (0,0,0)
+        return -1 < row < 20 and -1 < col < 20 and squares[row][col].color == (0, 0, 0)
+
+    def reset_position(self):
+        self.x = 0
+        self.y = 0
 
     def update(self, squares, xMove, yMove):
         self.x += xMove
@@ -64,7 +68,10 @@ class Player(pygame.sprite.DirtySprite):
         if not self.can_move(squares, self.x//36, self.y//36):
             self.x -= xMove
             self.y -= yMove
-
+            return
+        if self.x//36 == 19 == self.y//36:
+            print("You won.")
+            exit(0)
 
 
 
@@ -123,7 +130,7 @@ def start_game(gameOn):
     cols = 20
     rows = 20
 
-    FRAMERATE = 15
+    FRAMERATE = 60
     frameMili = 1000 // FRAMERATE
     squares = [[Square() for j in range(cols)] for i in range(rows)]
     token = Player()
@@ -160,6 +167,7 @@ def start_game(gameOn):
                 is_generating_maze = False
             numAlive = newAlive
             squares[0][0].die()
+            token.reset_position()
 
         for i in range(rows):
             for j in range(cols):
@@ -179,5 +187,5 @@ pygame.init()
 
 screen = pygame.display.set_mode((720,720))
 screen.fill((255, 255, 255))
-
-start_game(True)
+gameState = True
+start_game(gameState)

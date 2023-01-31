@@ -2,7 +2,7 @@ import pygame
 import random
 
 from pygame.locals import *
-
+# Kit Bazner Cymbre Spoehr
 class Square(pygame.sprite.DirtySprite):
     color = ()
 
@@ -32,13 +32,34 @@ class Square(pygame.sprite.DirtySprite):
 
     def update(self):
         # pygame.sprite.DirtySprite.update(self)
-        if(self.color == (0,0,0)):
-            value = random.randint(0,255)
+        if(self.color == (0, 0, 0)):
+            value = random.randint(0, 255)
             self.color = ((value, 200, 255))
         else:
             self.color = (0,0,0)
         self.surf.fill(self.color)
         self.dirty = 1
+
+class Player(pygame.sprite.DirtySprite):
+    def __init__(self):
+        super(Player, self).__init__()
+
+        self.surf = pygame.Surface((35, 35))
+
+        self.color = ((255, 255, 255))
+
+        self.position = (0,0)
+
+        self.dirty = 2
+
+        self.body = pygame.draw.circle(self.surf, self.color, (18, 18), 15)
+
+    #def can_move:
+    def update(self, xMove, yMove):
+        self.position += (xMove, yMove)
+
+
+
 
 def is_valid_index(index):
     return index[0] > -1 and index[0] < 20 and index[1] > -1 and index[1] < 20 
@@ -80,13 +101,13 @@ def generate_maze(squares, rows, cols):
     return alive
 
 def gen_random_seed(squares, rows, cols):
-    distance = random.randint(0, 15)
+    distance = random.randint(0, 5)
     for x in range(rows):
         for y in range (cols):
-            distance -= 1
             if distance == 0:
-                distance = random.randint(0, 15)
+                distance = random.randint(1, 6)
                 squares[x][y].born()
+            distance -= 1
 
 def start_game(gameOn):
     # Process inputs
@@ -98,7 +119,7 @@ def start_game(gameOn):
     FRAMERATE = 15
     frameMili = 1000 // FRAMERATE
     squares = [[Square() for j in range(cols)] for i in range(rows)]
-
+    token = Player()
 
     while gameOn:
         elapsed = pygame.time.get_ticks()
@@ -110,6 +131,14 @@ def start_game(gameOn):
                     is_generating_maze = True
                 if event.key == K_r:
                     gen_random_seed(squares, rows, cols)
+                if event.key == K_UP:
+                    token.update(0,-36)
+                if event.key == K_DOWN:
+                    token.update(0,36)
+                if event.key == K_RIGHT:
+                    token.update(36,0)
+                if event.key == K_LEFT:
+                    token.update(-36,0)
             if event.type == MOUSEBUTTONUP:
                 x = pygame.mouse.get_pos()[0] // 36
                 y = pygame.mouse.get_pos()[1] // 36
@@ -123,11 +152,13 @@ def start_game(gameOn):
             if newAlive == numAlive:
                 is_generating_maze = False
             numAlive = newAlive
+            squares[0][0].die()
 
         for i in range(rows):
             for j in range(cols):
                 if squares[i][j].dirty == 1:
                     screen.blit(squares[i][j].surf, (i*36, j*36))
+        screen.blit(token.surf, token.position)
 
         
         pygame.display.flip()

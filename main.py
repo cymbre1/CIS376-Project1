@@ -11,9 +11,7 @@ class Square(pygame.sprite.DirtySprite):
 
         self.surf = pygame.Surface((35, 35))
 
-        value = random.randint(0,255)
-
-        self.color = ((value, 200, 255))
+        self.color = ((0, 0, 0))
 
         self.surf.fill(self.color)
         self.rect = self.surf.get_rect()
@@ -69,30 +67,49 @@ def get_num_living(squares, neighbors):
     return num_living
 
 def generate_maze(squares, rows, cols):
+    alive = 0
     for x in range(rows):
         for y in range(cols):
+            if squares[x][y].color != (0,0,0):
+                alive += 1
             num_living = get_num_living(squares, find_neighbors((x,y)))
             if num_living == 3:
                 squares[x][y].born()
             if num_living < 1 or num_living > 3:
                 squares[x][y].die()
+    return alive
 
+def gen_random_seed(squares, rows, cols):
+    distance = random.randint(0, 15)
+    for x in range(rows):
+        for y in range (cols):
+            distance -= 1
+            if distance == 0:
+                distance = random.randint(0, 15)
+                squares[x][y].born()
 
 def start_game(gameOn):
     # Process inputs
-
+    numAlive = 0
+    is_generating_maze = False
     cols = 20
     rows = 20
 
+    FRAMERATE = 15
+    frameMili = 1000 // FRAMERATE
     squares = [[Square() for j in range(cols)] for i in range(rows)]
 
-    generate_maze(squares, rows, cols)
 
     while gameOn:
+        elapsed = pygame.time.get_ticks()
         for event in pygame.event.get():
             if event.type == KEYDOWN:
                 if event.key == K_BACKSPACE:
                     gameOn = False
+                if event.key == K_g:
+                    is_generating_maze = True
+                if event.key == K_r:
+                    gen_random_seed(squares, rows, cols)
             if event.type == MOUSEBUTTONUP:
                 x = pygame.mouse.get_pos()[0] // 36
                 y = pygame.mouse.get_pos()[1] // 36
@@ -100,6 +117,12 @@ def start_game(gameOn):
                     squares[x][y].update()
             elif event.type == QUIT:
                 gameOn = False
+
+        if is_generating_maze:
+            newAlive = generate_maze(squares, rows, cols)
+            if newAlive == numAlive:
+                is_generating_maze = False
+            numAlive = newAlive
 
         for i in range(rows):
             for j in range(cols):
@@ -109,10 +132,14 @@ def start_game(gameOn):
         
         pygame.display.flip()
 
+        delta = pygame.time.get_ticks() - elapsed
+        difference = frameMili - delta
+        pygame.time.delay(difference)
+
 
 pygame.init()
 
-screen = pygame.display.set_mode((800,600))
+screen = pygame.display.set_mode((720,720))
 screen.fill((255, 255, 255))
 
 start_game(True)

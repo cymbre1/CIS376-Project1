@@ -72,9 +72,9 @@ def generate_maze(squares, rows, cols):
     for x in range(rows):
         for y in range(cols):
             num_living = get_num_living(squares, find_neighbors((x,y)))
-            if(num_living == 3):
+            if num_living == 3:
                 squares[x][y].born()
-            elif num_living < 1 or num_living > 4:
+            if num_living < 1 or num_living > 3:
                 squares[x][y].die()
 
 

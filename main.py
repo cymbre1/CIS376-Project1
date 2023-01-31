@@ -48,15 +48,22 @@ class Player(pygame.sprite.DirtySprite):
 
         self.color = ((255, 255, 255))
 
-        self.position = (0,0)
+        self.x= 0
+        self.y= 0
 
         self.dirty = 2
 
         self.body = pygame.draw.circle(self.surf, self.color, (18, 18), 15)
 
-    #def can_move:
-    def update(self, xMove, yMove):
-        self.position += (xMove, yMove)
+    def can_move(self, squares, row, col):
+        return squares[row][col].color != (0,0,0)
+
+    def update(self, squares, xMove, yMove):
+        self.x += xMove
+        self.y += yMove
+        if not self.can_move(squares, self.x//36, self.y//36):
+            self.x -= xMove
+            self.y -= yMove
 
 
 
@@ -132,13 +139,13 @@ def start_game(gameOn):
                 if event.key == K_r:
                     gen_random_seed(squares, rows, cols)
                 if event.key == K_UP:
-                    token.update(0,-36)
+                    token.update(squares, 0,-36)
                 if event.key == K_DOWN:
-                    token.update(0,36)
+                    token.update(squares,0,36)
                 if event.key == K_RIGHT:
-                    token.update(36,0)
+                    token.update(squares,36,0)
                 if event.key == K_LEFT:
-                    token.update(-36,0)
+                    token.update(squares,-36,0)
             if event.type == MOUSEBUTTONUP:
                 x = pygame.mouse.get_pos()[0] // 36
                 y = pygame.mouse.get_pos()[1] // 36
@@ -158,7 +165,7 @@ def start_game(gameOn):
             for j in range(cols):
                 if squares[i][j].dirty == 1:
                     screen.blit(squares[i][j].surf, (i*36, j*36))
-        screen.blit(token.surf, token.position)
+        screen.blit(token.surf, (token.x, token.y))
 
         
         pygame.display.flip()

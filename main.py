@@ -145,13 +145,13 @@ def start_game(gameOn):
                     is_generating_maze = True
                 if event.key == K_r:
                     gen_random_seed(squares, rows, cols)
-                if event.key == K_UP:
+                if event.key == K_UP or event.key == K_w:
                     token.update(squares, 0,-36)
-                if event.key == K_DOWN:
+                if event.key == K_DOWN or event.key == K_s:
                     token.update(squares,0,36)
-                if event.key == K_RIGHT:
+                if event.key == K_RIGHT or event.key == K_d:
                     token.update(squares,36,0)
-                if event.key == K_LEFT:
+                if event.key == K_LEFT or event.key == K_a:
                     token.update(squares,-36,0)
             if event.type == MOUSEBUTTONUP:
                 x = pygame.mouse.get_pos()[0] // 36

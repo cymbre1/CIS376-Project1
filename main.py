@@ -3,6 +3,37 @@ import random
 
 from pygame.locals import *
 # Kit Bazner Cymbre Spoehr
+
+class Board():
+    rows = 20
+    cols = 20
+
+    def __init__(self):
+        self.squares = [[Square() for j in range(self.cols)] for i in range(self.rows)]
+
+
+    def generate_maze(squares, rows, cols):
+        alive = 0
+        for x in range(rows):
+            for y in range(cols):
+                if squares[x][y].color != (0,0,0):
+                    alive += 1
+                num_living = get_num_living(squares, find_neighbors((x,y)))
+                if num_living == 3:
+                    squares[x][y].born()
+                if num_living < 1 or num_living > 3:
+                    squares[x][y].die()
+        return alive
+
+    def gen_random_seed(squares, rows, cols):
+        distance = random.randint(0, 5)
+        for x in range(rows):
+            for y in range (cols):
+                if distance == 0:
+                    distance = random.randint(1, 6)
+                    squares[x][y].born()
+                distance -= 1
+
 class Square(pygame.sprite.DirtySprite):
     color = ()
 
@@ -126,28 +157,6 @@ def reset(squares, rows, cols, playerToken):
             squares[x][y].die()
     playerToken.reset_position()
 
-def generate_maze(squares, rows, cols):
-    alive = 0
-    for x in range(rows):
-        for y in range(cols):
-            if squares[x][y].color != (0,0,0):
-                alive += 1
-            num_living = get_num_living(squares, find_neighbors((x,y)))
-            if num_living == 3:
-                squares[x][y].born()
-            if num_living < 1 or num_living > 3:
-                squares[x][y].die()
-    return alive
-
-def gen_random_seed(squares, rows, cols):
-    distance = random.randint(0, 5)
-    for x in range(rows):
-        for y in range (cols):
-            if distance == 0:
-                distance = random.randint(1, 6)
-                squares[x][y].born()
-            distance -= 1
-
 def start_game(gameOn):
     # Process inputs
     numAlive = 0
@@ -157,7 +166,7 @@ def start_game(gameOn):
 
     FRAMERATE = 60
     frameMili = 1000 // FRAMERATE
-    squares = [[Square() for j in range(cols)] for i in range(rows)]
+    squares = Board().squares
     token = Player()
 
     while gameOn:

@@ -21,7 +21,7 @@ class Board():
             for y in range(self.cols):
                 if self.squares[x][y].color != (0,0,0):
                     alive += 1
-                num_living = self.get_num_living(self.squares, self.find_neighbors((x,y)))
+                num_living = self.get_num_living(self.find_neighbors((x,y)))
                 if num_living == 3:
                     self.squares[x][y].born()
                 if num_living < 1 or num_living > 3:
@@ -185,25 +185,10 @@ class Player(pygame.sprite.DirtySprite):
 
 class Engine():
 
-    #Sets the initial state of the engine with a default framerate of 60
-    def __init__(self):
-       self.delta = 0
-       self.framerate = 60
-       self.frameMili = 1000 // self.framerate
-
-       self.screen = pygame.display.set_mode((720, 720))
-       self.screen.fill((255, 255, 255))
-
-       self.gameOn = True
-
-       self.board = Board()
-       self.token = Player()
-
-       self.numAlive = 0
-       self.is_generating_maze = False
-
-    #Sets the initial state of the engine with a specified framerate
-    def __init__(self, rate):
+    #Sets the initial state of the engine with a specified framerate.
+    #Parameters:
+    #int rate, specifies the framerate of the engine.  This defaults to 60
+    def __init__(self, rate=60):
         self.delta = 0
         self.framerate = rate
         self.frameMili = 1000//self.framerate
@@ -266,5 +251,5 @@ class Engine():
 
 pygame.init()
 
-game = Engine()
+game = Engine(60)
 game.start_game()

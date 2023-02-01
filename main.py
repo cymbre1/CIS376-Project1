@@ -62,7 +62,7 @@ class Player(pygame.sprite.DirtySprite):
         self.x = 0
         self.y = 0
 
-    def update(self, squares, xMove, yMove):
+    def update(self, squares, rows, cols, xMove, yMove):
         self.x += xMove
         self.y += yMove
         if not self.can_move(squares, self.x//36, self.y//36):
@@ -71,7 +71,7 @@ class Player(pygame.sprite.DirtySprite):
             return
         if self.x//36 == 19 == self.y//36:
             print("You won.")
-            exit(0)
+            reset(squares, rows, cols, self)
 
 
 
@@ -100,7 +100,11 @@ def get_num_living(squares, neighbors):
         if(squares[n[0]][n[1]].color != (0,0,0)):
             num_living = num_living + 1
     return num_living
-
+def reset(squares, rows, cols, playerToken):
+    for x in range(rows):
+        for y in range(cols):
+            squares[x][y].die()
+    playerToken.reset_position()
 def generate_maze(squares, rows, cols):
     alive = 0
     for x in range(rows):
@@ -146,13 +150,13 @@ def start_game(gameOn):
                 if event.key == K_r:
                     gen_random_seed(squares, rows, cols)
                 if event.key == K_UP or event.key == K_w:
-                    token.update(squares, 0,-36)
+                    token.update(squares, rows, cols, 0,-36)
                 if event.key == K_DOWN or event.key == K_s:
-                    token.update(squares,0,36)
+                    token.update(squares, rows, cols, 0,36)
                 if event.key == K_RIGHT or event.key == K_d:
-                    token.update(squares,36,0)
+                    token.update(squares, rows, cols, 36,0)
                 if event.key == K_LEFT or event.key == K_a:
-                    token.update(squares,-36,0)
+                    token.update(squares,  rows, cols, -36,0)
             if event.type == MOUSEBUTTONUP:
                 x = pygame.mouse.get_pos()[0] // 36
                 y = pygame.mouse.get_pos()[1] // 36

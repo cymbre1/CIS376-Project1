@@ -10,6 +10,7 @@ class Board():
 
     def __init__(self):
         self.squares = [[Square() for j in range(self.cols)] for i in range(self.rows)]
+        self.numAlive = 0
 
 
     def generate_maze(self):
@@ -24,6 +25,14 @@ class Board():
                 if num_living < 1 or num_living > 3:
                     self.squares[x][y].die()
         return alive
+
+    def update(self, token):
+        newAlive = self.generate_maze()
+        if newAlive == self.numAlive:
+            return False
+        self.numAlive = newAlive
+        self.squares[0][0].die()
+        token.reset_position()
 
     def gen_random_seed(self):
         distance = random.randint(0, 5)
@@ -185,13 +194,13 @@ class Engine():
                     if event.key == K_r:
                         self.board.gen_random_seed()
                     if event.key == K_UP or event.key == K_w:
-                        self.token.update(self.board.squares, self.board.rows, self.board.cols, 0, -36)
+                        self.token.update(self.board, 0, -36)
                     if event.key == K_DOWN or event.key == K_s:
-                        self.token.update(self.board.squares, self.board.rows, self.board.cols, 0, 36)
+                        self.token.update(self.board, 0, 36)
                     if event.key == K_RIGHT or event.key == K_d:
-                        self.token.update(self.board.squares, self.board.rows, self.board.cols, 36, 0)
+                        self.token.update(self.board, 36, 0)
                     if event.key == K_LEFT or event.key == K_a:
-                        self.token.update(self.board.squares, self.board.rows, self.board.cols, -36, 0)
+                        self.token.update(self.board, -36, 0)
                 if event.type == MOUSEBUTTONUP:
                     x = pygame.mouse.get_pos()[0] // 36
                     y = pygame.mouse.get_pos()[1] // 36
@@ -201,12 +210,7 @@ class Engine():
                     self.gameOn = False
 
             if self.is_generating_maze:
-                newAlive = self.board.generate_maze()
-                if newAlive == numAlive:
-                    self.is_generating_maze = False
-                numAlive = newAlive
-                self.board.squares[0][0].die()
-                self.token.reset_position()
+                self.is_generating_maze = self.board.update(self.token)
 
             for i in range(self.board.rows):
                 for j in range(self.board.cols):

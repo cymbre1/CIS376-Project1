@@ -120,6 +120,65 @@ class Player(pygame.sprite.DirtySprite):
             print("You won.")
             reset(squares, rows, cols, self)
 
+class Engine():
+    def __init__(self):
+        self.delta = 0
+        self.FRAMERATE = 60
+        self.frameMili = 1000//self.FRAMERATE
+
+        self.squares = Board().squares
+        self.token = Player()
+
+        self.numAlive = 0
+        self.is_generating_maze = False
+
+    def start_game(gameOn):
+        # Process inputs
+        while gameOn:
+            elapsed = pygame.time.get_ticks()
+            for event in pygame.event.get():
+                if event.type == KEYDOWN:
+                    if event.key == K_BACKSPACE:
+                        gameOn = False
+                    if event.key == K_g:
+                        is_generating_maze = True
+                    if event.key == K_r:
+                        gen_random_seed(squares, rows, cols)
+                    if event.key == K_UP or event.key == K_w:
+                        self.token.update(squares, rows, cols, 0, -36)
+                    if event.key == K_DOWN or event.key == K_s:
+                        self.token.update(squares, rows, cols, 0, 36)
+                    if event.key == K_RIGHT or event.key == K_d:
+                        self.token.update(squares, rows, cols, 36, 0)
+                    if event.key == K_LEFT or event.key == K_a:
+                        self.token.update(squares, rows, cols, -36, 0)
+                if event.type == MOUSEBUTTONUP:
+                    x = pygame.mouse.get_pos()[0] // 36
+                    y = pygame.mouse.get_pos()[1] // 36
+                    if x < 20 and y < 20:
+                        squares[x][y].update()
+                elif event.type == QUIT:
+                    gameOn = False
+
+            if is_generating_maze:
+                newAlive = generate_maze(squares, rows, cols)
+                if newAlive == numAlive:
+                    is_generating_maze = False
+                numAlive = newAlive
+                squares[0][0].die()
+                token.reset_position()
+
+            for i in range(rows):
+                for j in range(cols):
+                    if squares[i][j].dirty == 1:
+                        screen.blit(squares[i][j].surf, (i * 36, j * 36))
+            screen.blit(token.surf, (token.x, token.y))
+
+            pygame.display.flip()
+
+            delta = pygame.time.get_ticks() - elapsed
+            difference = frameMili - delta
+            pygame.time.delay(difference)
 
 
 # Checks to see if a given index is valid on the board
@@ -159,15 +218,7 @@ def reset(squares, rows, cols, playerToken):
 
 def start_game(gameOn):
     # Process inputs
-    numAlive = 0
-    is_generating_maze = False
-    cols = 20
-    rows = 20
 
-    FRAMERATE = 60
-    frameMili = 1000 // FRAMERATE
-    squares = Board().squares
-    token = Player()
 
     while gameOn:
         elapsed = pygame.time.get_ticks()

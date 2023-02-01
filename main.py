@@ -20,7 +20,7 @@ class Board():
         alive = 0
         for x in range(self.rows):
             for y in range(self.cols):
-                if self.squares[x][y].color != (0,0,0):
+                if not self.squares[x][y].is_dead():
                     alive += 1
                 num_living = self.get_num_living(self.find_neighbors((x,y)))
                 if num_living == 3:
@@ -80,13 +80,13 @@ class Board():
     def get_num_living(self, neighbors):
         num_living = 0
         for n in neighbors:
-            if(self.squares[n[0]][n[1]].color != (0,0,0)):
+            if not self.squares[n[0]][n[1]].is_dead():
                 num_living = num_living + 1
         return num_living
 
-    #Resets the board to all cells being black and the player in the top left corner.
-    #Parameters:
-    #Player playerToken, which represents the player being moved to the corner
+    # Resets the board to all cells being black and the player in the top left corner.
+    # Parameters:
+    # Player playerToken, which represents the player being moved to the corner
     def reset(self, playerToken):
         for x in range(self.rows):
             for y in range(self.cols):
@@ -95,49 +95,44 @@ class Board():
 
 class Square(pygame.sprite.DirtySprite):
     color = ()
+    dead = (0,0,0)
 
     # Sets the initial state of the Square class
     def __init__(self):
         super(Square, self).__init__()
-
         self.surf = pygame.Surface((35, 35))
-
-        self.color = ((0, 0, 0))
-
-        self.surf.fill(self.color)
-        self.rect = self.surf.get_rect()
+        self.die()
 
     # This function sets the color of the square to be some random color.
     def born(self):
-        value = random.randint(0,255)
-
-        self.color = ((value, 200, 255))
-
+        self.color = ((random.randint(0,255), 200, 255))
         self.surf.fill(self.color)
         self.dirty = 1
 
     # This function sets the color of the square to be black
     def die(self):
-        self.color = ((0,0,0))
-
+        self.color = self.dead
         self.surf.fill(self.color)
         self.dirty = 1
 
     # This function switches whether the square is black or colored
     def update(self):
-        if(self.color == (0, 0, 0)):
-            value = random.randint(0, 255)
-            self.color = ((value, 200, 255))
+        if(self.is_dead()):
+            self.born()
         else:
-            self.color = (0,0,0)
-        self.surf.fill(self.color)
-        self.dirty = 1
+            self.die()
 
     # Checks to see if a given index is valid on the board
     # Parameters:
     # tuple index, which represents the x,y coordinates for the desired index.
     def is_valid_index(self, index):
         return index[0] > -1 and index[0] < 20 and index[1] > -1 and index[1] < 20 
+    
+    # Checks to see if the square is dead
+    # Returns bool of whether the cell is dead
+    def is_dead(self):
+        return self.color == self.dead
+
 
 class Player(pygame.sprite.DirtySprite):
     # This sets the initial values for the player
@@ -148,8 +143,8 @@ class Player(pygame.sprite.DirtySprite):
 
         self.color = ((255, 255, 255))
 
-        self.x= 0
-        self.y= 0
+        self.x = 0
+        self.y = 0
 
         self.clicks = 0
 
@@ -164,7 +159,7 @@ class Player(pygame.sprite.DirtySprite):
     # int column, which represents the  column the player token would like to move to
     # Returns: boolean, whether or not that is a valid move
     def can_move(self, board, row, col):
-        return -1 < row < 20 and -1 < col < 20 and board.squares[row][col].color == (0, 0, 0)
+        return board.squares[0][0].is_valid_index((row, col)) and board.squares[row][col].is_dead()
 
     # This function is a helper function to move the player token back to start
     def reset_position(self):

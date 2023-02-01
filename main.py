@@ -18,7 +18,7 @@ class Board():
             for y in range(self.cols):
                 if self.squares[x][y].color != (0,0,0):
                     alive += 1
-                num_living = get_num_living(self.squares, self.find_neighbors((x,y)))
+                num_living = self.get_num_living(self.squares, self.find_neighbors((x,y)))
                 if num_living == 3:
                     self.squares[x][y].born()
                 if num_living < 1 or num_living > 3:
@@ -40,14 +40,14 @@ class Board():
         left = index[0] - 1
         up = index[1] + 1
         down = index[1] - 1
-        if self.is_valid_index((index[0], up)): neighbors.append((index[0], up))
-        if self.is_valid_index((right, up)): neighbors.append((right, up))
-        if self.is_valid_index((left, up)): neighbors.append((left, up))
-        if self.is_valid_index((index[0], down)): neighbors.append((index[0], down))
-        if self.is_valid_index((right, down)): neighbors.append((right, down))
-        if self.is_valid_index((left, down)): neighbors.append((left, down))
-        if self.is_valid_index((right, index[1])): neighbors.append((right, index[1]))
-        if self.is_valid_index((left, index[1])): neighbors.append((left, index[1]))
+        if self.squares[0][0].is_valid_index((index[0], up)): neighbors.append((index[0], up))
+        if self.squares[0][0].is_valid_index((right, up)): neighbors.append((right, up))
+        if self.squares[0][0].is_valid_index((left, up)): neighbors.append((left, up))
+        if self.squares[0][0].is_valid_index((index[0], down)): neighbors.append((index[0], down))
+        if self.squares[0][0].is_valid_index((right, down)): neighbors.append((right, down))
+        if self.squares[0][0].is_valid_index((left, down)): neighbors.append((left, down))
+        if self.squares[0][0].is_valid_index((right, index[1])): neighbors.append((right, index[1]))
+        if self.squares[0][0].is_valid_index((left, index[1])): neighbors.append((left, index[1]))
         return neighbors
 
     def get_num_living(self, squares, neighbors):
@@ -103,6 +103,12 @@ class Square(pygame.sprite.DirtySprite):
         self.surf.fill(self.color)
         self.dirty = 1
 
+    # Checks to see if a given index is valid on the board
+    # Parameters:
+    # tuple index, which represents the x,y coordinates for the desired index.
+    def is_valid_index(self, index):
+        return index[0] > -1 and index[0] < 20 and index[1] > -1 and index[1] < 20 
+
 class Player(pygame.sprite.DirtySprite):
     # This sets the initial values for the player
     def __init__(self):
@@ -138,16 +144,16 @@ class Player(pygame.sprite.DirtySprite):
     # Square[][] squares, which represents the board
     # int xMove, which represents the row the player token would like to move to
     # int yMove, which represents the  column the player token would like to move to
-    def update(self, squares, rows, cols, xMove, yMove):
+    def update(self, board, xMove, yMove):
         self.x += xMove
         self.y += yMove
-        if not self.can_move(squares, self.x//36, self.y//36):
+        if not self.can_move(board.squares, self.x//36, self.y//36):
             self.x -= xMove
             self.y -= yMove
             return
         if self.x//36 == 19 == self.y//36:
             print("You won.")
-            reset(squares, rows, cols, self)
+            board.reset(self)
 
 class Engine():
     def __init__(self):
@@ -175,9 +181,9 @@ class Engine():
                     if event.key == K_BACKSPACE:
                         self.gameOn = False
                     if event.key == K_g:
-                        is_generating_maze = True
+                        self.is_generating_maze = True
                     if event.key == K_r:
-                        self.board.squares.gen_random_seed(self.board, self.board.rows, self.board.cols)
+                        self.board.gen_random_seed()
                     if event.key == K_UP or event.key == K_w:
                         self.token.update(self.board.squares, self.board.rows, self.board.cols, 0, -36)
                     if event.key == K_DOWN or event.key == K_s:
@@ -194,10 +200,10 @@ class Engine():
                 elif event.type == QUIT:
                     self.gameOn = False
 
-            if is_generating_maze:
+            if self.is_generating_maze:
                 newAlive = self.board.generate_maze()
                 if newAlive == numAlive:
-                    is_generating_maze = False
+                    self.is_generating_maze = False
                 numAlive = newAlive
                 self.board.squares[0][0].die()
                 self.token.reset_position()
@@ -213,13 +219,6 @@ class Engine():
             self.delta = pygame.time.get_ticks() - elapsed
             difference = self.frameMili - self.delta
             pygame.time.delay(difference)
-
-
-# Checks to see if a given index is valid on the board
-# Parameters:
-# tuple index, which represents the x,y coordinates for the desired index.
-def is_valid_index(index):
-    return index[0] > -1 and index[0] < 20 and index[1] > -1 and index[1] < 20 
 
 
 pygame.init()

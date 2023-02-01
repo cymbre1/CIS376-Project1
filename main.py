@@ -4,7 +4,7 @@ import random
 from pygame.locals import *
 # Kit Bazner Cymbre Spoehr
 
-class Board():
+class Board(pygame.sprite.DirtySprite):
     rows = 20
     cols = 20
 
@@ -63,14 +63,14 @@ class Board():
         left = index[0] - 1
         up = index[1] + 1
         down = index[1] - 1
-        if self.squares[0][0].is_valid_index((index[0], up)): neighbors.append((index[0], up))
-        if self.squares[0][0].is_valid_index((right, up)): neighbors.append((right, up))
-        if self.squares[0][0].is_valid_index((left, up)): neighbors.append((left, up))
-        if self.squares[0][0].is_valid_index((index[0], down)): neighbors.append((index[0], down))
-        if self.squares[0][0].is_valid_index((right, down)): neighbors.append((right, down))
-        if self.squares[0][0].is_valid_index((left, down)): neighbors.append((left, down))
-        if self.squares[0][0].is_valid_index((right, index[1])): neighbors.append((right, index[1]))
-        if self.squares[0][0].is_valid_index((left, index[1])): neighbors.append((left, index[1]))
+        if Square().is_valid_index((index[0], up)): neighbors.append((index[0], up))
+        if Square().is_valid_index((right, up)): neighbors.append((right, up))
+        if Square().is_valid_index((left, up)): neighbors.append((left, up))
+        if Square().is_valid_index((index[0], down)): neighbors.append((index[0], down))
+        if Square().is_valid_index((right, down)): neighbors.append((right, down))
+        if Square().is_valid_index((left, down)): neighbors.append((left, down))
+        if Square().is_valid_index((right, index[1])): neighbors.append((right, index[1]))
+        if Square().is_valid_index((left, index[1])): neighbors.append((left, index[1]))
         return neighbors
 
     # This function gets the number of living cells given an array of squares
@@ -125,7 +125,8 @@ class Square(pygame.sprite.DirtySprite):
     # Checks to see if a given index is valid on the board
     # Parameters:
     # tuple index, which represents the x,y coordinates for the desired index.
-    def is_valid_index(self, index):
+    @staticmethod
+    def is_valid_index(index):
         return index[0] > -1 and index[0] < 20 and index[1] > -1 and index[1] < 20 
     
     # Checks to see if the square is dead
@@ -159,7 +160,7 @@ class Player(pygame.sprite.DirtySprite):
     # int column, which represents the  column the player token would like to move to
     # Returns: boolean, whether or not that is a valid move
     def can_move(self, board, row, col):
-        return board.squares[0][0].is_valid_index((row, col)) and board.squares[row][col].is_dead()
+        return Square().is_valid_index((row, col)) and board.squares[row][col].is_dead()
 
     # This function is a helper function to move the player token back to start
     def reset_position(self):
@@ -187,9 +188,9 @@ class Player(pygame.sprite.DirtySprite):
 
 class Engine():
 
-    #Sets the initial state of the engine with a specified framerate.
-    #Parameters:
-    #int rate, specifies the framerate of the engine.  This defaults to 60
+    # Sets the initial state of the engine with a specified framerate.
+    # Parameters:
+    # int rate, specifies the framerate of the engine.  This defaults to 60
     def __init__(self, rate=60):
         self.delta = 0
         self.framerate = rate
@@ -207,7 +208,7 @@ class Engine():
         self.is_generating_maze = False
         self.mazeCounter = 0
 
-    #This is the main game loop.  It processes inputs, then updates elements and the main screen.
+    # This is the main game loop.  It processes inputs, then updates elements and the main screen.
     def start_game(self):
         # Process inputs
         while self.gameOn:
@@ -254,7 +255,6 @@ class Engine():
             self.delta = pygame.time.get_ticks() - elapsed
             difference = self.frameMili - self.delta
             pygame.time.delay(difference)
-
 
 pygame.init()
 

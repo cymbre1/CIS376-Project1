@@ -40,27 +40,27 @@ class Board():
         left = index[0] - 1
         up = index[1] + 1
         down = index[1] - 1
-        if is_valid_index((index[0], up)): neighbors.append((index[0], up))
-        if is_valid_index((right, up)): neighbors.append((right, up))
-        if is_valid_index((left, up)): neighbors.append((left, up))
-        if is_valid_index((index[0], down)): neighbors.append((index[0], down))
-        if is_valid_index((right, down)): neighbors.append((right, down))
-        if is_valid_index((left, down)): neighbors.append((left, down))
-        if is_valid_index((right, index[1])): neighbors.append((right, index[1]))
-        if is_valid_index((left, index[1])): neighbors.append((left, index[1]))
+        if self.is_valid_index((index[0], up)): neighbors.append((index[0], up))
+        if self.is_valid_index((right, up)): neighbors.append((right, up))
+        if self.is_valid_index((left, up)): neighbors.append((left, up))
+        if self.is_valid_index((index[0], down)): neighbors.append((index[0], down))
+        if self.is_valid_index((right, down)): neighbors.append((right, down))
+        if self.is_valid_index((left, down)): neighbors.append((left, down))
+        if self.is_valid_index((right, index[1])): neighbors.append((right, index[1]))
+        if self.is_valid_index((left, index[1])): neighbors.append((left, index[1]))
         return neighbors
 
-def get_num_living(self, squares, neighbors):
+def get_num_living(self, neighbors):
     num_living = 0
     for n in neighbors:
-        if(squares[n[0]][n[1]].color != (0,0,0)):
+        if(self.squares[n[0]][n[1]].color != (0,0,0)):
             num_living = num_living + 1
     return num_living
 
-def reset(self, squares, rows, cols, playerToken):
-    for x in range(rows):
-        for y in range(cols):
-            squares[x][y].die()
+def reset(self, playerToken):
+    for x in range(self.rows):
+        for y in range(self.cols):
+            self.squares[x][y].die()
     playerToken.reset_position()
 
 class Square(pygame.sprite.DirtySprite):
@@ -102,6 +102,12 @@ class Square(pygame.sprite.DirtySprite):
             self.color = (0,0,0)
         self.surf.fill(self.color)
         self.dirty = 1
+
+    # Checks to see if a given index is valid on the board
+    # Parameters:
+    # tuple index, which represents the x,y coordinates for the desired index.
+    def is_valid_index(index):
+        return index[0] > -1 and index[0] < 20 and index[1] > -1 and index[1] < 20 
 
 class Player(pygame.sprite.DirtySprite):
     # This sets the initial values for the player
@@ -208,13 +214,6 @@ class Engine():
             self.delta = pygame.time.get_ticks() - elapsed
             difference = self.frameMili - self.delta
             pygame.time.delay(difference)
-
-
-# Checks to see if a given index is valid on the board
-# Parameters:
-# tuple index, which represents the x,y coordinates for the desired index.
-def is_valid_index(index):
-    return index[0] > -1 and index[0] < 20 and index[1] > -1 and index[1] < 20 
 
 
 pygame.init()

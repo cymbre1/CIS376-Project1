@@ -186,7 +186,7 @@ class Player(pygame.sprite.DirtySprite):
 class Engine():
 
     #Sets the initial state of the engine with a default framerate of 60
-   def __init__(self):
+    def __init__(self):
        self.delta = 0
        self.framerate = 60
        self.frameMili = 1000 // self.framerate
@@ -203,7 +203,7 @@ class Engine():
        self.is_generating_maze = False
 
     #Sets the initial state of the engine with a specified framerate
-   def __init__(self, rate):
+    def __init__(self, rate):
         self.delta = 0
         self.framerate = rate
         self.frameMili = 1000//self.framerate

@@ -12,6 +12,7 @@ class Board():
     def __init__(self):
         self.squares = [[Square() for j in range(self.cols)] for i in range(self.rows)]
         self.numAlive = 0
+        self.counter = 0
 
     # This function loops through and generates a maze based on the algorithm given in the assignment
     # returns int: how many living cells are in the board
@@ -32,18 +33,19 @@ class Board():
     # Parameters:
     # Player token is the player token.
     # Returns bool whether the game is ready to play
-    def update(self, token):
+    def update(self, token, counter):
         newAlive = self.generate_maze()
-        if newAlive == self.numAlive:
+        if newAlive == self.numAlive or counter > 20:
             return False
         self.numAlive = newAlive
         self.squares[0][0].die()
+        self.squares[self.rows-1][self.cols-1].die()
         token.reset_position()
         return True
 
     # This functino creates a random seed
     def gen_random_seed(self):
-        distance = random.randint(0, 5)
+        distance = random.randint(0, 10)
         for square_row in self.squares:
             for square in square_row:
                 if distance == 0:
@@ -149,6 +151,8 @@ class Player(pygame.sprite.DirtySprite):
         self.x= 0
         self.y= 0
 
+        self.clicks = 0
+
         self.dirty = 2
 
         self.body = pygame.draw.circle(self.surf, self.color, (18, 18), 15)
@@ -166,6 +170,7 @@ class Player(pygame.sprite.DirtySprite):
     def reset_position(self):
         self.x = 0
         self.y = 0
+        self.clicks = 0
 
     # This function facilitates player token movement
     # Params:
@@ -173,6 +178,8 @@ class Player(pygame.sprite.DirtySprite):
     # int xMove, which represents the row the player token would like to move to
     # int yMove, which represents the  column the player token would like to move to
     def update(self, board, xMove, yMove):
+        if xMove == 0 == yMove:
+            self.clicks += 1
         self.x += xMove
         self.y += yMove
         if not self.can_move(board, self.x//36, self.y//36):
@@ -180,7 +187,7 @@ class Player(pygame.sprite.DirtySprite):
             self.y -= yMove
             return
         if self.x//36 == 19 == self.y//36:
-            print("You won.")
+            print("You won with " + str(self.clicks) + " clicks.")
             board.reset(self)
 
 class Engine():
@@ -203,6 +210,7 @@ class Engine():
 
         self.numAlive = 0
         self.is_generating_maze = False
+        self.mazeCounter = 0
 
     #This is the main game loop.  It processes inputs, then updates elements and the main screen.
     def start_game(self):
@@ -230,11 +238,15 @@ class Engine():
                     y = pygame.mouse.get_pos()[1] // 36
                     if x < 20 and y < 20:
                         self.board.squares[x][y].update()
+                        self.token.update(self.board, 0,0)
                 elif event.type == QUIT:
                     self.gameOn = False
 
             if self.is_generating_maze:
-                self.is_generating_maze = self.board.update(self.token)
+                self.is_generating_maze = self.board.update(self.token, self.mazeCounter)
+                self.mazeCounter += 1
+            else:
+                self.mazeCounter = 0
 
             for i in range(self.board.rows):
                 for j in range(self.board.cols):

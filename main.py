@@ -66,6 +66,9 @@ class Board():
                 num_living = num_living + 1
         return num_living
 
+    #Resets the board to all cells being black and the player in the top left corner.
+    #Parameters:
+    #Player playerToken, which represents the player being moved to the corner
     def reset(self, playerToken):
         for x in range(self.rows):
             for y in range(self.cols):
@@ -95,7 +98,7 @@ class Square(pygame.sprite.DirtySprite):
         self.surf.fill(self.color)
         self.dirty = 1
 
-    # This functino sets the color of the square to be black
+    # This function sets the color of the square to be black
     def die(self):
         self.color = ((0,0,0))
 
@@ -136,12 +139,12 @@ class Player(pygame.sprite.DirtySprite):
 
     # This function return whether the desired position is a valid place that a player token can move
     # Params: 
-    # Square[][] squares, which represents the board
+    # Board board, which represents the board
     # int row, which represents the row the player token would like to move to
     # int column, which represents the  column the player token would like to move to
     # Returns: boolean, whether or not that is a valid move
-    def can_move(self, squares, row, col):
-        return -1 < row < 20 and -1 < col < 20 and squares[row][col].color == (0, 0, 0)
+    def can_move(self, board, row, col):
+        return -1 < row < 20 and -1 < col < 20 and board.squares[row][col].color == (0, 0, 0)
 
     # This function is a helper function to move the player token back to start
     def reset_position(self):
@@ -150,13 +153,13 @@ class Player(pygame.sprite.DirtySprite):
 
     # This function facilitates player token movement
     # Params:
-    # Square[][] squares, which represents the board
+    # Board board, which represents the board
     # int xMove, which represents the row the player token would like to move to
     # int yMove, which represents the  column the player token would like to move to
     def update(self, board, xMove, yMove):
         self.x += xMove
         self.y += yMove
-        if not self.can_move(board.squares, self.x//36, self.y//36):
+        if not self.can_move(board, self.x//36, self.y//36):
             self.x -= xMove
             self.y -= yMove
             return
@@ -165,6 +168,8 @@ class Player(pygame.sprite.DirtySprite):
             board.reset(self)
 
 class Engine():
+
+    #Sets the initial state of the engine with a default framerate of 60
    def __init__(self):
        self.delta = 0
        self.framerate = 60
@@ -180,6 +185,8 @@ class Engine():
 
        self.numAlive = 0
        self.is_generating_maze = False
+
+    #Sets the initial state of the engine with a specified framerate
    def __init__(self, rate):
         self.delta = 0
         self.framerate = rate
@@ -196,6 +203,7 @@ class Engine():
         self.numAlive = 0
         self.is_generating_maze = False
 
+    #This is the main game loop.  It processes inputs, then updates elements and the main screen.
     def start_game(self):
         # Process inputs
         while self.gameOn:

@@ -50,18 +50,18 @@ class Board():
         if self.is_valid_index((left, index[1])): neighbors.append((left, index[1]))
         return neighbors
 
-def get_num_living(self, neighbors):
-    num_living = 0
-    for n in neighbors:
-        if(self.squares[n[0]][n[1]].color != (0,0,0)):
-            num_living = num_living + 1
-    return num_living
+    def get_num_living(self, squares, neighbors):
+        num_living = 0
+        for n in neighbors:
+            if(self.squares[n[0]][n[1]].color != (0,0,0)):
+                num_living = num_living + 1
+        return num_living
 
-def reset(self, playerToken):
-    for x in range(self.rows):
-        for y in range(self.cols):
-            self.squares[x][y].die()
-    playerToken.reset_position()
+    def reset(self, playerToken):
+        for x in range(self.rows):
+            for y in range(self.cols):
+                self.squares[x][y].die()
+        playerToken.reset_position()
 
 class Square(pygame.sprite.DirtySprite):
     color = ()
@@ -102,12 +102,6 @@ class Square(pygame.sprite.DirtySprite):
             self.color = (0,0,0)
         self.surf.fill(self.color)
         self.dirty = 1
-
-    # Checks to see if a given index is valid on the board
-    # Parameters:
-    # tuple index, which represents the x,y coordinates for the desired index.
-    def is_valid_index(index):
-        return index[0] > -1 and index[0] < 20 and index[1] > -1 and index[1] < 20 
 
 class Player(pygame.sprite.DirtySprite):
     # This sets the initial values for the player
@@ -161,20 +155,25 @@ class Engine():
         self.FRAMERATE = 60
         self.frameMili = 1000//self.FRAMERATE
 
+        self.screen = pygame.display.set_mode((720, 720))
+        self.screen.fill((255, 255, 255))
+
+        self.gameOn = True
+
         self.board = Board()
         self.token = Player()
 
         self.numAlive = 0
         self.is_generating_maze = False
 
-    def start_game(self, gameOn):
+    def start_game(self):
         # Process inputs
-        while gameOn:
+        while self.gameOn:
             elapsed = pygame.time.get_ticks()
             for event in pygame.event.get():
                 if event.type == KEYDOWN:
                     if event.key == K_BACKSPACE:
-                        gameOn = False
+                        self.gameOn = False
                     if event.key == K_g:
                         is_generating_maze = True
                     if event.key == K_r:
@@ -193,7 +192,7 @@ class Engine():
                     if x < 20 and y < 20:
                         self.board.squares[x][y].update()
                 elif event.type == QUIT:
-                    gameOn = False
+                    self.gameOn = False
 
             if is_generating_maze:
                 newAlive = self.board.generate_maze()
@@ -206,8 +205,8 @@ class Engine():
             for i in range(self.board.rows):
                 for j in range(self.board.cols):
                     if self.board.squares[i][j].dirty == 1:
-                        screen.blit(self.board.squares[i][j].surf, (i * 36, j * 36))
-            screen.blit(self.token.surf, (self.token.x, self.token.y))
+                        self.screen.blit(self.board.squares[i][j].surf, (i * 36, j * 36))
+            self.screen.blit(self.token.surf, (self.token.x, self.token.y))
 
             pygame.display.flip()
 
@@ -216,9 +215,14 @@ class Engine():
             pygame.time.delay(difference)
 
 
+# Checks to see if a given index is valid on the board
+# Parameters:
+# tuple index, which represents the x,y coordinates for the desired index.
+def is_valid_index(index):
+    return index[0] > -1 and index[0] < 20 and index[1] > -1 and index[1] < 20 
+
+
 pygame.init()
 
-screen = pygame.display.set_mode((720,720))
-screen.fill((255, 255, 255))
-gameState = True
-start_game(gameState)
+game = Engine()
+game.start_game()

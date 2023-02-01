@@ -165,10 +165,25 @@ class Player(pygame.sprite.DirtySprite):
             board.reset(self)
 
 class Engine():
-    def __init__(self):
+   def __init__(self):
+       self.delta = 0
+       self.framerate = 60
+       self.frameMili = 1000 // self.framerate
+
+       self.screen = pygame.display.set_mode((720, 720))
+       self.screen.fill((255, 255, 255))
+
+       self.gameOn = True
+
+       self.board = Board()
+       self.token = Player()
+
+       self.numAlive = 0
+       self.is_generating_maze = False
+   def __init__(self, rate):
         self.delta = 0
-        self.FRAMERATE = 60
-        self.frameMili = 1000//self.FRAMERATE
+        self.framerate = rate
+        self.frameMili = 1000//self.framerate
 
         self.screen = pygame.display.set_mode((720, 720))
         self.screen.fill((255, 255, 255))

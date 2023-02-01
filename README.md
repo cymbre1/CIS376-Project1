@@ -2,6 +2,14 @@
 
 Kit Bazner and Cymbre Spoehr
 
+# How to run the project
+1. Install pygame
+2. Run the project by using the commandline in the code directory and type `python3 main.py`. 
+3. Press `r` to generate a random seed and `g` to generate the maze based on the seed.
+4. You can use the arrow keys or wasd to move the player token throughout the maze.
+5. You can use the mouse to toggle on and off walls.
+6. When your player token reaches the bottom right corner, the console will print "You won." and reset the game.
+
 # Project Description
 Life is incredibly complex, and sometimes impossible for us to study. For instance, it can be hard to know how a virus is spreading through a population, or how parasites travel through groups of hosts. Often, it is easier for us to make a simulation of life, and study the simulation. There are many, many types of artificial life; one of the simplest (but still pretty amazing!) is cellular automata. These take place on grids (typically), and have simple rulesets. For instance, in John Conway's classic Game of Life, cells are either alive or dead. If a cell has exactly three neighbors and is dead, it is reborn. If it has less than two neighbors and is alive, it dies from underpopulation. If it has more than three neighbors and is alive, it dies from overpopulation.
 

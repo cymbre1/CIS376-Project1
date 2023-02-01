@@ -6,6 +6,7 @@ from pygame.locals import *
 class Square(pygame.sprite.DirtySprite):
     color = ()
 
+    # Sets the initial state of the Square class
     def __init__(self):
         super(Square, self).__init__()
 
@@ -16,6 +17,7 @@ class Square(pygame.sprite.DirtySprite):
         self.surf.fill(self.color)
         self.rect = self.surf.get_rect()
 
+    # This function sets the color of the square to be some random color.
     def born(self):
         value = random.randint(0,255)
 
@@ -24,14 +26,15 @@ class Square(pygame.sprite.DirtySprite):
         self.surf.fill(self.color)
         self.dirty = 1
 
+    # This functino sets the color of the square to be black
     def die(self):
         self.color = ((0,0,0))
 
         self.surf.fill(self.color)
         self.dirty = 1
 
+    # This function switches whether the square is black or colored
     def update(self):
-        # pygame.sprite.DirtySprite.update(self)
         if(self.color == (0, 0, 0)):
             value = random.randint(0, 255)
             self.color = ((value, 200, 255))
@@ -41,6 +44,7 @@ class Square(pygame.sprite.DirtySprite):
         self.dirty = 1
 
 class Player(pygame.sprite.DirtySprite):
+    # This sets the initial values for the player
     def __init__(self):
         super(Player, self).__init__()
 
@@ -55,13 +59,25 @@ class Player(pygame.sprite.DirtySprite):
 
         self.body = pygame.draw.circle(self.surf, self.color, (18, 18), 15)
 
+    # This function return whether the desired position is a valid place that a player token can move
+    # Params: 
+    # Square[][] squares, which represents the board
+    # int row, which represents the row the player token would like to move to
+    # int column, which represents the  column the player token would like to move to
+    # Returns: boolean, whether or not that is a valid move
     def can_move(self, squares, row, col):
         return -1 < row < 20 and -1 < col < 20 and squares[row][col].color == (0, 0, 0)
 
+    # This function is a helper function to move the player token back to start
     def reset_position(self):
         self.x = 0
         self.y = 0
 
+    # This function facilitates player token movement
+    # Params:
+    # Square[][] squares, which represents the board
+    # int xMove, which represents the row the player token would like to move to
+    # int yMove, which represents the  column the player token would like to move to
     def update(self, squares, rows, cols, xMove, yMove):
         self.x += xMove
         self.y += yMove
@@ -75,6 +91,8 @@ class Player(pygame.sprite.DirtySprite):
 
 
 
+# Checks to see if a given index is valid on the board
+# 
 def is_valid_index(index):
     return index[0] > -1 and index[0] < 20 and index[1] > -1 and index[1] < 20 
 
@@ -100,11 +118,13 @@ def get_num_living(squares, neighbors):
         if(squares[n[0]][n[1]].color != (0,0,0)):
             num_living = num_living + 1
     return num_living
+
 def reset(squares, rows, cols, playerToken):
     for x in range(rows):
         for y in range(cols):
             squares[x][y].die()
     playerToken.reset_position()
+
 def generate_maze(squares, rows, cols):
     alive = 0
     for x in range(rows):

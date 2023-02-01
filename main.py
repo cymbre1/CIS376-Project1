@@ -43,7 +43,7 @@ class Board():
         token.reset_position()
         return True
 
-    # This functino creates a random seed
+    # This function creates a random seed
     def gen_random_seed(self):
         distance = random.randint(0, 10)
         for square_row in self.squares:

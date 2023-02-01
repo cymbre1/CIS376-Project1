@@ -92,7 +92,8 @@ class Player(pygame.sprite.DirtySprite):
 
 
 # Checks to see if a given index is valid on the board
-# 
+# Parameters:
+# tuple index, which represents the x,y coordinates for the desired index.
 def is_valid_index(index):
     return index[0] > -1 and index[0] < 20 and index[1] > -1 and index[1] < 20 
 

@@ -8,11 +8,13 @@ class Board():
     rows = 20
     cols = 20
 
+    # Constructor for board
     def __init__(self):
         self.squares = [[Square() for j in range(self.cols)] for i in range(self.rows)]
         self.numAlive = 0
 
-
+    # This function loops through and generates a maze based on the algorithm given in the assignment
+    # returns int: how many living cells are in the board
     def generate_maze(self):
         alive = 0
         for x in range(self.rows):
@@ -26,6 +28,10 @@ class Board():
                     self.squares[x][y].die()
         return alive
 
+    # This function is used to update the board, it will let the game know if it is stable.
+    # Parameters:
+    # Player token is the player token.
+    # Returns bool whether the game is ready to play
     def update(self, token):
         newAlive = self.generate_maze()
         if newAlive == self.numAlive:
@@ -33,7 +39,9 @@ class Board():
         self.numAlive = newAlive
         self.squares[0][0].die()
         token.reset_position()
+        return True
 
+    # This functino creates a random seed
     def gen_random_seed(self):
         distance = random.randint(0, 5)
         for square_row in self.squares:
@@ -43,6 +51,10 @@ class Board():
                     square.born()
                 distance -= 1
 
+    # This function finds all of the neighbors of a cell given the index of that cell.
+    # Params: 
+    # Tuple index which represents the x,y coordinate of the cell
+    # Returns Square[] which contains all neighbors of the cell
     def find_neighbors(self, index):
         neighbors = []
         right = index[0] + 1
@@ -59,7 +71,11 @@ class Board():
         if self.squares[0][0].is_valid_index((left, index[1])): neighbors.append((left, index[1]))
         return neighbors
 
-    def get_num_living(self, squares, neighbors):
+    # This function gets the number of living cells given an array of squares
+    # Params:
+    # Squares[] neighbors containing the neighbors of a given cell
+    # returns int representing how many of the cells were alive.
+    def get_num_living(self, neighbors):
         num_living = 0
         for n in neighbors:
             if(self.squares[n[0]][n[1]].color != (0,0,0)):

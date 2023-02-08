@@ -15,6 +15,7 @@ class GameMath():
     
     # Data structure for 4x4 matrices
     class Matrix():
+        blah = []
         # 2 dimensional array
 
     # Calculate the cross product and return a vector

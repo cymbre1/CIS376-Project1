@@ -22,7 +22,7 @@ class GameMath():
     # Vector2 or Vector3 vec1
     # Vector2 or Vector3 vec2
     # Returns a Vector
-    def crossProduct(vec1, vec2):
+    def crossProduct(self, vec1, vec2):
         print("filler")
 
     # Calculate the fot product and return a scalar value
@@ -30,7 +30,7 @@ class GameMath():
     # Vector2 or Vector3 vec1
     # Vector2 or Vector3 vec2
     # Returns a scalar value
-    def crossProduct(vec1, vec2):
+    def crossProduct(self, vec1, vec2):
         print("filler")
 
     #determine if two vectors have the same values

@@ -1,5 +1,38 @@
 class GameMath():
 
+     # Has 3 coordinates
+    class Vector2():
+        w = 0
+        x = 0
+        y = 0
+
+    # Has 4 coordinates
+    class Vector3(): 
+        w = 0
+        x = 0
+        y = 0
+        z = 0
+    
+    # Data structure for 4x4 matrices
+    class Matrix():
+        # 2 dimensional array
+
+    # Calculate the cross product and return a vector
+    # Params:
+    # Vector2 or Vector3 vec1
+    # Vector2 or Vector3 vec2
+    # Returns a Vector
+    def crossProduct(vec1, vec2):
+        print("filler")
+
+    # Calculate the fot product and return a scalar value
+    # Params:
+    # Vector2 or Vector3 vec1
+    # Vector2 or Vector3 vec2
+    # Returns a scalar value
+    def crossProduct(vec1, vec2):
+        print("filler")
+
     #determine if two vectors have the same values
     def v_is_equal(self, v1, v2):
         return
@@ -43,7 +76,3 @@ class GameMath():
     #subtract matrices and return a matrix
     def m_sub(self, m1, m2):
         return
-
-    #Data structure for 4x4 matrices
-    class Matrix():
-        # 2 dimensional array

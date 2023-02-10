@@ -15,12 +15,15 @@ class GameMath():
     
     # Data structure for 4x4 matrices
     class Matrix():
-        matrix = []
         def __init__(self):
+            self.matrix = []
             for index in range(4):
                 self.matrix.append([])
                 for num in range(4):
-                    self.matrix[index].append(0)
+                    if index == num:
+                        self.matrix[index].append(1)
+                    else:
+                        self.matrix[index].append(0)
         def set_list_matrix(self, lst):
             for index in range(len(lst)):
                 self.set_item(index // 4, index % 4, lst[index])
@@ -29,10 +32,52 @@ class GameMath():
             for row in range(4):
                 for col in range(4):
                     self.set_item(row, col, num)
+
+        def copy_matrix(self, m):
+            for row in range(4):
+                for col in range(4):
+                    self.set_item(row, col, m.get_item(row, col))
+
         def set_item(self, row, col, item):
             self.matrix[row][col] = item
+
         def get_item(self, row, col):
             return self.matrix[row][col]
+
+        # determine if two matrices are the same
+        def is_equal(self, m):
+            for row in range(4):
+                for col in range(4):
+                    if self.get_item(row, col) != m.get_item(row, col):
+                        return False
+            return True
+
+        # multipy a matrix by a matrix.  Return the matrix
+        def multiply(self, m):
+            newM = Matrix()
+            for row in range(4):
+                for col in range(4):
+                    total = 0
+                    for index in range(4):
+                        total += self.get_item(row, index) * m.get_item(index, col)
+                    newM.set_item(row, col, total)
+            return newM
+
+        # add matrices and return a matrix
+        def m_add(self, m):
+            newM = Matrix()
+            for row in range(4):
+                for col in range(4):
+                    newM.set_item(row, col, (self.get_item(row, col) + (m.get_item(row, col))))
+            return newM
+
+        # subtract matrices and return a matrix
+        def m_sub(self, m):
+            newM = Matrix()
+            for row in range(4):
+                for col in range(4):
+                    newM.set_item(row, col, (self.get_item(row, col) - m.get_item(row, col)))
+            return newM
 
     # Calculate the cross product and return a vector
     # Params:
@@ -77,22 +122,8 @@ class GameMath():
     def find_angle(self, v1, v2):
         return
 
-    #determine if two matrices are the same
-    def m_is_equal(self, m1, m2):
-        return
-
-    #multipy a matrix by a matrix.  Return the matrix
-    def m_multiply(self, m1, m2):
-        return
 
     #multiply a vector by a matrix and return the vector
     def cross_multiply(self, v, m):
         return
 
-    #add matrices and return a matrix
-    def m_add(self, m1, m2):
-        return
-
-    #subtract matrices and return a matrix
-    def m_sub(self, m1, m2):
-        return

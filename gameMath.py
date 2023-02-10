@@ -100,10 +100,21 @@ class GameMath():
 
     #determine if two vectors have the same values
     def v_is_equal(self, v1, v2):
-        return
+        if not hasattr(v1, 'z') ^ hasattr(v2, 'z'):
+            if v1.w == v2.w and v1.x == v2.x and v1.y == v2.y:
+                if hasattr(v1, 'z'):
+                    if v1.z == v2.z:
+                        return True
+                    else:
+                        return False
+                else:
+                    return True
+        else:
+            return False
 
     #find the magnitude of a vector
-    def magnitude(self, v1):
+    def magnitude(self, v):
+        (v.w * v.w).sqrt()
         return
 
     #normalize a vector

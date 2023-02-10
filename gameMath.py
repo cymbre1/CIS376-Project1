@@ -24,15 +24,18 @@ class GameMath():
     # Vector2 or Vector3 vec2
     # Returns a Vector
     def crossProduct(self, vec1, vec2):
+        lastParam = (vec1.z * vec2.z) if hasattr(vec1, 'z') and hasattr(vec2, 'z') else 0
         print("filler")
 
-    # Calculate the fot product and return a scalar value
+
+    # Calculate the dot product and return a scalar value
     # Params:
     # Vector2 or Vector3 vec1
     # Vector2 or Vector3 vec2
     # Returns a scalar value
-    def crossProduct(self, vec1, vec2):
-        print("filler")
+    def dotProduct(self, vec1, vec2):
+        lastParam = (vec1.z * vec2.z) if hasattr(vec1, 'z') and hasattr(vec2, 'z') else 0
+        return (vec1.w * vec2.w) + (vec1.x * vec2.x) + (vec1.y * vec2.y) + lastParam
 
     #determine if two vectors have the same values
     def v_is_equal(self, v1, v2):

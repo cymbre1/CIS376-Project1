@@ -15,8 +15,24 @@ class GameMath():
     
     # Data structure for 4x4 matrices
     class Matrix():
-        blah = []
-        # 2 dimensional array
+        matrix = []
+        def __init__(self):
+            for index in range(4):
+                self.matrix.append([])
+                for num in range(4):
+                    self.matrix[index].append(0)
+        def set_list_matrix(self, lst):
+            for index in range(len(lst)):
+                self.set_item(index // 4, index % 4, lst[index])
+
+        def set_single_matrix(self, num):
+            for row in range(4):
+                for col in range(4):
+                    self.set_item(row, col, num)
+        def set_item(self, row, col, item):
+            self.matrix[row][col] = item
+        def get_item(self, row, col):
+            return self.matrix[row][col]
 
     # Calculate the cross product and return a vector
     # Params:

@@ -2,6 +2,8 @@ import pygame
 import random
 
 from pygame.locals import *
+
+
 # Kit Bazner Cymbre Spoehr
 
 class Board(pygame.sprite.DirtySprite):
@@ -22,7 +24,7 @@ class Board(pygame.sprite.DirtySprite):
             for y in range(self.cols):
                 if not self.squares[x][y].is_dead():
                     alive += 1
-                num_living = self.get_num_living(self.find_neighbors((x,y)))
+                num_living = self.get_num_living(self.find_neighbors((x, y)))
                 if num_living == 3:
                     self.squares[x][y].born()
                 if num_living < 1 or num_living > 3:
@@ -39,7 +41,7 @@ class Board(pygame.sprite.DirtySprite):
             return False
         self.numAlive = newAlive
         self.squares[0][0].die()
-        self.squares[self.rows-1][self.cols-1].die()
+        self.squares[self.rows - 1][self.cols - 1].die()
         token.reset_position()
         return True
 
@@ -93,9 +95,10 @@ class Board(pygame.sprite.DirtySprite):
                 self.squares[x][y].die()
         playerToken.reset_position()
 
+
 class Square(pygame.sprite.DirtySprite):
     color = ()
-    dead = (0,0,0)
+    dead = (0, 0, 0)
 
     # Sets the initial state of the Square class
     def __init__(self):
@@ -105,7 +108,7 @@ class Square(pygame.sprite.DirtySprite):
 
     # This function sets the color of the square to be some random color.
     def born(self):
-        self.color = ((random.randint(0,255), 200, 255))
+        self.color = (random.randint(0, 255), 200, 255)
         self.surf.fill(self.color)
         self.dirty = 1
 
@@ -117,7 +120,7 @@ class Square(pygame.sprite.DirtySprite):
 
     # This function switches whether the square is black or colored
     def update(self):
-        if(self.is_dead()):
+        if self.is_dead():
             self.born()
         else:
             self.die()
@@ -127,9 +130,10 @@ class Square(pygame.sprite.DirtySprite):
     # tuple index, which represents the x,y coordinates for the desired index.
     @staticmethod
     def is_valid_index(index):
-        return index[0] > -1 and index[0] < 20 and index[1] > -1 and index[1] < 20 
-    
-    # Checks to see if the square is dead
+        return -1 < index[0] < 20 and -1 < index[1] < 20
+
+        # Checks to see if the square is dead
+
     # Returns bool of whether the cell is dead
     def is_dead(self):
         return self.color == self.dead
@@ -178,13 +182,14 @@ class Player(pygame.sprite.DirtySprite):
             self.clicks += 1
         self.x += xMove
         self.y += yMove
-        if not self.can_move(board, self.x//36, self.y//36):
+        if not self.can_move(board, self.x // 36, self.y // 36):
             self.x -= xMove
             self.y -= yMove
             return
-        if self.x//36 == 19 == self.y//36:
+        if self.x // 36 == 19 == self.y // 36:
             print("You won with " + str(self.clicks) + " clicks.")
             board.reset(self)
+
 
 class Engine():
 
@@ -194,7 +199,7 @@ class Engine():
     def __init__(self, rate=60):
         self.delta = 0
         self.framerate = rate
-        self.frameMili = 1000//self.framerate
+        self.frameMili = 1000 // self.framerate
 
         self.screen = pygame.display.set_mode((720, 720))
         self.screen.fill((255, 255, 255))
@@ -234,7 +239,7 @@ class Engine():
                     y = pygame.mouse.get_pos()[1] // 36
                     if x < 20 and y < 20:
                         self.board.squares[x][y].update()
-                        self.token.update(self.board, 0,0)
+                        self.token.update(self.board, 0, 0)
                 elif event.type == QUIT:
                     self.gameOn = False
 
@@ -256,7 +261,8 @@ class Engine():
             difference = self.frameMili - self.delta
             pygame.time.delay(difference)
 
+
 pygame.init()
 
-game = Engine(60)
+game = Engine(15)
 game.start_game()

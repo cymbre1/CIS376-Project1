@@ -1,17 +1,32 @@
+import math
 class GameMath():
 
-     # Has 3 coordinates
+     # Has 3 coordinates, where w is the homogenous value and x and y are the coordinates of the vector
     class Vector2():
-        w = 0
-        x = 0
-        y = 0
+        def __init__(self, w = 0, x = 0, y = 0):
+            self.w = w
+            self.x = x
+            self.y = y
 
-    # Has 4 coordinates
+        # Calculate the cross product and return a vector
+        # Params:
+        # Vector2 or Vector3 vec1
+        # Vector2 or Vector3 vec2
+        # Returns a Vector
+        def crossProduct(self, v1, v2):
+            return self.Vector2((v1.x * v2.y) - (v1.y * v2.x), (v1.y * v2.w) - (v1.w * v2.y), (v1.w * v2.x) - (v1.x * v2.w))
+
+    # Has 4 coordinates, where w  is the homogenous value and x,y, and z are the coordinates of the vector.
     class Vector3(): 
-        w = 0
-        x = 0
-        y = 0
-        z = 0
+        def __init__(self, w = 0, x = 0, y = 0, z = 0):
+            self.w = w
+            self.x = x
+            self.y = y
+            self.z = z
+
+        def crossProduct(self, v1, v2):
+            return self.Vector2((v1.x * v2.y) - (v1.y * v2.x), (v1.y * v2.z) - (v1.z * v2.y), (v1.z * v2.x) - (v1.x * v2.z))
+
     
     # Data structure for 4x4 matrix of numbers
     class Matrix():
@@ -123,15 +138,6 @@ class GameMath():
                     newM.set_item(row, col, (self.get_item(row, col) - m.get_item(row, col)))
             return newM
 
-    # Calculate the cross product and return a vector
-    # Params:
-    # Vector2 or Vector3 vec1
-    # Vector2 or Vector3 vec2
-    # Returns a Vector
-    def crossProduct(self, vec1, vec2):
-        lastParam = (vec1.z * vec2.z) if hasattr(vec1, 'z') and hasattr(vec2, 'z') else 0
-        print("filler")
-
 
     # Calculate the dot product and return a scalar value
     # Params:
@@ -147,12 +153,14 @@ class GameMath():
         return
 
     #find the magnitude of a vector
-    def magnitude(self, v1):
-        return
+    def magnitude(self, v):
+        return math.sqrt((v.w * v.w) + (v.x * v.x) + (v.y * v.y))
+        
 
     #normalize a vector
     def normalize(self, v):
-        return
+        vector_magnitude = self.magnitude(v)
+        return self.Vector3(v.w/vector_magnitude, v.x/vector_magnitude, v.y/vector_magnitude, v.z/vector_magnitude) if hasattr(v, 'z') else self.Vector2(v.w/vector_magnitude, v.x/vector_magnitude, v.y/vector_magnitude)
 
     #add two vectors
     def v_add(self, v1, v2):

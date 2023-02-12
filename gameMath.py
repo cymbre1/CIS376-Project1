@@ -144,21 +144,10 @@ class GameMath():
 
     #determine if two vectors have the same values
     def v_is_equal(self, v1, v2):
-        if not hasattr(v1, 'z') ^ hasattr(v2, 'z'):
-            if v1.w == v2.w and v1.x == v2.x and v1.y == v2.y:
-                if hasattr(v1, 'z'):
-                    if v1.z == v2.z:
-                        return True
-                    else:
-                        return False
-                else:
-                    return True
-        else:
-            return False
+        return
 
     #find the magnitude of a vector
-    def magnitude(self, v):
-        (v.w * v.w).sqrt()
+    def magnitude(self, v1):
         return
 
     #normalize a vector
@@ -182,21 +171,3 @@ class GameMath():
     def cross_multiply(self, v, m):
         return
 
-
-
-#testing area
-mat = GameMath.Matrix()
-mat2 = GameMath.Matrix()
-lst = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]
-
-mat.set_single_matrix(-543)
-#mat.set_list_matrix(lst)
-mat2.set_list_matrix(lst)
-
-
-
-mat.print_matrix()
-mat2.print_matrix()
-
-mat = mat.multiply(mat2)
-mat.print_matrix()

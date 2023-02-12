@@ -13,8 +13,10 @@ class GameMath():
         y = 0
         z = 0
     
-    # Data structure for 4x4 matrices
+    # Data structure for 4x4 matrix of numbers
     class Matrix():
+
+        # Constructor for Matrix
         def __init__(self):
             self.matrix = []
             for index in range(4):
@@ -24,27 +26,60 @@ class GameMath():
                         self.matrix[index].append(1)
                     else:
                         self.matrix[index].append(0)
+        
+        # This function sets the matrix based on a 16 length list.
+        # Parameters:
+        # List lst is the list the matrix is constructed on 
         def set_list_matrix(self, lst):
             for index in range(len(lst)):
                 self.set_item(index // 4, index % 4, lst[index])
 
+        # This function sets a matrix of all the same number
+        # Parameters:
+        # Numerical num is the number that the matrix will contain
         def set_single_matrix(self, num):
             for row in range(4):
                 for col in range(4):
                     self.set_item(row, col, num)
 
+        # This function copies a given matrix
+        # Parameters:
+        # Matrix m is the matrix to be copied
         def copy_matrix(self, m):
             for row in range(4):
                 for col in range(4):
                     self.set_item(row, col, m.get_item(row, col))
 
+        # This function prints the current matrix in a more readable format
+        '''Weird bug????  sometimes doesn't populate the 3rd row'''
+        def print_matrix(self):
+            pLine = ''
+            for row in range(4):
+                for col in range(4):
+                    pLine += str(self.get_item(row, col)) + ", "
+                pLine += "\n"
+            print(pLine)
+
+        # Changes the value at a given matrix location
+        # Parameters:
+        # int row is the row index of the matrix
+        # int col is the column index of the matrix
+        # numerical item is the value that the location should become
         def set_item(self, row, col, item):
             self.matrix[row][col] = item
 
+        # Returns the value at a given row and column
+        # Parameters:
+        # int row is the row index of the matrix
+        # int col is the column index of the matrix
+        # Returns value contained in matrix row and column number
         def get_item(self, row, col):
             return self.matrix[row][col]
 
-        # determine if two matrices are the same
+        # Determines if two matrices are the same
+        # Parameters:
+        # Matrix m is the matrix that we are comparing to
+        # Returns bool whether matrices are equal
         def is_equal(self, m):
             for row in range(4):
                 for col in range(4):
@@ -52,9 +87,12 @@ class GameMath():
                         return False
             return True
 
-        # multipy a matrix by a matrix.  Return the matrix
+        # Multiplies the current matrix by a given matrix
+        # Parameters:
+        # Matrix m is the matrix that we are multiplying by
+        # Retruns a new matrix with multiplied values
         def multiply(self, m):
-            newM = Matrix()
+            newM = GameMath.Matrix()
             for row in range(4):
                 for col in range(4):
                     total = 0
@@ -63,17 +101,23 @@ class GameMath():
                     newM.set_item(row, col, total)
             return newM
 
-        # add matrices and return a matrix
-        def m_add(self, m):
-            newM = Matrix()
+        # Adds a matrix to another matrix
+        # Parameters:
+        # Matrix m is the matrix being added
+        # Returns a new matrix with the added values
+        def add(self, m):
+            newM = GameMath.Matrix()
             for row in range(4):
                 for col in range(4):
                     newM.set_item(row, col, (self.get_item(row, col) + (m.get_item(row, col))))
             return newM
 
-        # subtract matrices and return a matrix
-        def m_sub(self, m):
-            newM = Matrix()
+        # Subtracts a matrix from another matrix
+        # Parameters:
+        # Matrix m is the matrix that is subtracted
+        # Returns a new matrix with subtracted values
+        def sub(self, m):
+            newM = GameMath.Matrix()
             for row in range(4):
                 for col in range(4):
                     newM.set_item(row, col, (self.get_item(row, col) - m.get_item(row, col)))
@@ -138,3 +182,21 @@ class GameMath():
     def cross_multiply(self, v, m):
         return
 
+
+
+#testing area
+mat = GameMath.Matrix()
+mat2 = GameMath.Matrix()
+lst = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]
+
+mat.set_single_matrix(-543)
+#mat.set_list_matrix(lst)
+mat2.set_list_matrix(lst)
+
+
+
+mat.print_matrix()
+mat2.print_matrix()
+
+mat = mat.multiply(mat2)
+mat.print_matrix()

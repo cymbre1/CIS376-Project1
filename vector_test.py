@@ -97,16 +97,109 @@ class TestVectors(unittest.TestCase):
         vec2 = self.game_math.Vector2()
         self.assertTrue(vec1.is_equal(vec2))
 
+    # Magnitude Tests
     def test_magnitude_willReturn_correctMagnitude_vector2(self):
+        vector = self.game_math.Vector3(0,4,-2)
+        expected_result = 2 * math.sqrt(5)
+        self.assertEqual(expected_result, vector.magnitude())
+
+    def test_magnitude_willReturn_correctMagnitude_vector2_2(self):
+        vector = self.game_math.Vector3(0,0,-3)
+        self.assertEqual(3, vector.magnitude())
+
+    def test_magnitude_willReturn_correctMagnitude_vector3(self):
         vector = self.game_math.Vector3(0, 2,4,-2)
         expected_result = math.sqrt(24)
         blah = vector.magnitude()
         self.assertEqual(expected_result, blah)
 
-    def test_magnitude_willReturn_correctMagnitude_vector2_2(self):
+    def test_magnitude_willReturn_correctMagnitude_vector3_2(self):
         vector = self.game_math.Vector3(0, 1,0,-3)
         expected_result = math.sqrt(10)
-        self.assertAlmostEquals(expected_result, vector.magnitude())
+        self.assertEqual(expected_result, vector.magnitude())
+
+    # Normalize Tests
+    def test_normalize_3d_vector(self):
+        vector = self.game_math.Vector3(1,3,2,-1)
+        expected_result = self.game_math.Vector3(1, 3/math.sqrt(14), math.sqrt(2/7), -1/math.sqrt(14))
+        result = vector.normalize()
+        self.assertTrue(expected_result.v_is_equal(result))
+
+    def test_normalize_3d_vector_2(self):
+        vector = self.game_math.Vector3(1,4,5,6)
+        expected_result = self.game_math.Vector3(1, 4/math.sqrt(77), 5/math.sqrt(77), 6/math.sqrt(77))
+        result = vector.normalize()
+        self.assertTrue(expected_result.v_is_equal(result))
+
+    def test_normalize_2d_vector(self):
+        vector = self.game_math.Vector2(1,1,2)
+        expected_result = self.game_math.Vector2(1, 1/math.sqrt(5), 2/math.sqrt(5))
+        result = vector.normalize()
+        self.assertTrue(expected_result.v_is_equal(result))
+
+    def test_normalize_2d_vector_2(self):
+        vector = self.game_math.Vector2(1,4,5)
+        expected_result = self.game_math.Vector2(1, 4/math.sqrt(41), 5/math.sqrt(41))
+        result = vector.normalize()
+        self.assertTrue(expected_result.v_is_equal(result))
+
+    # Addition Tests
+    def test_v_add_vector2(self):
+        vec1 = self.game_math.Vector2(1,2,3)
+        vec2 = self.game_math.Vector2(1,3,4)
+        expected_result = self.game_math.Vector2(0,5,7)
+        result = vec1.v_add(vec2)
+        self.assertTrue(expected_result.v_is_equal(result))
+
+    def test_v_add_vector2_2(self):
+        vec1 = self.game_math.Vector2(1,4,5)
+        vec2 = self.game_math.Vector2(1,3,-2)
+        expected_result = self.game_math.Vector2(0,7,3)
+        result = vec1.v_add(vec2)
+        self.assertTrue(expected_result.v_is_equal(result))
+
+    def test_v_add_vector3(self):
+        vec1 = self.game_math.Vector3(1,2,3,4)
+        vec2 = self.game_math.Vector3(1,3,4,5)
+        expected_result = self.game_math.Vector3(0,5,7,9)
+        result = vec1.v_add(vec2)
+        self.assertTrue(expected_result.v_is_equal(result))
+
+    def test_v_add_vector3_2(self):
+        vec1 = self.game_math.Vector3(1,4,5,10)
+        vec2 = self.game_math.Vector3(1,12,-2,100)
+        expected_result = self.game_math.Vector3(0,16,3,110)
+        result = vec1.v_add(vec2)
+        self.assertTrue(expected_result.v_is_equal(result))
+
+    # Subtraction Tests
+    def test_v_sub_vector2(self):
+        vec1 = self.game_math.Vector2(1,2,3)
+        vec2 = self.game_math.Vector2(1,3,4)
+        expected_result = self.game_math.Vector2(0,-1,-1)
+        result = vec1.v_sub(vec2)
+        self.assertTrue(expected_result.v_is_equal(result))
+
+    def test_v_sub_vector2_2(self):
+        vec1 = self.game_math.Vector2(1,4,5)
+        vec2 = self.game_math.Vector2(1,3,-2)
+        expected_result = self.game_math.Vector2(0,1,7)
+        result = vec1.v_sub(vec2)
+        self.assertTrue(expected_result.v_is_equal(result))
+
+    def test_v_sub_vector3(self):
+        vec1 = self.game_math.Vector3(1,2,3,4)
+        vec2 = self.game_math.Vector3(1,3,4,5)
+        expected_result = self.game_math.Vector3(0,-1,-1,-1)
+        result = vec1.v_sub(vec2)
+        self.assertTrue(expected_result.v_is_equal(result))
+
+    def test_v_sub_vector3_2(self):
+        vec1 = self.game_math.Vector3(1,4,5,10)
+        vec2 = self.game_math.Vector3(1,12,-2,100)
+        expected_result = self.game_math.Vector3(0,-8,7,-90)
+        result = vec1.v_sub(vec2)
+        self.assertTrue(expected_result.v_is_equal(result))
 
 if __name__ == 'main':
     unittest.main()

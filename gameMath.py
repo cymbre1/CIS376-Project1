@@ -24,6 +24,7 @@ class GameMath():
         #add two vectors
         def add(self, v):
             return GameMath.Vector2((self.w + v.w) % 2 ,self.x + v.x, self.y + v.y)
+
         #subtract two vectors
         def sub(self, v):
             return GameMath.Vector2((self.w - v.w) % 2 ,self.x - v.x , self.y - v.y)
@@ -43,8 +44,8 @@ class GameMath():
 
         #normalize a vector
         def normalize(self):
-            vector_magnitude = self.magnitude(self)
-            return self.Vector3(1, self.x/vector_magnitude,  self.y/vector_magnitude, self.z/vector_magnitude)
+            vector_magnitude = self.magnitude()
+            return GameMath.Vector2(1, self.x/vector_magnitude,  self.y/vector_magnitude)
 
     # Has 4 coordinates, where w  is the homogenous value and x,y, and z are the coordinates of the vector.
     class Vector3(): 
@@ -70,10 +71,31 @@ class GameMath():
         #find the magnitude of a vector
         def magnitude(self):
             return math.sqrt((self.x * self.x) + (self.y * self.y) + (self.z * self.z))
-    
+
+        #normalize a vector
+        def normalize(self):
+            vector_magnitude = self.magnitude()
+            return GameMath.Vector3(1, self.x/vector_magnitude,  self.y/vector_magnitude, self.z/vector_magnitude)
+
+        #add two vectors
+        def v_add(self, v):
+            return GameMath.Vector3((self.w + v.w) % 2 ,self.x + v.x, self.y + v.y, self.z + v.z)
+
+        #subtract two vectors
+        def v_sub(self, v):
+            return GameMath.Vector3((self.w - v.w) % 2 ,self.x - v.x , self.y - v.y, self.z - v.z)
+
+        def cross_multiply(self, m):
+            result_vector = GameMath.Vector3(self.w,self.x, self.y, self.z)
+            for col in m:
+                result_vector.x = result_vector.x * m[0][col]
+                result_vector.y = result_vector.y * m[1][col]
+                result_vector.z = result_vector.z * m[2][col]
+                result_vector.w = result_vector.w * m[3][col]
+            return result_vector
+
     # Data structure for 4x4 matrix of numbers
     class Matrix():
-
         # Constructor for Matrix
         def __init__(self):
             self.matrix = []
@@ -180,22 +202,3 @@ class GameMath():
                 for col in range(4):
                     newM.set_item(row, col, (self.get_item(row, col) - m.get_item(row, col)))
             return newM
-
-    #normalize a vector
-    #add two vectors
-    def add(self, v1, v2):
-        return
-
-    #subtract two vectors
-    def sub(self, v1, v2):
-        return
-
-    #calculate the angle between two vectors
-    def find_angle(self, v1, v2):
-        return
-
-
-    #multiply a vector by a matrix and return the vector
-    def cross_multiply(self, v, m):
-        return
-

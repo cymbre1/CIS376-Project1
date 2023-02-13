@@ -201,5 +201,15 @@ class TestVectors(unittest.TestCase):
         result = vec1.sub(vec2)
         self.assertTrue(expected_result.is_equal(result))
 
+    def test_crossMultiply(self):
+        mat = self.game_math.Matrix()
+        lst = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]
+        mat.set_list_matrix(lst)
+        vec1 = self.game_math.Vector3(4,1,2,3)
+        expected_result = self.game_math.Vector3(30,70,110,50)
+        result = vec1.cross_multiply(mat)
+        self.assertTrue(expected_result.is_equal(result))
+
+
 if __name__ == 'main':
     unittest.main()

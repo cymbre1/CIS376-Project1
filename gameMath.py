@@ -86,12 +86,12 @@ class GameMath():
             return GameMath.Vector3((self.w - v.w) % 2 ,self.x - v.x , self.y - v.y, self.z - v.z)
 
         def cross_multiply(self, m):
-            result_vector = GameMath.Vector3(self.w,self.x, self.y, self.z)
-            for col in m:
-                result_vector.x = result_vector.x * m[0][col]
-                result_vector.y = result_vector.y * m[1][col]
-                result_vector.z = result_vector.z * m[2][col]
-                result_vector.w = result_vector.w * m[3][col]
+            result_vector = GameMath.Vector3(0,0,0,0)
+            for col in range(4):
+                result_vector.x += self.x  * m.get_item(0, col)
+                result_vector.y += self.y * m.get_item(1, col)
+                result_vector.z += self.z * m.get_item(2, col)
+                result_vector.w += self.w * m.get_item(3, col)
             return result_vector
 
     # Data structure for 4x4 matrix of numbers

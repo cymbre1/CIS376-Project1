@@ -92,14 +92,12 @@ class GameMath():
         def cross_multiply(self, m):
             result_list = [0,0,0,0]
             usable_vector = self.iterable_vec()
-            for row in range(3):
-                for col in range(3):
-                    for a in usable_vector:
-                        result_list[col] += m.get_item(row, col) * a
-
+            for row in range (4):
+                result = 0
+                for col in range(4):
+                    result += usable_vector[col] * m.get_item(row, col)
+                result_list[row] = result
             return GameMath.vec_from_list(result_list)
-            #result_list  = [0,0,0,0]
-            #for row in range(4):
 
 
     # Data structure for 4x4 matrix of numbers

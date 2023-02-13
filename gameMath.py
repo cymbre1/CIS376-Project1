@@ -92,6 +92,16 @@ class GameMath():
             for index in range(len(lst)):
                 self.set_item(index // 4, index % 4, lst[index])
 
+        # This function sets the matrix to the identity matrix
+        def set_identity_matrix(self):
+            for row in range(4):
+                for col in range(4):
+                    if row == col:
+                        self.set_item(row,col, 1)
+                        continue
+                    self.set_item(row, col, 0)
+
+
         # This function sets a matrix of all the same number
         # Parameters:
         # Numerical num is the number that the matrix will contain
@@ -107,16 +117,6 @@ class GameMath():
             for row in range(4):
                 for col in range(4):
                     self.set_item(row, col, m.get_item(row, col))
-
-        # This function prints the current matrix in a more readable format
-        '''Weird bug????  sometimes doesn't populate the 3rd row'''
-        def print_matrix(self):
-            pLine = ''
-            for row in range(4):
-                for col in range(4):
-                    pLine += str(self.get_item(row, col)) + ", "
-                pLine += "\n"
-            print(pLine)
 
         # Changes the value at a given matrix location
         # Parameters:

@@ -8,13 +8,16 @@ class GameMath():
             self.x = x
             self.y = y
 
-        # Calculate the cross product and return a vector
+        # Calculate the dot product between the current vector and another vector and return a scalar value
         # Params:
-        # Vector2 or Vector3 vec1
-        # Vector2 or Vector3 vec2
-        # Returns a Vector
-        def crossProduct(self, v1, v2):
-            return self.Vector2((v1.x * v2.y) - (v1.y * v2.x), (v1.y * v2.w) - (v1.w * v2.y), (v1.w * v2.x) - (v1.x * v2.w))
+        # Vector2 vec2
+        # Returns a scalar value
+        def dotProduct(self, vec2):
+            return (self.x * vec2.x) + (self.y * vec2.y)
+
+        # Is this possible?
+        # def crossProduct(self, v2):
+        #     return GameMath.Vector2(0,(self.y * v2.x) - (self.x - v2.y), (self.x * v2.y) - (self.y - v2.x))
 
     # Has 4 coordinates, where w  is the homogenous value and x,y, and z are the coordinates of the vector.
     class Vector3(): 
@@ -24,8 +27,15 @@ class GameMath():
             self.y = y
             self.z = z
 
-        def crossProduct(self, v1, v2):
-            return self.Vector2((v1.x * v2.y) - (v1.y * v2.x), (v1.y * v2.z) - (v1.z * v2.y), (v1.z * v2.x) - (v1.x * v2.z))
+        # Calculate the dot product and return a scalar value
+        # Params:
+        # Vector3 vec2
+        # Returns a scalar value
+        def dotProduct(self, vec2):
+            return (self.x * vec2.x) + (self.y * vec2.y) + (self.z * vec2.z)
+
+        def crossProduct(self, v2):
+            return GameMath.Vector3(0,(self.x * v2.y) - (self.y * v2.x), (self.y * v2.z) - (self.z * v2.y), (self.z * v2.x) - (self.x * v2.z))
 
     
     # Data structure for 4x4 matrix of numbers
@@ -138,19 +148,18 @@ class GameMath():
                     newM.set_item(row, col, (self.get_item(row, col) - m.get_item(row, col)))
             return newM
 
-
-    # Calculate the dot product and return a scalar value
+    # Calculate the cross product and return a vector
     # Params:
     # Vector2 or Vector3 vec1
     # Vector2 or Vector3 vec2
-    # Returns a scalar value
-    def dotProduct(self, vec1, vec2):
-        lastParam = (vec1.z * vec2.z) if hasattr(vec1, 'z') and hasattr(vec2, 'z') else 0
-        return (vec1.w * vec2.w) + (vec1.x * vec2.x) + (vec1.y * vec2.y) + lastParam
+    # Returns a Vector
+    # def crossProduct(self, v1, v2):
+    #     return self.Vector3(0,(v1.x * v2.y) - (v1.y * v2.x), (v1.y * v2.z) - (v1.z * v2.y), (v1.z * v2.x) - (v1.x * v2.z))
+
 
     #determine if two vectors have the same values
     def v_is_equal(self, v1, v2):
-        return
+        return v1.w == v2.w and v1.x == v2.x and v1.y == v2.y
 
     #find the magnitude of a vector
     def magnitude(self, v):

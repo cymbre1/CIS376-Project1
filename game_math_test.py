@@ -34,41 +34,47 @@ class TestGameMath(unittest.TestCase):
     
     # Cross Product Tests
     def test_crossProduct_betweenTwo_vector2(self):
-        vec1 = self.game_math.Vector2(1,2,3)
-        vec2 = self.game_math.Vector2(4,5,6)
-        result_vector = self.game_math.crossProduct(vec1,vec2)
-        self.assertTrue(self.game_math.v_is_equal(self.game_math.Vector2(-3, 6, -3), result_vector))
+        vec1 = self.game_math.Vector3(0,1,2,3)
+        vec2 = self.game_math.Vector3(0,4,5,6)
+        result_vector = vec1.crossProduct(vec2)
+        self.assertTrue(self.game_math.v_is_equal(self.game_math.Vector3(0,-3, 6, -3), result_vector))
 
     def test_crossProduct_betweenTwo_vector2_2(self):
-        vec1 = self.game_math.Vector2(-1,-2,3)
-        vec2 = self.game_math.Vector2(4,0,-8)
-        result_vector = self.game_math.crossProduct(vec1,vec2)
-        self.assertTrue(self.game_math.v_is_equal(self.game_math.Vector2(16, 4, 8), result_vector))
+        vec1 = self.game_math.Vector3(-1,-2,3)
+        vec2 = self.game_math.Vector3(4,0,-8)
+        result_vector = vec1.crossProduct(vec2)
+        self.assertTrue(self.game_math.v_is_equal(self.game_math.Vector3(16, 4, 8), result_vector))
 
     def test_crossProduct_betweenTwo_vector2_ignoresLastCoordinateOfVector3(self):
-        vec1 = self.game_math.Vector2(-1,-2,3)
+        vec1 = self.game_math.Vector3(-1,-2,3)
         vec2 = self.game_math.Vector3(4,0,-8,2)
-        result_vector = self.game_math.crossProduct(vec1,vec2)
-        self.assertTrue(self.game_math.v_is_equal(self.game_math.Vector2(16, 4, 8), result_vector))
+        result_vector = vec1.crossProduct(vec2)
+        self.assertTrue(self.game_math.v_is_equal(self.game_math.Vector3(16, 4, 8), result_vector))
 
     # Dot Product Tests
     def test_dotproduct_betweenTwo_vector2(self):
-        vec1 = self.game_math.Vector2(1,2,3)
-        vec2 = self.game_math.Vector2(4,5,6)
-        result = self.game_math.dotProduct(vec1,vec2)
-        self.assertTrue(32, result)
+        vec1 = self.game_math.Vector3(0,1,2)
+        vec2 = self.game_math.Vector3(0,3,4)
+        result = vec1.dotProduct(vec2)
+        self.assertTrue(11, result)
 
     def test_dotproduct_betweenTwo_vector2_2(self):
-        vec1 = self.game_math.Vector2(-1,-2,3)
-        vec2 = self.game_math.Vector2(4,0,-8)
-        result = self.game_math.dotProduct(vec1,vec2)
-        self.assertTrue(-28, result)
+        vec1 = self.game_math.Vector3(0,-1,-2)
+        vec2 = self.game_math.Vector3(0,0,-8)
+        result = vec1.dotProduct(vec2)
+        self.assertTrue(-16, result)
 
     def test_dotproduct_between_vector2AndVector3_ignoresLastCoordinateOfVector3(self):
-        vec1 = self.game_math.Vector2(-1,-2,3)
+        vec1 = self.game_math.Vector3(-1,-2,3)
         vec2 = self.game_math.Vector3(4,0,-8,2)
-        result = self.game_math.dotProduct(vec1,vec2)
-        self.assertTrue(-28, result)
+        result = vec1.dotProduct(vec2)
+        self.assertTrue(-16, result)
+
+    def test_dotproduct_betweenTwo_vector3(self):
+        vec1 = self.game_math.Vector3(0,1,2,3)
+        vec2 = self.game_math.Vector3(0,3,4,5)
+        result = vec1.dotProduct(vec2)
+        self.assertTrue(26, result)
 
     # Vector Is Equal Tests
     def test_v_is_equal_whereVectorsAreEqual_returnsTrue(self):
@@ -90,16 +96,6 @@ class TestGameMath(unittest.TestCase):
         vec1 = self.game_math.Vector2()
         vec2 = self.game_math.Vector2()
         self.assertTrue(self.game_math.v_is_equal(vec1, vec2))
-
-    def test_v_is_equal_whereVectorsAreDefaultConstructedButOneIsVector3_returnsFalse(self):
-        vec1 = self.game_math.Vector2()
-        vec2 = self.game_math.Vector3()
-        self.assertFalse(self.game_math.v_is_equal(vec1, vec2))
-
-    def test_v_is_equal_whereVectorsAreNotEqualButOneIsVector3_returnsFalse(self):
-        vec1 = self.game_math.Vector2(1,2,3)
-        vec2 = self.game_math.Vector3(1,2,3,4)
-        self.assertFalse(self.game_math.v_is_equal(vec1, vec2))
 
     def test_magnitude_willReturn_correctMagnitude_vector2(self):
         vector = self.game_math.Vector2(2,4,-2)

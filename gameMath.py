@@ -18,7 +18,7 @@ class GameMath():
         #find the magnitude of a vector
         def magnitude(self):
             return math.sqrt((self.x * self.x) + (self.y * self.y))
-        
+
         def large_magnitude(self):
             return (self.x * self.x) + (self.y * self.y)
         
@@ -38,6 +38,8 @@ class GameMath():
             return self.w == v.w and self.x == v.x and self.y == v.y
         # This function needs to be able to find the angle between 2 vectors *******************************************************************
         def find_angle(self, v):
+            step1 = self.dotProduct(v)
+            step2 = step1 / self.magnitude() * v.magnitude() 
             return
 
         #normalize a vector

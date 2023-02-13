@@ -118,6 +118,27 @@ class TestVectors(unittest.TestCase):
         expected_result = math.sqrt(10)
         self.assertEqual(expected_result, vector.magnitude())
 
+    # Magnitude Without Square Root Tests
+    def test_large_magnitude_willReturn_correctMagnitude_vector2(self):
+        vector = self.game_math.Vector2(4,-2,0)
+        expected_result = 20
+        self.assertEqual(expected_result, vector.large_magnitude())
+
+    def test_large_magnitude_willReturn_correctMagnitude_vector2_2(self):
+        vector = self.game_math.Vector2(0,-3, 0)
+        self.assertEqual(9, vector.large_magnitude())
+
+    def test_large_magnitude_willReturn_correctMagnitude_vector3(self):
+        vector = self.game_math.Vector3(2,4,-2, 0)
+        expected_result = 24
+        blah = vector.large_magnitude()
+        self.assertEqual(expected_result, blah)
+
+    def test_large_magnitude_willReturn_correctMagnitude_vector3_2(self):
+        vector = self.game_math.Vector3(1,0,-3,0)
+        expected_result = 10
+        self.assertEqual(expected_result, vector.large_magnitude())
+
     # Normalize Tests
     def test_normalize_3d_vector(self):
         vector = self.game_math.Vector3(3,2,-1,1)

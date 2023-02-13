@@ -3,7 +3,7 @@ class GameMath():
 
      # Has 3 coordinates, where w is the homogenous value and x and y are the coordinates of the vector
     class Vector2():
-        def __init__(self, w = 0, x = 0, y = 0):
+        def __init__(self, x = 0, y = 0 , w = 0):
             self.w = w
             self.x = x
             self.y = y
@@ -12,81 +12,82 @@ class GameMath():
         # Params:
         # Vector2 vec2
         # Returns a scalar value
-        def dotProduct(self, vec2):
-            return (self.x * vec2.x) + (self.y * vec2.y)
+        def dotProduct(self, vec):
+            return (self.x * vec.x) + (self.y * vec.y)
         
         #find the magnitude of a vector
         def magnitude(self):
-            if self.w == 1:
-                return 0
             return math.sqrt((self.x * self.x) + (self.y * self.y))
+        
+        def large_magnitude(self):
+            return (self.x * self.x) + (self.y * self.y)
         
         #add two vectors
         def add(self, v):
-            return GameMath.Vector2((self.w + v.w) % 2 ,self.x + v.x, self.y + v.y)
+            return GameMath.Vector2(self.x + v.x, self.y + v.y, (self.w + v.w) % 2)
 
         #subtract two vectors
         def sub(self, v):
-            return GameMath.Vector2((self.w - v.w) % 2 ,self.x - v.x , self.y - v.y)
+            return GameMath.Vector2(self.x - v.x , self.y - v.y, (self.w - v.w) % 2)
 
         # Is this possible?
         def crossProduct(self, v):
-            return GameMath.Vector2(self.w * v.w, self.x * v.x, self.y * v.y)
+            return GameMath.Vector2(self.x * v.x, self.y * v.y, self.w * v.w)
         
         def is_equal(self, v):
             return self.w == v.w and self.x == v.x and self.y == v.y
-        
+        # This function needs to be able to find the angle between 2 vectors *******************************************************************
         def find_angle(self, v):
             return
-
-        def magnitude(self):
-            return math.sqrt((self.x * self.x) + (self.y * self.y))
 
         #normalize a vector
         def normalize(self):
             vector_magnitude = self.magnitude()
-            return GameMath.Vector2(1, self.x/vector_magnitude,  self.y/vector_magnitude)
+            return GameMath.Vector2(self.x/vector_magnitude,  self.y/vector_magnitude, 1)
 
     # Has 4 coordinates, where w  is the homogenous value and x,y, and z are the coordinates of the vector.
     class Vector3(): 
-        def __init__(self, w = 0, x = 0, y = 0, z = 0):
+        def __init__(self, x = 0, y = 0, z = 0, w = 0):
             self.w = w
             self.x = x
             self.y = y
             self.z = z
 
         def iterable_vec(self):
-            return [self.w, self.x, self.y, self.z]
+            return [self.x, self.y, self.z, self.w]
 
         # Calculate the dot product and return a scalar value
         # Params:
         # Vector3 vec2
         # Returns a scalar value
-        def dotProduct(self, vec2):
-            return (self.x * vec2.x) + (self.y * vec2.y) + (self.z * vec2.z)
+        def dotProduct(self, vec):
+            return (self.x * vec.x) + (self.y * vec.y) + (self.z * vec.z)
 
-        def crossProduct(self, v2):
-            return GameMath.Vector3(0, (self.y * v2.z) - (self.z * v2.y), (self.z * v2.x) - (self.x * v2.z), (self.x * v2.y) - (self.y * v2.x),)
+        def crossProduct(self, v):
+            return GameMath.Vector3((self.y * v.z) - (self.z * v.y), (self.z * v.x) - (self.x * v.z), (self.x * v.y) - (self.y * v.x), 0)
 
-        def is_equal(self, v2):
-            return self.x == v2.x and self.y == v2.y and self.z == v2.z and self.w == self.w
+        def is_equal(self, v):
+            return self.x == v.x and self.y == v.y and self.z == v.z and self.w == self.w
 
         #find the magnitude of a vector
         def magnitude(self):
             return math.sqrt((self.x * self.x) + (self.y * self.y) + (self.z * self.z))
 
+        # find the magnitude without square root
+        def large_magnitude(self):
+            return (self.x * self.x) + (self.y * self.y) + (self.z * self.z)
         #normalize a vector
         def normalize(self):
             vector_magnitude = self.magnitude()
-            return GameMath.Vector3(1, self.x/vector_magnitude,  self.y/vector_magnitude, self.z/vector_magnitude)
+            return GameMath.Vector3(self.x/vector_magnitude,  self.y/vector_magnitude, self.z/vector_magnitude, 1)
 
         #add two vectors
         def add(self, v):
-            return GameMath.Vector3((self.w + v.w) % 2 ,self.x + v.x, self.y + v.y, self.z + v.z)
+            return GameMath.Vector3(self.x + v.x, self.y + v.y, self.z + v.z, (self.w + v.w) % 2)
 
         #subtract two vectors
         def sub(self, v):
-            return GameMath.Vector3((self.w - v.w) % 2 ,self.x - v.x , self.y - v.y, self.z - v.z)
+            return GameMath.Vector3(self.x - v.x , self.y - v.y, self.z - v.z, (self.w - v.w) % 2)
 
         def cross_multiply(self, m):
             result_list = [0,0,0,0]
@@ -97,6 +98,9 @@ class GameMath():
                         result_list[col] += m.get_item(row, col) * a
 
             return GameMath.vec_from_list(result_list)
+            #result_list  = [0,0,0,0]
+            #for row in range(4):
+
 
     # Data structure for 4x4 matrix of numbers
     class Matrix():

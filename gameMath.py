@@ -78,11 +78,11 @@ class GameMath():
             return GameMath.Vector3(1, self.x/vector_magnitude,  self.y/vector_magnitude, self.z/vector_magnitude)
 
         #add two vectors
-        def v_add(self, v):
+        def add(self, v):
             return GameMath.Vector3((self.w + v.w) % 2 ,self.x + v.x, self.y + v.y, self.z + v.z)
 
         #subtract two vectors
-        def v_sub(self, v):
+        def sub(self, v):
             return GameMath.Vector3((self.w - v.w) % 2 ,self.x - v.x , self.y - v.y, self.z - v.z)
 
         def cross_multiply(self, m):

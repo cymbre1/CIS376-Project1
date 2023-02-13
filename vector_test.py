@@ -2,7 +2,7 @@ import gameMath
 import unittest
 import math
 
-class TestGameMath(unittest.TestCase):
+class TestVectors(unittest.TestCase):
     game_math = gameMath.GameMath()
 
     # Vector Tests

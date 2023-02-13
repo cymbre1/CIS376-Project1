@@ -1,3 +1,5 @@
+# Kit Bazner and Cymbre Spoehr
+
 import math
 class GameMath():
 

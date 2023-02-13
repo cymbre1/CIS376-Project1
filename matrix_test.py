@@ -1,3 +1,4 @@
+# Kit Bazner and Cymbre Spoehr
 import gameMath
 import unittest
 import math

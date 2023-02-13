@@ -39,8 +39,8 @@ class GameMath():
         # This function needs to be able to find the angle between 2 vectors *******************************************************************
         def find_angle(self, v):
             step1 = self.dotProduct(v)
-            step2 = step1 / self.magnitude() * v.magnitude() 
-            return
+            step2 = step1 / (self.magnitude() * v.magnitude()) 
+            return math.acos(step2)
 
         #normalize a vector
         def normalize(self):
@@ -78,6 +78,7 @@ class GameMath():
         # find the magnitude without square root
         def large_magnitude(self):
             return (self.x * self.x) + (self.y * self.y) + (self.z * self.z)
+
         #normalize a vector
         def normalize(self):
             vector_magnitude = self.magnitude()
@@ -90,6 +91,12 @@ class GameMath():
         #subtract two vectors
         def sub(self, v):
             return GameMath.Vector3(self.x - v.x , self.y - v.y, self.z - v.z, (self.w - v.w) % 2)
+
+        # This function needs to be able to find the angle between 2 vectors *******************************************************************
+        def find_angle(self, v):
+            step1 = self.dotProduct(v)
+            step2 = step1 / (self.magnitude() * v.magnitude() )
+            return math.acos(step2)
 
         def cross_multiply(self, m):
             result_list = [0,0,0,0]

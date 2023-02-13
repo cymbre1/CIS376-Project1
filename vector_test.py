@@ -222,6 +222,7 @@ class TestVectors(unittest.TestCase):
         result = vec1.sub(vec2)
         self.assertTrue(expected_result.is_equal(result))
 
+    # Cross Multiply Tests
     def test_crossMultiply(self):
         mat = self.game_math.Matrix()
         lst = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]
@@ -230,6 +231,19 @@ class TestVectors(unittest.TestCase):
         expected_result = self.game_math.Vector3(24,64,104,144)
         result = vec1.cross_multiply(mat)
         self.assertTrue(expected_result.is_equal(result))
+
+    def test_angleBetween2dVectors(self):
+        vec1 = self.game_math.Vector2(2,3,1)
+        vec2 = self.game_math.Vector2(4,5,1)
+        expected_result = 0.087
+        self.assertEqual(expected_result, math.ceil(vec1.find_angle(vec2)*1000)/1000)
+
+    def test_angleBetween3dVectors(self):
+        vec1 = self.game_math.Vector3(2,3,4,1)
+        vec2 = self.game_math.Vector3(4,5,6,1)
+        expected_result = 0.104
+        self.assertAlmostEqual(expected_result, math.ceil(vec1.find_angle(vec2)*1000)/1000)
+
 
 
 if __name__ == 'main':

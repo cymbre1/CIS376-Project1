@@ -5,7 +5,7 @@ import math
 class TestVectors(unittest.TestCase):
     game_math = gameMath.GameMath()
 
-    # Vector Tests
+    # Vector Constructor Tests
     def test_vector2_constructor(self):
         vector = self.game_math.Vector2()
         self.assertTrue(vector.w == 0)
@@ -232,6 +232,7 @@ class TestVectors(unittest.TestCase):
         result = vec1.cross_multiply(mat)
         self.assertTrue(expected_result.is_equal(result))
 
+    # Angle between vectors Tests
     def test_angleBetween2dVectors(self):
         vec1 = self.game_math.Vector2(2,3,1)
         vec2 = self.game_math.Vector2(4,5,1)

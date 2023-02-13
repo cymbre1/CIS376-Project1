@@ -10,39 +10,60 @@ class GameMath():
 
         # Calculate the dot product between the current vector and another vector and return a scalar value
         # Params:
-        # Vector2 vec2
-        # Returns a scalar value
+        # Vector2 vec
+        # Returns a scalar value that represents the dotproduct between the given vector and the one passed in
         def dotProduct(self, vec):
             return (self.x * vec.x) + (self.y * vec.y)
         
-        #find the magnitude of a vector
+        # Calculate the magnitude of the given vector
+        # Returns a float representing the magnitude of the vector
         def magnitude(self):
             return math.sqrt((self.x * self.x) + (self.y * self.y))
 
+        # Calculate the magnitude of the given vector without the square root, only to determine which magnitude is larger.
+        # Returns a float representing the magnitude of the vector before you would take the square root.
         def large_magnitude(self):
             return (self.x * self.x) + (self.y * self.y)
         
-        #add two vectors
+        # Adds two vectors and returns another vector that represents the sum of the two
+        # Params
+        # Vector2 v - vector to add to current vector
+        # Returns a new vector that represents the current vector added with the given vector.
         def add(self, v):
             return GameMath.Vector2(self.x + v.x, self.y + v.y, (self.w + v.w) % 2)
 
-        #subtract two vectors
+        # Subtracts two vectors and returns another vector that represents the sum of the two
+        # Params
+        # Vector2 v - vector to subtract frp, current vector
+        # Returns a new vector that represents the current vector subtracted from the given vector.
         def sub(self, v):
             return GameMath.Vector2(self.x - v.x , self.y - v.y, (self.w - v.w) % 2)
 
-        # Is this possible?
+        # Calculates the cross product of two 2d vectors
+        # Params
+        # Vector2 v that is the vector that should be crossed with the current vector.
+        # Returns a new vector that represents the cross product of the two vectors
         def crossProduct(self, v):
             return GameMath.Vector2(self.x * v.x, self.y * v.y, self.w * v.w)
         
+        # Checks to see if two vectors are equal
+        # Params
+        # Vector2 v that is the vector that should be compared with the current vector.
+        # Returns boolean value that represents whether or not the two vectors are equal
         def is_equal(self, v):
             return self.w == v.w and self.x == v.x and self.y == v.y
-        # This function needs to be able to find the angle between 2 vectors *******************************************************************
+        
+        # Finds the angle in radians between two vectors
+        # Params
+        # Vector2 v that is the vector that the angle is being found between the current vector
+        # Returns float value representing the angle between the two vectors
         def find_angle(self, v):
             step1 = self.dotProduct(v)
             step2 = step1 / (self.magnitude() * v.magnitude()) 
             return math.acos(step2)
 
-        #normalize a vector
+        # Normalizes the current vector
+        # Returns a new array that is the normalized version of the current array.
         def normalize(self):
             vector_magnitude = self.magnitude()
             return GameMath.Vector2(self.x/vector_magnitude,  self.y/vector_magnitude, 1)

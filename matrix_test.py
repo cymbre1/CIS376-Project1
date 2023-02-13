@@ -118,3 +118,43 @@ class TestMatrix(unittest.TestCase):
         matResult.set_list_matrix([993,419,238,47,2337,911,498,123,3681,1403,758,199,5025,1895,1018,275])
         mat = mat.multiply(mat2)
         self.assertTrue(mat.is_equal(matResult))
+
+    def test_add(self):
+        mat = self.game_math.Matrix()
+        mat2 = self.game_math.Matrix()
+        matResult = self.game_math.Matrix()
+        mat.set_list_matrix([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16])
+        mat2.copy_matrix(mat)
+        matResult.set_list_matrix([2,4,6,8,10,12,14,16,18,20,22,24,26,28,30,32])
+        mat = mat.add(mat2)
+        self.assertTrue(mat.is_equal(matResult))
+    
+    def test_add_negatives(self):
+        mat = self.game_math.Matrix()
+        mat2 = self.game_math.Matrix()
+        matResult = self.game_math.Matrix()
+        mat.set_list_matrix([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16])
+        mat2.set_single_matrix(-5)
+        matResult.set_list_matrix([-4,-3,-2,-1,0,1,2,3,4,5,6,7,8,9,10,11])
+        mat = mat.add(mat2)
+        self.assertTrue(mat.is_equal(matResult))
+    
+    def test_subtract(self):
+        mat = self.game_math.Matrix()
+        mat2 = self.game_math.Matrix()
+        matResult = self.game_math.Matrix()
+        mat.set_list_matrix([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16])
+        mat2.copy_matrix(mat)
+        matResult.set_single_matrix(0)
+        mat = mat.sub(mat2)
+        self.assertTrue(mat.is_equal(matResult))
+    
+    def test_subtract_negative(self):
+        mat = self.game_math.Matrix()
+        mat2 = self.game_math.Matrix()
+        matResult = self.game_math.Matrix()
+        mat.set_list_matrix([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16])
+        mat2.set_list_matrix([-1,-2,-3,-4,-5,-6,-7,-8,-9,-10,-11,-12,-13,-14,-15,-16])
+        matResult.set_list_matrix([2,4,6,8,10,12,14,16,18,20,22,24,26,28,30,32])
+        mat = mat.sub(mat2)
+        self.assertTrue(mat.is_equal(matResult))

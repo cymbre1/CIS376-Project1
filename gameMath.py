@@ -69,56 +69,80 @@ class GameMath():
             return GameMath.Vector2(self.x/vector_magnitude,  self.y/vector_magnitude, 1)
 
     # Has 4 coordinates, where w  is the homogenous value and x,y, and z are the coordinates of the vector.
-    class Vector3(): 
+    class Vector3():
+        # Constructor for Vector 3.  Values default to 0
         def __init__(self, x = 0, y = 0, z = 0, w = 0):
             self.w = w
             self.x = x
             self.y = y
             self.z = z
 
+        # This function returns the vector as an iterable list
         def iterable_vec(self):
             return [self.x, self.y, self.z, self.w]
 
-        # Calculate the dot product and return a scalar value
+        # Calculates the dot product and return a scalar value
         # Params:
-        # Vector3 vec2
+        # Vector3 vec is the vector that is multiplied into the dot product
         # Returns a scalar value
         def dotProduct(self, vec):
             return (self.x * vec.x) + (self.y * vec.y) + (self.z * vec.z)
-
+        
+        # Calculates the cross product and returns the vector
+        # Params
+        # Vector3 v is the vector that is multiplied
+        # Returns a Vector3
         def crossProduct(self, v):
             return GameMath.Vector3((self.y * v.z) - (self.z * v.y), (self.z * v.x) - (self.x * v.z), (self.x * v.y) - (self.y * v.x), 0)
 
+        # Determines if two vectors are the same
+        # Parameters:
+        # Vector3 v is the vector being compared to
+        # Returns bool whether vectors are equal
         def is_equal(self, v):
             return self.x == v.x and self.y == v.y and self.z == v.z and self.w == self.w
 
-        #find the magnitude of a vector
+        # finds the precise magnitude of the vector
         def magnitude(self):
             return math.sqrt((self.x * self.x) + (self.y * self.y) + (self.z * self.z))
 
-        # find the magnitude without square root
+        # finds the magnitude without square root
         def large_magnitude(self):
             return (self.x * self.x) + (self.y * self.y) + (self.z * self.z)
 
-        #normalize a vector
+        # normalizes the vector
+        # Returns a new Vector3 as the normalized vector
         def normalize(self):
             vector_magnitude = self.magnitude()
             return GameMath.Vector3(self.x/vector_magnitude,  self.y/vector_magnitude, self.z/vector_magnitude, 1)
 
-        #add two vectors
+        # Adds two vectors
+        # Parameters:
+        # Vector3 v is the vector being added
+        # Returns a new vector with added values
         def add(self, v):
             return GameMath.Vector3(self.x + v.x, self.y + v.y, self.z + v.z, (self.w + v.w) % 2)
 
-        #subtract two vectors
+        # Subtracts two vectors
+        # Parameters:
+        # Vector3 v is the vector being subtracted
+        # Returns a new vector with subtracted values
         def sub(self, v):
             return GameMath.Vector3(self.x - v.x , self.y - v.y, self.z - v.z, (self.w - v.w) % 2)
 
-        # This function needs to be able to find the angle between 2 vectors *******************************************************************
+        # Finds the angle between 2 vectors
+        # Parameters:
+        # Vector3 v is the vector we find the angle between
+        # returns an angle measurement in radians
         def find_angle(self, v):
             step1 = self.dotProduct(v)
             step2 = step1 / (self.magnitude() * v.magnitude() )
             return math.acos(step2)
-
+        
+        # Multiplies the vector by a transformation matrix
+        # Parameters:
+        # Matrix m is the matrix multiplying the vector
+        # Returns a new vector with multiplied
         def cross_multiply(self, m):
             result_list = [0,0,0,0]
             usable_vector = self.iterable_vec()
@@ -127,7 +151,7 @@ class GameMath():
                 for col in range(4):
                     result += usable_vector[col] * m.get_item(row, col)
                 result_list[row] = result
-            return GameMath.vec_from_list(result_list)
+            return GameMath.Vector3(result_list[0], result_list[1], result_list[2], result_list[3])
 
 
     # Data structure for 4x4 matrix of numbers
@@ -238,7 +262,3 @@ class GameMath():
                 for col in range(4):
                     newM.set_item(row, col, (self.get_item(row, col) - m.get_item(row, col)))
             return newM
-
-
-    def vec_from_list(list):
-        return GameMath.Vector3(list[0], list[1], list[2], list[3])

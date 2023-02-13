@@ -100,3 +100,21 @@ class TestMatrix(unittest.TestCase):
         mat = self.game_math.Matrix()
         mat.set_list_matrix([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16])
         self.assertTrue(mat.get_item(3,0) == 13)
+
+    def test_multiply(self):
+        mat = self.game_math.Matrix()
+        matResult = self.game_math.Matrix()
+        mat.set_list_matrix([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16])
+        matResult.set_list_matrix([90,100,110,120,202,228,254,280,314,356,398,440,426,484,542,600])
+        mat = mat.multiply(mat)
+        self.assertTrue(mat.is_equal(matResult))
+
+    def test_ordered_multiply(self):
+        mat = self.game_math.Matrix()
+        mat2 = self.game_math.Matrix()
+        matResult = self.game_math.Matrix()
+        mat.set_list_matrix([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16])
+        mat2.set_list_matrix([7,8,4,6,5,2,1,2,320,45,8,7,4,68,52,4])
+        matResult.set_list_matrix([993,419,238,47,2337,911,498,123,3681,1403,758,199,5025,1895,1018,275])
+        mat = mat.multiply(mat2)
+        self.assertTrue(mat.is_equal(matResult))

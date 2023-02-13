@@ -22,18 +22,21 @@ class GameMath():
             return math.sqrt((self.x * self.x) + (self.y * self.y))
         
         #add two vectors
-        def v_add(self, v):
+        def add(self, v):
             return GameMath.Vector2((self.w + v.w) % 2 ,self.x + v.x, self.y + v.y)
         #subtract two vectors
-        def v_sub(self, v):
+        def sub(self, v):
             return GameMath.Vector2((self.w - v.w) % 2 ,self.x - v.x , self.y - v.y)
 
         # Is this possible?
         def crossProduct(self, v):
             return GameMath.Vector2(self.w * v.w, self.x * v.x, self.y * v.y)
         
-        def v_is_equal(self, v):
+        def is_equal(self, v):
             return self.w == v.w and self.x == v.x and self.y == v.y
+        
+        def find_angle(self, v):
+            return
 
         def magnitude(self):
             return math.sqrt((self.x * self.x) + (self.y * self.y))
@@ -61,7 +64,7 @@ class GameMath():
         def crossProduct(self, v2):
             return GameMath.Vector3(0, (self.y * v2.z) - (self.z * v2.y), (self.z * v2.x) - (self.x * v2.z), (self.x * v2.y) - (self.y * v2.x),)
 
-        def v_is_equal(self, v2):
+        def is_equal(self, v2):
             return self.x == v2.x and self.y == v2.y and self.z == v2.z and self.w == self.w
 
         #find the magnitude of a vector
@@ -180,11 +183,11 @@ class GameMath():
 
     #normalize a vector
     #add two vectors
-    def v_add(self, v1, v2):
+    def add(self, v1, v2):
         return
 
     #subtract two vectors
-    def v_sub(self, v1, v2):
+    def sub(self, v1, v2):
         return
 
     #calculate the angle between two vectors

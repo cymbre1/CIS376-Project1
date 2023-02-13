@@ -14,10 +14,26 @@ class GameMath():
         # Returns a scalar value
         def dotProduct(self, vec2):
             return (self.x * vec2.x) + (self.y * vec2.y)
+        
+        #find the magnitude of a vector
+        def magnitude(self):
+            if self.w == 1:
+                return 0
+            return math.sqrt((self.x * self.x) + (self.y * self.y))
+        
+        #add two vectors
+        def v_add(self, v):
+            return GameMath.Vector2((self.w + v.w) % 2 ,self.x + v.x, self.y + v.y)
+        #subtract two vectors
+        def v_sub(self, v):
+            return GameMath.Vector2((self.w - v.w) % 2 ,self.x - v.x , self.y - v.y)
 
         # Is this possible?
-        # def crossProduct(self, v2):
-        #     return GameMath.Vector2(0,(self.y * v2.x) - (self.x - v2.y), (self.x * v2.y) - (self.y - v2.x))
+        def crossProduct(self, v):
+            return GameMath.Vector2(self.w * v.w, self.x * v.x, self.y * v.y)
+        
+        def v_is_equal(self, v):
+            return self.w == v.w and self.x == v.x and self.y == v.y
 
     # Has 4 coordinates, where w  is the homogenous value and x,y, and z are the coordinates of the vector.
     class Vector3(): 

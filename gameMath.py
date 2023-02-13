@@ -35,6 +35,14 @@ class GameMath():
         def v_is_equal(self, v):
             return self.w == v.w and self.x == v.x and self.y == v.y
 
+        def magnitude(self):
+            return math.sqrt((self.x * self.x) + (self.y * self.y))
+
+        #normalize a vector
+        def normalize(self):
+            vector_magnitude = self.magnitude(self)
+            return self.Vector3(1, self.x/vector_magnitude,  self.y/vector_magnitude, self.z/vector_magnitude)
+
     # Has 4 coordinates, where w  is the homogenous value and x,y, and z are the coordinates of the vector.
     class Vector3(): 
         def __init__(self, w = 0, x = 0, y = 0, z = 0):
@@ -59,13 +67,6 @@ class GameMath():
         #find the magnitude of a vector
         def magnitude(self):
             return math.sqrt((self.x * self.x) + (self.y * self.y) + (self.z * self.z))
-
-        #normalize a vector
-        def normalize(self):
-            vector_magnitude = self.magnitude(self)
-            return self.Vector3(1, self.x/vector_magnitude,  self.y/vector_magnitude, self.z/vector_magnitude)
-
-
     
     # Data structure for 4x4 matrix of numbers
     class Matrix():

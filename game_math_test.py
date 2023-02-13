@@ -98,14 +98,15 @@ class TestGameMath(unittest.TestCase):
         self.assertTrue(vec1.v_is_equal(vec2))
 
     def test_magnitude_willReturn_correctMagnitude_vector2(self):
-        vector = self.game_math.Vector2(2,4,-2)
-        expected_result = 2 * math.sqrt(6)
-        self.assertAlmostEquals(expected_result, self.game_math.magnitude(vector))
+        vector = self.game_math.Vector3(0, 2,4,-2)
+        expected_result = math.sqrt(24)
+        blah = vector.magnitude()
+        self.assertEqual(expected_result, blah)
 
     def test_magnitude_willReturn_correctMagnitude_vector2_2(self):
-        vector = self.game_math.Vector2(1,0,-3)
+        vector = self.game_math.Vector3(0, 1,0,-3)
         expected_result = math.sqrt(10)
-        self.assertAlmostEquals(expected_result, self.game_math.magnitude(vector))
+        self.assertAlmostEquals(expected_result, vector.magnitude())
 
 if __name__ == 'main':
     unittest.main()

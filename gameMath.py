@@ -51,7 +51,20 @@ class GameMath():
             return (self.x * vec2.x) + (self.y * vec2.y) + (self.z * vec2.z)
 
         def crossProduct(self, v2):
-            return GameMath.Vector3(0,(self.x * v2.y) - (self.y * v2.x), (self.y * v2.z) - (self.z * v2.y), (self.z * v2.x) - (self.x * v2.z))
+            return GameMath.Vector3(0, (self.y * v2.z) - (self.z * v2.y), (self.z * v2.x) - (self.x * v2.z), (self.x * v2.y) - (self.y * v2.x),)
+
+        def v_is_equal(self, v2):
+            return self.x == v2.x and self.y == v2.y and self.z == v2.z and self.w == self.w
+
+        #find the magnitude of a vector
+        def magnitude(self):
+            return math.sqrt((self.x * self.x) + (self.y * self.y) + (self.z * self.z))
+
+        #normalize a vector
+        def normalize(self):
+            vector_magnitude = self.magnitude(self)
+            return self.Vector3(1, self.x/vector_magnitude,  self.y/vector_magnitude, self.z/vector_magnitude)
+
 
     
     # Data structure for 4x4 matrix of numbers
@@ -164,29 +177,7 @@ class GameMath():
                     newM.set_item(row, col, (self.get_item(row, col) - m.get_item(row, col)))
             return newM
 
-    # Calculate the cross product and return a vector
-    # Params:
-    # Vector2 or Vector3 vec1
-    # Vector2 or Vector3 vec2
-    # Returns a Vector
-    # def crossProduct(self, v1, v2):
-    #     return self.Vector3(0,(v1.x * v2.y) - (v1.y * v2.x), (v1.y * v2.z) - (v1.z * v2.y), (v1.z * v2.x) - (v1.x * v2.z))
-
-
-    #determine if two vectors have the same values
-    def v_is_equal(self, v1, v2):
-        return v1.w == v2.w and v1.x == v2.x and v1.y == v2.y
-
-    #find the magnitude of a vector
-    def magnitude(self, v):
-        return math.sqrt((v.w * v.w) + (v.x * v.x) + (v.y * v.y))
-        
-
     #normalize a vector
-    def normalize(self, v):
-        vector_magnitude = self.magnitude(v)
-        return self.Vector3(v.w/vector_magnitude, v.x/vector_magnitude, v.y/vector_magnitude, v.z/vector_magnitude) if hasattr(v, 'z') else self.Vector2(v.w/vector_magnitude, v.x/vector_magnitude, v.y/vector_magnitude)
-
     #add two vectors
     def v_add(self, v1, v2):
         return

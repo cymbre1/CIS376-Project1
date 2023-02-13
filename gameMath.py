@@ -55,6 +55,9 @@ class GameMath():
             self.y = y
             self.z = z
 
+        def iterable_vec(self):
+            return [self.w, self.x, self.y, self.z]
+
         # Calculate the dot product and return a scalar value
         # Params:
         # Vector3 vec2
@@ -86,13 +89,14 @@ class GameMath():
             return GameMath.Vector3((self.w - v.w) % 2 ,self.x - v.x , self.y - v.y, self.z - v.z)
 
         def cross_multiply(self, m):
-            result_vector = GameMath.Vector3(0,0,0,0)
-            for col in range(4):
-                result_vector.x += self.x  * m.get_item(0, col)
-                result_vector.y += self.y * m.get_item(1, col)
-                result_vector.z += self.z * m.get_item(2, col)
-                result_vector.w += self.w * m.get_item(3, col)
-            return result_vector
+            result_list = [0,0,0,0]
+            usable_vector = self.iterable_vec()
+            for row in range(3):
+                for col in range(3):
+                    for a in usable_vector:
+                        result_list[col] += m.get_item(row, col) * a
+
+            return GameMath.vec_from_list(result_list)
 
     # Data structure for 4x4 matrix of numbers
     class Matrix():
@@ -202,3 +206,7 @@ class GameMath():
                 for col in range(4):
                     newM.set_item(row, col, (self.get_item(row, col) - m.get_item(row, col)))
             return newM
+
+
+    def vec_from_list(list):
+        return GameMath.Vector3(list[0], list[1], list[2], list[3])

@@ -42,16 +42,16 @@ class Game_objects:
         print("initialized")
 
     class updateable(pygame.sprite.DirtySprite):
-        def __init__():
+        def __init__(self):
             print("initialize")
             # self.update
     
     class drawable(pygame.sprite.DirtySprite):
-        def __init__():
+        def __init__(self):
             print("initialize")
     
     class drawupdateable(pygame.sprite.DirtySprite):
-        def __init__():
+        def __init__(self):
             print("initialized")
 
 class Scene:
@@ -69,3 +69,6 @@ class Scene:
     
     def fill_color(self, red, green, blue):
         self.screen.fill((red, green, blue))
+
+    def add(self, showed):
+        self.screen.blit(showed.surf, (showed.x, showed.y))

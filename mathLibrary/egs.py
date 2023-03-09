@@ -69,7 +69,8 @@ class Game_objects:
         print("initialized")
     class updateable:
         def __init__():
-            self.
+            print("initialize")
+            # self.update
 
 class Scene:
     #initializer, name, 

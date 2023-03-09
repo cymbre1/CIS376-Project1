@@ -9,8 +9,12 @@ class Engine:
         self.framerate = rate
         self.frameMili = 1000 // self.framerate
 
+        pygame.init()
+
         self.screen = Scene("Temp")
         self.screen.fill_color(255, 255, 255)
+
+        pygame.key.set_repeat(500)
 
         self.gameOn = True
     
@@ -26,15 +30,13 @@ class Engine:
 
             self.screen.update()
 
-            pygame.display.flip()
-
             self.delta = pygame.time.get_ticks() - elapsed
             difference = self.frameMili - self.delta
             pygame.time.delay(difference)
+        pygame.quit()
     
     def endGame(self):
         self.gameOn = False
-        pygame.quit()
 
 class Game_objects:
     #initializer, drawable, updateable, both
@@ -43,16 +45,15 @@ class Game_objects:
 
     class updateable(pygame.sprite.DirtySprite):
         def __init__(self):
-            print("initialize")
-            # self.update
+            super().__init__()
     
     class drawable(pygame.sprite.DirtySprite):
         def __init__(self):
-            print("initialize")
+            super().__init__()
     
     class drawupdateable(pygame.sprite.DirtySprite):
         def __init__(self):
-            print("initialized")
+            super().__init__()
 
 class Scene:
     #initializer, name, 
@@ -66,9 +67,12 @@ class Scene:
     def update(self):
         for item in self.updateables:
             item.update()
+        for item in self.drawables:
+            self.screen.blit(item.surf, item.body.position)
+        pygame.display.flip()
     
     def fill_color(self, red, green, blue):
         self.screen.fill((red, green, blue))
 
     def add(self, showed):
-        self.screen.blit(showed.surf, (showed.x, showed.y))
+        self.screen.blit(showed.surf, showed.body.position)

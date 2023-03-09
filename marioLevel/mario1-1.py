@@ -1,8 +1,13 @@
+#!/usr/bin/env python
 import pygame
 
 import sys
-sys.path.append('../mathLibrary')
-import mathLibrary.egs as Engine
+from Box2D.b2 import *
 
-engine = Engine()
+import egs
 
+engine = egs.Engine("Mario 1-1")
+
+scene = egs.Scene("Scene 1")
+
+engine.start_game()

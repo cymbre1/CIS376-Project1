@@ -46,7 +46,7 @@ class Ground(egs.Game_objects.drawable):
         self.surf = pygame.Surface((2*w*b2w, 2*h*b2w))
         self.surf.fill(color)
         self.rect = self.surf.get_rect()
-        self.rect.center = self.body.position.x *b2w, (720-self.body.position.y * b2w)
+        self.rect.center = self.body.position.x *b2w, (768-self.body.position.y * b2w)
 
 class Koopa(egs.Game_objects.drawupdateable):
     color = (255,0,0)
@@ -101,7 +101,7 @@ class SuperMario(egs.Game_objects.drawupdateable):
         pygame.draw.rect(self.surf, (255,0,0), self.rect)
 
     def update(self):
-        self.rect.center = (self.body.position[0] *b2w, 720 - self.body.position[1]*b2w)
+        self.rect.center = (self.body.position[0] *b2w, 768 - self.body.position[1]*b2w)
         #collided = pygame.sprite.spritecollide(self, groundGroup, False)
         print("mario")
 

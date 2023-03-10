@@ -61,7 +61,7 @@ class Scene:
         self.name = identifier
         self.drawables = []
         self.updateables = []
-        self.screen = pygame.display.set_mode((720, 720))
+        self.screen = pygame.display.set_mode((1024,768))
         self.screen.fill((255, 255, 255))
     
     def update(self):

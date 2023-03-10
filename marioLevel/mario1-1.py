@@ -102,12 +102,12 @@ class SuperMario(egs.Game_objects.drawupdateable):
     def update(self):
         self.rect.center = (self.body.position[0] *b2w, 768 - self.body.position[1]*b2w)
         #collided = pygame.sprite.spritecollide(self, groundGroup, False)
-        for event in engine.events:
+        for event in egs.Engine.events:
             print("event exists")
             if event.type == pygame.KEYDOWN:
                 print("key pressed")
                 if event.key == pygame.K_a:
-                    self.body.ApplyLinearImpulse(b2Vec2(-0.5, 0), self.body.position, True)
+                    self.body.ApplyLinearImpulse(b2Vec2(-.5, 0), self.body.position, True)
                     print("a pressed")
 
 

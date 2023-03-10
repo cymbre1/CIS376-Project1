@@ -39,13 +39,15 @@ class Engine:
             elapsed = pygame.time.get_ticks()
 
 
-            self.events = pygame.event.get()
+            Engine.events = pygame.event.get()
             for event in self.events:
                 if event.type == QUIT:
                     self.endGame()
-            
-            self.events = pygame.event.get()
-            
+        
+
+            if Engine.events:
+                print("event exists")
+
             self.current_scene.update()
             self.screen.fill((255,255,255))
             self.current_scene.draw(self.screen)

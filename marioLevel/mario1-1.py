@@ -111,12 +111,12 @@ class SuperMario(egs.Game_objects.drawupdateable):
         for event in egs.Engine.events:
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_a:
-                    self.body.ApplyForce(b2Vec2(-10, 0), self.body.position, True)
+                    self.body.ApplyForce(b2Vec2(-100, 0), self.body.position, True)
                 if event.key == pygame.K_d:
-                    self.body.ApplyForce(b2Vec2(10,0), self.body.position, True)
+                    self.body.ApplyForce(b2Vec2(100,0), self.body.position, True)
                 if event.key == pygame.K_w:
                     if collided:
-                        self.body.ApplyLinearImpulse(b2Vec2(0,1), self.body.position, True)
+                        self.body.ApplyLinearImpulse(b2Vec2(0,3), self.body.position, True)
 
 class QuestionBlock(egs.Game_objects.drawable):
     color = (255,0,0)

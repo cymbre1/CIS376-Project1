@@ -68,11 +68,11 @@ class Scene:
         for item in self.updateables:
             item.update()
         for item in self.drawables:
-            self.screen.blit(item.surf, item.body.position)
+            self.screen.blit(item.surf, item.rect.center)
         pygame.display.flip()
     
     def fill_color(self, red, green, blue):
         self.screen.fill((red, green, blue))
 
     def add(self, showed):
-        self.screen.blit(showed.surf, showed.body.position)
+        self.screen.blit(showed.surf, showed.rect.center)

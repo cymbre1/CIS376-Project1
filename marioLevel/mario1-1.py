@@ -41,12 +41,11 @@ class Ground(egs.Game_objects.drawable):
     # Sets the initial state of the Square class
     def __init__(self, x, y, w, h):
         super().__init__()
-        color = (0,255,0)
-        self.body = world.CreateStaticBody(position = (x,y), shapes=b2PolygonShape(box=(w,h)))
+        self.body = world.CreateStaticBody(position=(x, y), shapes=b2PolygonShape(box=(w, h)))
         self.surf = pygame.Surface((2*w*b2w, 2*h*b2w))
-        self.surf.fill(color)
+        self.surf.fill((0, 255, 0))
         self.rect = self.surf.get_rect()
-        self.rect.center = self.body.position.x *b2w, (768-self.body.position.y * b2w)
+        self.rect.center = self.body.position.x * b2w, 768 - self.body.position.y * b2w
 
 class Koopa(egs.Game_objects.drawupdateable):
     color = (255,0,0)
@@ -158,7 +157,7 @@ engine = egs.Engine("Mario 1-1")
 scene = egs.Scene("Scene 1")
 engine.screen = scene
 
-ground = Ground(0,650,20, .35)
+ground = Ground(0,1,25, .5)
 mario = SuperMario()
 
 groundGroup = pygame.sprite.Group()

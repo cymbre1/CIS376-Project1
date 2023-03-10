@@ -6,9 +6,7 @@ import sys
 sys.path.append("../")
  
  
-import league.engine as eng
-import league.game_objects as go
-import league.scene as scn
+import egs
 import pygame as pg
 from Box2D import *
 import random
@@ -24,7 +22,7 @@ timeStep = 1.0 / 60
 vel_iters, pos_iters = 6, 2
  
  
-class Ground(go.DGameObject):
+class Ground(egs.Game_objects.drawable):
     def __init__(self, x, y, w, h):
         super().__init__()
         self.body = world.CreateStaticBody(position=(x, y), shapes=b2PolygonShape(box=(w, h)))
@@ -34,7 +32,7 @@ class Ground(go.DGameObject):
         self.rect.center = self.body.position.x * b2w, 768 - self.body.position.y * b2w
  
  
-class Ball(go.DUGameObject):
+class Ball(egs.Game_objects.drawupdateable):
     def __init__(self):
         super().__init__()
         self.body = world.CreateDynamicBody(position=(5, 5))
@@ -53,7 +51,7 @@ class Ball(go.DUGameObject):
     def update(self):
         self.rect.center = self.body.position[0] * b2w, 770 - self.body.position[1] * b2w
         collided = pg.sprite.spritecollide(self, groundGroup, False)
-        for event in eng.Engine.events:
+        for event in egs.Engine.events:
             #if event.type == pg.MOUSEMOTION:
             #    print(pg.mouse.get_pos())
             if event.type == pg.KEYDOWN:
@@ -65,7 +63,7 @@ class Ball(go.DUGameObject):
                 elif event.key == pg.K_d:
                     self.body.ApplyLinearImpulse( b2Vec2(.5, 0), self.body.position, True)
         
-class Updater(go.UGameObject):
+class Updater(egs.Game_objects.updateable):
     def __init__(self):
         super().__init__()
     def update(self):
@@ -77,7 +75,6 @@ engine = egs.Engine("Ball Physics")
 scene = egs.Scene("Scene One")
 egs.Engine.current_scene = scene
 engine.mode = 0
-scene.fps = 60
 ground = Ground(0,1,25,.5)
 platform = Ground(2,2,1,.25)
 platform2 = Ground(6,4,1, .25)
@@ -93,6 +90,4 @@ scene.drawables.add(ground)
 scene.updateables.append(ball)
 scene.updateables.append(Updater())
 scene.fill_color = (255,255,255)
-engine.toggle_statistics()
-engine.run()
-engine.end()
+engine.start_game()

@@ -45,7 +45,13 @@ class Ground(egs.Game_objects.drawable):
         self.image = pygame.Surface((2*w*b2w, 2*h*b2w))
         self.image.fill((0, 255, 0))
         self.rect = self.image.get_rect()
-        self.rect.center = self.body.position.x * b2w, 768  - ((self.body.position.y * b2w) / 2)
+        self.rect.center = self.body.position.x * b2w, 768 - self.body.position.y * b2w
+
+        # self.body = world.CreateStaticBody(position=(x, y), shapes=b2PolygonShape(box=(w, h)))
+        # self.image = pygame.Surface((2*w*b2w, 2*h*b2w))
+        # self.image.fill((0, 255, 0))
+        # self.rect = self.image.get_rect()
+        # self.rect.center = self.body.position.x * b2w, 768  - ((self.body.position.y * b2w) / 2)
 
 class Koopa(egs.Game_objects.drawupdateable):
     color = (255,0,0)
@@ -86,28 +92,41 @@ class Mario(pygame.sprite.DirtySprite):
 class SuperMario(egs.Game_objects.drawupdateable):
     # Sets the initial state of the Square class
 
-    def __init__(self, pos):
+    def __init__(self):
         super().__init__()
-        self.body = world.CreateDynamicBody(position=pos)
-        half_width = 0.25
-        half_height = 0.35
-        vertices = [
-            Box2D.b2Vec2(-half_width, -half_height),
-            Box2D.b2Vec2(half_width, -half_height),
-            Box2D.b2Vec2(half_width, half_height),
-            Box2D.b2Vec2(-half_width, half_height)
-        ]
-        shape = b2PolygonShape(vertices=vertices)
-        fixDef = b2FixtureDef(shape=shape, friction=.3, restitution=.07, density=.5)
+
+        self.body = world.CreateDynamicBody(position=(5,5))
+        shape=b2PolygonShape(box=(.25, .25))
+        fixDef = b2FixtureDef(shape=shape, friction=0.3, restitution=.5, density=.5)
         box = self.body.CreateFixture(fixDef)
-        self.dirty = 2 
-        self.image = pygame.Surface((.5*b2w*2, .7*b2w*2))
-        self.image.fill((255,0,0))     
+        self.dirty = 2
+        d=.25*b2w*2
+        self.image = pygame.Surface((d,d), pygame.SRCALPHA, 32)
+        self.image.convert_alpha()
+        #self.image.fill((0, 0, 0))
         self.rect = self.image.get_rect()
-        pygame.draw.rect(self.image, (255,0,0), self.rect)
+        pygame.draw.rect(self.image,(0, 101, 164) , self.rect)
+        # self.body = world.CreateDynamicBody(position=pos)
+        # half_width = 0.25
+        # half_height = 0.35
+        # vertices = [
+        #     Box2D.b2Vec2(-half_width, -half_height),
+        #     Box2D.b2Vec2(half_width, -half_height),
+        #     Box2D.b2Vec2(half_width, half_height),
+        #     Box2D.b2Vec2(-half_width, half_height)
+        # ]
+        # shape = b2PolygonShape(vertices=vertices)
+        # fixDef = b2FixtureDef(shape=shape, friction=.3, restitution=.07, density=.5)
+        # box = self.body.CreateFixture(fixDef)
+        # self.dirty = 2 
+        # self.image = pygame.Surface((.5*b2w*2, .7*b2w*2))
+        # self.image.fill((255,0,0))     
+        # self.rect = self.image.get_rect()
+        # pygame.draw.rect(self.image, (255,0,0), self.rect)
 
     def update(self):
-        self.rect.center = (self.body.position[0] *b2w, 768 -(( self.body.position[1]*b2w) / 2))
+        #self.rect.center = (self.body.position[0] *b2w, 768 -(( self.body.position[1]*b2w) / 2))
+        self.rect.center = self.body.position[0] * b2w, 770 - self.body.position[1] * b2w
         collided = pygame.sprite.spritecollide(self, groundGroup, False)
         for event in egs.Engine.events:
             if event.type == pygame.KEYDOWN:
@@ -173,7 +192,7 @@ egs.Engine.current_scene = scene
 #engine.mode = 1
 
 ground = Ground(0,1,25, .5)
-mario = SuperMario((1,10))
+mario = SuperMario()
 
 groundGroup = pygame.sprite.Group()
 groundGroup.add(ground)

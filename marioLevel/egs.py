@@ -95,7 +95,7 @@ class Scene:
     fill_Color = (255,255,255)
     #initializer, name, 
     def __init__(self, identifier):
-        self.name = identifier
+        self.title = identifier
         self.drawables = pygame.sprite.LayeredDirty()
         self.updateables = []
     

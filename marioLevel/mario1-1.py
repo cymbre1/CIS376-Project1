@@ -5,7 +5,7 @@ import sys
 from Box2D import *
 import egs
 
-gravity = b2Vec2(0.5, -10)
+gravity = b2Vec2(.5, -10)
 world = b2World(gravity, doSleep=False)
 timeStep = 1.0/60
 vec_iters, pos_iters = 6,2
@@ -90,21 +90,21 @@ class SuperMario(egs.Game_objects.drawupdateable):
 
     def __init__(self):
         super().__init__()
-        self.surf = pygame.Surface((35,70))
-        self.surf.fill((255,0,0))
         self.body = world.CreateDynamicBody(position=(100,100))
         self.shape = b2PolygonShape(box=((.35, .7)))
         fixDef = b2FixtureDef(shape=self.shape, friction=.3, restitution=.5, density=.5)
-        self.box = self.body.CreateFixture(fixDef)
-        self.dirty = 2      
+        box = self.body.CreateFixture(fixDef)
+        self.dirty = 2 
+        self.surf = pygame.Surface((70,140))
+        self.surf.fill((255,0,0))     
         self.rect = self.surf.get_rect()
         pygame.draw.rect(self.surf, (255,0,0), self.rect)
 
     def update(self):
-        self.rect.center = self.body.position[0] *b2w, 720 - self.body.position[1]*b2w
+        self.rect.center = (self.body.position[0] *b2w, 720 - self.body.position[1]*b2w)
         #collided = pygame.sprite.spritecollide(self, groundGroup, False)
+        print("mario")
 
-        print("Update and stuff")
 
 class QuestionBlock(egs.Game_objects.drawable):
     color = (255,0,0)
@@ -149,6 +149,7 @@ class Updater(egs.Game_objects.updateable):
     def update(self):
         world.Step(timeStep, vec_iters, pos_iters)
         world.ClearForces()
+        print("Update")
 
 
 
@@ -166,6 +167,6 @@ groundGroup.add(ground)
 scene.add(ground)
 scene.add(mario)
 
-scene.updateables.append(mario)
 scene.updateables.append(Updater())
+scene.updateables.append(mario)
 engine.start_game()

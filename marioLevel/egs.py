@@ -44,9 +44,9 @@ class Engine:
                 if event.type == QUIT:
                     self.endGame()
 
-            self.screen.update()
+            self.current_scene.update()
             # self.screen.fill_color(255,255,255)
-            self.screen.draw(self.screen)
+            self.current_scene.draw(self.screen)
 
             self.delta = pygame.time.get_ticks() - elapsed
             difference = self.frameMili - self.delta
@@ -85,7 +85,6 @@ class Scene:
             item.update()
 
     def draw(self, screen):
-        pygame.display.flip()
         for item in self.drawables:
             screen.blit(item.surf, item.rect.center)
     

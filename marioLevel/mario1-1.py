@@ -184,7 +184,7 @@ class Updater(egs.Game_objects.updateable):
 engine = egs.Engine("Mario 1-1")
 
 scene = egs.Scene("Scene 1")
-engine.screen = scene
+engine.current_scene = scene
 
 ground = Ground(0,1,25, .5)
 mario = SuperMario()

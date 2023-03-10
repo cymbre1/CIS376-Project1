@@ -103,18 +103,15 @@ class SuperMario(egs.Game_objects.drawupdateable):
         mario_image = piece_ss.image_at(mario_rect)
 
         self.body = world.CreateDynamicBody(position=(5,5))
-        shape=b2PolygonShape(box=(.25, .25))
+        shape=b2PolygonShape(box=(.32, .64))
         fixDef = b2FixtureDef(shape=shape, friction=0.3, restitution=.5, density=.5)
         box = self.body.CreateFixture(fixDef)
         self.dirty = 2
-        d=.25*b2w*2
-
         bigger_img = pygame.transform.scale(mario_image, (64, 128))
         self.image = bigger_img.convert_alpha()
         self.rect = self.image.get_rect()
 
     def update(self):
-        #self.rect.center = (self.body.position[0] *b2w, 768 -(( self.body.position[1]*b2w) / 2))
         self.rect.center = self.body.position[0] * b2w, 770 - self.body.position[1] * b2w
         collided = pygame.sprite.spritecollide(self, groundGroup, False)
         for event in egs.Engine.events:
@@ -178,7 +175,6 @@ engine = egs.Engine("Mario 1-1")
 scene = egs.Scene("Scene 1")
 egs.Engine.current_scene = scene
 
-#engine.mode = 1
 
 ground = Ground(0,1,25, .5)
 mario = SuperMario()

@@ -3,25 +3,41 @@ from pygame.locals import *
 class Engine:
     #initializer, run, end, current scene, mode??, toggle statistics
     events = []
-    def __init__(self, identifier, rate=60):
-        self.name = identifier
+    current_scene = None
+    def __init__(self, identifier, rate=60, width=1024, height=768):
+        self.width = width
+        self.height = height
+        self.title = identifier
         self.delta = 0
         self.framerate = rate
         self.frameMili = 1000 // self.framerate
 
-        pygame.init()
+        self.gameOn = True
 
-        self.screen = Scene("Temp")
-        self.screen.fill_color(255, 255, 255)
+        self.init_pygame()
+
+    def init_pygame(self):
+        pygame.init()
+        self.screen = pygame.display.set_mode((self.width, self.height))
+        pygame.display.set_caption(self.title)
+        self.clock = pygame.time.Clock()
+        self.last_checked_time = pygame.time.get_ticks()
+        pygame.joystick.init()
+
+        for i in range(pygame.joystick.get_count()):
+            pygame.joystick.Joystick(i).init()
 
         pygame.key.set_repeat(500)
-
-        self.gameOn = True
+        self.statistics_font = pygame.font.Font(None,30)
+        self.paused = False
+        self.background = None
+        self.paused = False
     
     def start_game(self):
         # Process inputs
         while self.gameOn:
             elapsed = pygame.time.get_ticks()
+
 
             self.events = pygame.event.get()
             for event in self.events:
@@ -29,6 +45,8 @@ class Engine:
                     self.endGame()
 
             self.screen.update()
+            # self.screen.fill_color(255,255,255)
+            self.screen.draw(self.screen)
 
             self.delta = pygame.time.get_ticks() - elapsed
             difference = self.frameMili - self.delta
@@ -61,18 +79,15 @@ class Scene:
         self.name = identifier
         self.drawables = []
         self.updateables = []
-        self.screen = pygame.display.set_mode((1024,768))
-        self.screen.fill((255, 255, 255))
     
     def update(self):
         for item in self.updateables:
             item.update()
-        for item in self.drawables:
-            self.screen.blit(item.surf, item.rect.center)
-        pygame.display.flip()
-    
-    def fill_color(self, red, green, blue):
-        self.screen.fill((red, green, blue))
 
+    def draw(self, screen):
+        pygame.display.flip()
+        for item in self.drawables:
+            screen.blit(item.surf, item.rect.center)
+    
     def add(self, showed):
-        self.screen.blit(showed.surf, showed.rect.center)
+        self.drawables.append(showed)

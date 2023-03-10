@@ -5,7 +5,7 @@ import sys
 from Box2D import *
 import egs
 
-gravity = b2Vec2(.5, -10)
+gravity = b2Vec2(.5, -10.0)
 world = b2World(gravity, doSleep=False)
 timeStep = 1.0/60
 vec_iters, pos_iters = 6,2
@@ -85,24 +85,53 @@ class Mario(pygame.sprite.DirtySprite):
 
 class SuperMario(egs.Game_objects.drawupdateable):
     # Sets the initial state of the Square class
-    x, y = 100, 100
+    x, y = 1,10
+
+    # def __init__(self):
+    #     super().__init__()
+    #     self.body = world.CreateDynamicBody(position=(self.x,self.y))
+    #     self.shape = b2PolygonShape(box=((.35, .7)))
+    #     fixDef = b2FixtureDef(shape=self.shape, friction=.3, restitution=.5, density=.5)
+    #     box = self.body.CreateFixture(fixDef)
+    #     self.dirty = 2 
+    #     self.surf = pygame.Surface((70,140))
+    #     self.surf.fill((255,0,0))     
+    #     self.rect = self.surf.get_rect()
+    #     pygame.draw.rect(self.surf, (255,0,0), self.rect)
 
     def __init__(self):
         super().__init__()
-        self.body = world.CreateDynamicBody(position=(100,100))
-        self.shape = b2PolygonShape(box=((.35, .7)))
-        fixDef = b2FixtureDef(shape=self.shape, friction=.3, restitution=.5, density=.5)
+        self.body = world.CreateDynamicBody(position=(5, 5))
+        shape=b2CircleShape(radius=.25)
+        fixDef = b2FixtureDef(shape=shape, friction=0.3, restitution=.5, density=.5)
         box = self.body.CreateFixture(fixDef)
-        self.dirty = 2 
-        self.surf = pygame.Surface((70,140))
-        self.surf.fill((255,0,0))     
+        self.dirty = 2
+        d=.25*b2w*2
+        self.surf = pygame.Surface((d,d), pygame.SRCALPHA, 32)
+        self.surf.convert_alpha()
+        #self.surf.fill((0, 0, 0))
         self.rect = self.surf.get_rect()
-        pygame.draw.rect(self.surf, (255,0,0), self.rect)
+        pygame.draw.circle(self.surf,(0, 101, 164) , self.rect.center, .25*b2w)
+
+    # def update(self):
+    #     self.rect.center = (self.body.position[0] *b2w, 768 - self.body.position[1]*b2w)
+    #     #collided = pygame.sprite.spritecollide(self, groundGroup, False)
+    #     print("mario")
 
     def update(self):
-        self.rect.center = (self.body.position[0] *b2w, 768 - self.body.position[1]*b2w)
-        #collided = pygame.sprite.spritecollide(self, groundGroup, False)
-        print("mario")
+        self.rect.center = self.body.position[0] * b2w, 770 - self.body.position[1] * b2w
+        collided = pygame.sprite.spritecollide(self, groundGroup, False)
+        for event in egs.Engine.events:
+            #if event.type == pygame.MOUSEMOTION:
+            #    print(pygame.mouse.get_pos())
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    if len(collided) > 0:
+                        self.body.ApplyLinearImpulse( b2Vec2(0,1), self.body.position, True)
+                elif event.key == pygame.K_a:
+                    self.body.ApplyLinearImpulse( b2Vec2(-0.5, 0), self.body.position, True)
+                elif event.key == pygame.K_d:
+                    self.body.ApplyLinearImpulse( b2Vec2(.5, 0), self.body.position, True)
 
 
 class QuestionBlock(egs.Game_objects.drawable):

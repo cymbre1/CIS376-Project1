@@ -85,33 +85,31 @@ class Mario(pygame.sprite.DirtySprite):
 
 class SuperMario(egs.Game_objects.drawupdateable):
     # Sets the initial state of the Square class
-    x, y = 1,10
 
-    def __init__(self):
+    def __init__(self, pos):
         super().__init__()
-        self.body = world.CreateDynamicBody(position=(self.x,self.y))
-        self.shape = b2PolygonShape(box=((.35, .7)))
+        self.body = world.CreateDynamicBody(position=pos)
+        self.shape = b2PolygonShape(box=((.5, .7)))
         fixDef = b2FixtureDef(shape=self.shape, friction=.3, restitution=.07, density=.5)
         box = self.body.CreateFixture(fixDef)
         self.dirty = 2 
-        self.surf = pygame.Surface((70,140))
+        self.surf = pygame.Surface((.5*b2w*2, .7*b2w*2))
         self.surf.fill((255,0,0))     
         self.rect = self.surf.get_rect()
         pygame.draw.rect(self.surf, (255,0,0), self.rect)
 
     def update(self):
         self.rect.center = (self.body.position[0] *b2w, 768 - self.body.position[1]*b2w)
-        #collided = pygame.sprite.spritecollide(self, groundGroup, False)
+        collided = pygame.sprite.spritecollide(self, groundGroup, False)
         for event in egs.Engine.events:
-            print("event exists")
             if event.type == pygame.KEYDOWN:
-                print("key pressed")
                 if event.key == pygame.K_a:
                     self.body.ApplyLinearImpulse(b2Vec2(-.5, 0), self.body.position, True)
-                    print("a pressed")
-
-
-
+                if event.key == pygame.K_d:
+                    self.body.ApplyLinearImpulse(b2Vec2(.5,0), self.body.position, True)
+                if event.key == pygame.K_w:
+                    if collided:
+                        self.body.ApplyLinearImpulse(b2Vec2(0,1), self.body.position, True)
 
 class QuestionBlock(egs.Game_objects.drawable):
     color = (255,0,0)
@@ -165,7 +163,7 @@ scene = egs.Scene("Scene 1")
 engine.current_scene = scene
 
 ground = Ground(0,1,25, .5)
-mario = SuperMario()
+mario = SuperMario((1,10))
 
 groundGroup = pygame.sprite.Group()
 groundGroup.add(ground)

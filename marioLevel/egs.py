@@ -45,9 +45,6 @@ class Engine:
                     self.endGame()
         
 
-            if Engine.events:
-                print("event exists")
-
             self.current_scene.update()
             self.screen.fill((255,255,255))
             self.current_scene.draw(self.screen)

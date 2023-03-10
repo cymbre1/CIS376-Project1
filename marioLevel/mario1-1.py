@@ -45,7 +45,7 @@ class Ground(egs.Game_objects.drawable):
         self.image = pygame.Surface((2*w*b2w, 2*h*b2w))
         self.image.fill((0, 255, 0))
         self.rect = self.image.get_rect()
-        self.rect.center = self.body.position.x * b2w, 718 - self.body.position.y * b2w
+        self.rect.center = self.body.position.x * b2w, 768  - ((self.body.position.y * b2w) / 2)
 
 class Koopa(egs.Game_objects.drawupdateable):
     color = (255,0,0)
@@ -107,7 +107,7 @@ class SuperMario(egs.Game_objects.drawupdateable):
         pygame.draw.rect(self.image, (255,0,0), self.rect)
 
     def update(self):
-        self.rect.center = (self.body.position[0] *b2w, 715 - self.body.position[1]*b2w)
+        self.rect.center = (self.body.position[0] *b2w, 768 -(( self.body.position[1]*b2w) / 2))
         collided = pygame.sprite.spritecollide(self, groundGroup, False)
         for event in egs.Engine.events:
             if event.type == pygame.KEYDOWN:

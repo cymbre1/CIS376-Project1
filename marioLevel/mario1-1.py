@@ -4,6 +4,7 @@ import pygame
 import sys
 from Box2D import *
 import egs
+from spriteSheet import SpriteSheet
 
 gravity = b2Vec2(.5, -10.0)
 world = b2World(gravity, doSleep=False)
@@ -95,34 +96,22 @@ class SuperMario(egs.Game_objects.drawupdateable):
     def __init__(self):
         super().__init__()
 
+        filename = "marioSprites.png"
+
+        piece_ss = SpriteSheet(filename)
+        mario_rect = (0, 32, 16, 32)
+        mario_image = piece_ss.image_at(mario_rect)
+
         self.body = world.CreateDynamicBody(position=(5,5))
         shape=b2PolygonShape(box=(.25, .25))
         fixDef = b2FixtureDef(shape=shape, friction=0.3, restitution=.5, density=.5)
         box = self.body.CreateFixture(fixDef)
         self.dirty = 2
         d=.25*b2w*2
-        self.image = pygame.Surface((d,d), pygame.SRCALPHA, 32)
-        self.image.convert_alpha()
-        #self.image.fill((0, 0, 0))
+
+        bigger_img = pygame.transform.scale(mario_image, (64, 128))
+        self.image = bigger_img.convert_alpha()
         self.rect = self.image.get_rect()
-        pygame.draw.rect(self.image,(0, 101, 164) , self.rect)
-        # self.body = world.CreateDynamicBody(position=pos)
-        # half_width = 0.25
-        # half_height = 0.35
-        # vertices = [
-        #     Box2D.b2Vec2(-half_width, -half_height),
-        #     Box2D.b2Vec2(half_width, -half_height),
-        #     Box2D.b2Vec2(half_width, half_height),
-        #     Box2D.b2Vec2(-half_width, half_height)
-        # ]
-        # shape = b2PolygonShape(vertices=vertices)
-        # fixDef = b2FixtureDef(shape=shape, friction=.3, restitution=.07, density=.5)
-        # box = self.body.CreateFixture(fixDef)
-        # self.dirty = 2 
-        # self.image = pygame.Surface((.5*b2w*2, .7*b2w*2))
-        # self.image.fill((255,0,0))     
-        # self.rect = self.image.get_rect()
-        # pygame.draw.rect(self.image, (255,0,0), self.rect)
 
     def update(self):
         #self.rect.center = (self.body.position[0] *b2w, 768 -(( self.body.position[1]*b2w) / 2))

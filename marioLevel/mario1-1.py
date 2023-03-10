@@ -89,8 +89,16 @@ class SuperMario(egs.Game_objects.drawupdateable):
     def __init__(self, pos):
         super().__init__()
         self.body = world.CreateDynamicBody(position=pos)
-        self.shape = b2PolygonShape(box=((.5, .7)))
-        fixDef = b2FixtureDef(shape=self.shape, friction=.3, restitution=.07, density=.5)
+        half_width = 0.25
+        half_height = 0.35
+        vertices = [
+            Box2D.b2Vec2(-half_width, -half_height),
+            Box2D.b2Vec2(half_width, -half_height),
+            Box2D.b2Vec2(half_width, half_height),
+            Box2D.b2Vec2(-half_width, half_height)
+        ]
+        shape = b2PolygonShape(vertices=vertices)
+        fixDef = b2FixtureDef(shape=shape, friction=.3, restitution=.07, density=.5)
         box = self.body.CreateFixture(fixDef)
         self.dirty = 2 
         self.surf = pygame.Surface((.5*b2w*2, .7*b2w*2))
@@ -99,7 +107,7 @@ class SuperMario(egs.Game_objects.drawupdateable):
         pygame.draw.rect(self.surf, (255,0,0), self.rect)
 
     def update(self):
-        self.rect.center = (self.body.position[0] *b2w, 768 - self.body.position[1]*b2w)
+        self.rect.center = (self.body.position[0] *b2w, 715 - self.body.position[1]*b2w)
         collided = pygame.sprite.spritecollide(self, groundGroup, False)
         for event in egs.Engine.events:
             if event.type == pygame.KEYDOWN:

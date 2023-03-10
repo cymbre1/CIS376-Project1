@@ -16,6 +16,8 @@ class Engine:
 
         self.init_pygame()
 
+        self.mode = 0
+
     def init_pygame(self):
         pygame.init()
         self.screen = pygame.display.set_mode((self.width, self.height))
@@ -29,7 +31,6 @@ class Engine:
 
         pygame.key.set_repeat(500)
         self.statistics_font = pygame.font.Font(None,30)
-        self.paused = False
         self.background = None
         self.paused = False
     
@@ -38,6 +39,11 @@ class Engine:
         while self.gameOn:
             elapsed = pygame.time.get_ticks()
 
+            if self.mode == 0:
+                self.background = pygame.Surface([self.width, self.height])
+                self.background.fill(Engine.current_scene.fill_Color)
+                self.screen.fill(Engine.current_scene.fill_Color)
+                Engine.current_scene.drawables.clear(self.screen, self.background)
 
             Engine.events = pygame.event.get()
             for event in self.events:
@@ -46,10 +52,19 @@ class Engine:
         
 
             self.current_scene.update()
-            self.screen.fill((255,255,255))
-            self.current_scene.draw(self.screen)
 
-            pygame.display.flip()
+            if self.mode == 1:
+                self.screen.fill(Engine.current_scene.fill_Color)
+
+            if self.mode ==1:
+                Engine.current_scene.drawables.draw(self.screen)
+            else:
+                rects = Engine.current_scene.drawables.draw(self.screen)
+
+            if self.mode == 1:
+                pygame.display.flip()
+            else:
+                pygame.display.update(rects)
 
             self.delta = pygame.time.get_ticks() - elapsed
             difference = self.frameMili - self.delta
@@ -81,16 +96,9 @@ class Scene:
     #initializer, name, 
     def __init__(self, identifier):
         self.name = identifier
-        self.drawables = []
+        self.drawables = pygame.sprite.LayeredDirty()
         self.updateables = []
     
     def update(self):
         for item in self.updateables:
             item.update()
-
-    def draw(self, screen):
-        for item in self.drawables:
-            screen.blit(item.surf, item.rect.center)
-    
-    def add(self, showed):
-        self.drawables.append(showed)

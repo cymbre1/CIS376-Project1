@@ -42,10 +42,10 @@ class Ground(egs.Game_objects.drawable):
     def __init__(self, x, y, w, h):
         super().__init__()
         self.body = world.CreateStaticBody(position=(x, y), shapes=b2PolygonShape(box=(w, h)))
-        self.surf = pygame.Surface((2*w*b2w, 2*h*b2w))
-        self.surf.fill((0, 255, 0))
-        self.rect = self.surf.get_rect()
-        self.rect.center = self.body.position.x * b2w, 768 - self.body.position.y * b2w
+        self.image = pygame.Surface((2*w*b2w, 2*h*b2w))
+        self.image.fill((0, 255, 0))
+        self.rect = self.image.get_rect()
+        self.rect.center = self.body.position.x * b2w, 718 - self.body.position.y * b2w
 
 class Koopa(egs.Game_objects.drawupdateable):
     color = (255,0,0)
@@ -101,10 +101,10 @@ class SuperMario(egs.Game_objects.drawupdateable):
         fixDef = b2FixtureDef(shape=shape, friction=.3, restitution=.07, density=.5)
         box = self.body.CreateFixture(fixDef)
         self.dirty = 2 
-        self.surf = pygame.Surface((.5*b2w*2, .7*b2w*2))
-        self.surf.fill((255,0,0))     
-        self.rect = self.surf.get_rect()
-        pygame.draw.rect(self.surf, (255,0,0), self.rect)
+        self.image = pygame.Surface((.5*b2w*2, .7*b2w*2))
+        self.image.fill((255,0,0))     
+        self.rect = self.image.get_rect()
+        pygame.draw.rect(self.image, (255,0,0), self.rect)
 
     def update(self):
         self.rect.center = (self.body.position[0] *b2w, 715 - self.body.position[1]*b2w)
@@ -112,9 +112,9 @@ class SuperMario(egs.Game_objects.drawupdateable):
         for event in egs.Engine.events:
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_a:
-                    self.body.ApplyLinearImpulse(b2Vec2(-.5, 0), self.body.position, True)
+                    self.body.ApplyForce(b2Vec2(-10, 0), self.body.position, True)
                 if event.key == pygame.K_d:
-                    self.body.ApplyLinearImpulse(b2Vec2(.5,0), self.body.position, True)
+                    self.body.ApplyForce(b2Vec2(10,0), self.body.position, True)
                 if event.key == pygame.K_w:
                     if collided:
                         self.body.ApplyLinearImpulse(b2Vec2(0,1), self.body.position, True)
@@ -168,7 +168,9 @@ class Updater(egs.Game_objects.updateable):
 engine = egs.Engine("Mario 1-1")
 
 scene = egs.Scene("Scene 1")
-engine.current_scene = scene
+egs.Engine.current_scene = scene
+
+#engine.mode = 1
 
 ground = Ground(0,1,25, .5)
 mario = SuperMario((1,10))
@@ -176,9 +178,10 @@ mario = SuperMario((1,10))
 groundGroup = pygame.sprite.Group()
 groundGroup.add(ground)
 
-scene.add(ground)
-scene.add(mario)
+scene.drawables.add(ground)
+scene.drawables.add(mario)
 
 scene.updateables.append(Updater())
 scene.updateables.append(mario)
+
 engine.start_game()

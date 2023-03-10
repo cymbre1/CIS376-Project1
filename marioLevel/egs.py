@@ -45,8 +45,10 @@ class Engine:
                     self.endGame()
 
             self.current_scene.update()
-            # self.screen.fill_color(255,255,255)
+            self.screen.fill((255,255,255))
             self.current_scene.draw(self.screen)
+
+            pygame.display.flip()
 
             self.delta = pygame.time.get_ticks() - elapsed
             difference = self.frameMili - self.delta
@@ -74,6 +76,7 @@ class Game_objects:
             super().__init__()
 
 class Scene:
+    fill_Color = (255,255,255)
     #initializer, name, 
     def __init__(self, identifier):
         self.name = identifier

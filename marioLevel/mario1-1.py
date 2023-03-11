@@ -25,6 +25,45 @@ class Brick(egs.Game_objects.drawable):
     def update(self):
         print("Update and stuff")
 
+class Flag(egs.Game_objects.drawupdateable):
+    flag_sprites = []
+    index = 0
+    counter = 0
+    # Sets the initial state of the Square class
+    def __init__(self):
+        super().__init__()
+
+        # self.reached = True
+        
+        filename = "flag.png"
+        piece_ss = SpriteSheet(filename)
+        for i in range(10):
+            flag_rect = (i*32, 0, 32, 176)
+            flag_image = piece_ss.image_at(flag_rect)
+            self.flag_sprites.append(flag_image)
+        self.body = world.CreateStaticBody(position = (6, 5), shapes = b2PolygonShape(box = (.32, 1.76)))
+        self.dirty = 1
+        bigger_img = pygame.transform.scale(self.flag_sprites[self.index], (64, 352))
+        self.image = bigger_img.convert_alpha()
+        self.rect = self.image.get_rect()
+
+    # This function switches whether the square is black or colored
+    def update(self):
+        # print("update")
+        bigger_img = pygame.transform.scale(self.flag_sprites[self.index], (64, 352))
+        self.image = bigger_img.convert_alpha()
+        self.rect = self.image.get_rect()
+
+        if self.counter == 5:
+            self.counter = 0
+            if self.index < 9:
+                self.index += 1
+                self.dirty = 1
+            else:
+                self.dirty = 0
+        else:
+            self.counter += 1
+                    
 class Goomba(egs.Game_objects.drawupdateable):
     color = (255,0,0)
 

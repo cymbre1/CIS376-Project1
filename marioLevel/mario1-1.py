@@ -161,7 +161,7 @@ class Koopa(egs.Game_objects.drawupdateable):
 
         self.body = world.CreateDynamicBody(position=(5,5))
         shape=b2PolygonShape(box=(.16, .16))
-        fixDef = b2FixtureDef(shape=shape, friction=0.3, restitution=0, density=1)
+        fixDef = b2FixtureDef(shape=shape, friction=0.3, restitution=0, density=.1)
         box = self.body.CreateFixture(fixDef)
         self.dirty = 2
 
@@ -243,7 +243,7 @@ class Mario(egs.Game_objects.drawupdateable):
         fixDef = b2FixtureDef(shape=shape, friction=0.3, restitution=0, density=1)
         box = self.body.CreateFixture(fixDef)
         self.dirty = 2
-        bigger_img = pygame.transform.scale(self.mario_running[self.current_mario], (64, 134))
+        bigger_img = pygame.transform.scale(self.mario_running[self.current_mario], (64, 64))
         self.image = bigger_img.convert_alpha()
         if(self.flipped):
             self.image = pygame.transform.flip(self.image, True, False)
@@ -251,11 +251,11 @@ class Mario(egs.Game_objects.drawupdateable):
 
     def update(self):
         if not self.previous_bottom == self.rect.bottom:
-            bigger_img = pygame.transform.scale(self.mario_jump, (64, 134))
+            bigger_img = pygame.transform.scale(self.mario_jump, (64, 64))
         elif self.previous_center == self.rect.center:
-            bigger_img = pygame.transform.scale(self.mario_still, (64, 134))
+            bigger_img = pygame.transform.scale(self.mario_still, (64, 64))
         else:
-            bigger_img = pygame.transform.scale(self.mario_running[self.current_mario], (64, 134))
+            bigger_img = pygame.transform.scale(self.mario_running[self.current_mario], (64, 64))
             if self.counter == 10:
                 if self.current_mario == 3:
                     self.current_mario = 0
@@ -423,9 +423,9 @@ egs.Engine.current_scene = scene
 
 ground = Ground(0,.64,11.04, .64)
 platform = Ground(1,2.5,.64,.64)
-mario = SuperMario()
+mario = Mario()
 goomba = Goomba((7,4))
-flag = Flag()
+# flag = Flag()
 koopa = Koopa()
 
 groundGroup = pygame.sprite.Group()

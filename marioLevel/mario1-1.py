@@ -163,7 +163,7 @@ class Koopa(egs.Game_objects.drawupdateable):
 
         self.body = world.CreateDynamicBody(position=(5,5))
         shape=b2PolygonShape(box=(.16, .16))
-        fixDef = b2FixtureDef(shape=shape, friction=0.3, restitution=0, density=.1)
+        fixDef = b2FixtureDef(shape=shape, friction=0.3, restitution=0, density=1)
         box = self.body.CreateFixture(fixDef)
         self.dirty = 2
 
@@ -222,7 +222,7 @@ class Mario(egs.Game_objects.drawupdateable):
     def __init__(self):
         super().__init__()
 
-        filename = "superMarioSprites.png"
+        filename = "marioSprites.png"
 
         piece_ss = SpriteSheet(filename)
         for i in range(3):
@@ -425,9 +425,9 @@ egs.Engine.current_scene = scene
 
 ground = Ground(0,.64,11.04, .64)
 platform = Ground(1,2.5,.64,.64)
-mario = Mario()
+mario = SuperMario()
 goomba = Goomba((7,4))
-flag = Flag()
+# flag = Flag()
 koopa = Koopa()
 
 groundGroup = pygame.sprite.Group()
@@ -439,12 +439,12 @@ scene.drawables.add(platform)
 scene.drawables.add(mario)
 scene.drawables.add(goomba)
 scene.drawables.add(koopa)
-scene.drawables.add(flag)
+# scene.drawables.add(flag)
 
 scene.updateables.append(Updater())
 scene.updateables.append(mario)
 scene.updateables.append(goomba)
 scene.updateables.append(koopa)
-scene.updateables.append(flag)
+# scene.updateables.append(flag)
 
 engine.start_game()

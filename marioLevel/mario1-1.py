@@ -43,18 +43,19 @@ class Ground(egs.Game_objects.drawable):
     def __init__(self, x, y, w, h):
         super().__init__()
 
-        filename = "tileset.png"
+        filename = "world1-1.png"
 
         piece_ss = SpriteSheet(filename)
 
-        ground_rect = (0, 16, 16, 16)
+        ground_rect = (0, 208, 3376, 32)
         ground_image = piece_ss.image_at(ground_rect)
 
 
         self.body = world.CreateStaticBody(position=(x, y), shapes=b2PolygonShape(box=(w, h)))
-        # self.image = pygame.Surface((2*w*b2w, 2*h*b2w))
+        # self.image = pygame.Surface((2*w*b2w, 2*h*b2w)a)
         # self.image.fill((0, 255, 0))
-        self.image = ground_image
+        bigger_img = pygame.transform.scale(ground_image, (3376*2, 64))
+        self.image = bigger_img.convert_alpha()
         self.rect = self.image.get_rect()
         self.rect.center = self.body.position.x * b2w, 768 - self.body.position.y * b2w
 
@@ -105,7 +106,7 @@ class SuperMario(egs.Game_objects.drawupdateable):
         filename = "marioSprites.png"
 
         piece_ss = SpriteSheet(filename)
-        for i in range(5):
+        for i in range(4):
             mario_rect = (i*38, 32, 16, 32)
             mario_image = piece_ss.image_at(mario_rect)
             self.mario_sprites.append(mario_image)
@@ -123,7 +124,7 @@ class SuperMario(egs.Game_objects.drawupdateable):
         bigger_img = pygame.transform.scale(self.mario_sprites[self.mario_version // 10], (64, 128))
         self.image = bigger_img.convert_alpha()
         self.rect = self.image.get_rect()
-        if self.mario_version / 10 > 4:
+        if self.mario_version / 10 > 3:
             self.mario_version = 1
         else:
                 self.mario_version = self.mario_version + 1

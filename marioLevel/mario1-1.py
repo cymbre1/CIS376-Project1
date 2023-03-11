@@ -25,6 +25,16 @@ class Brick(egs.Game_objects.drawable):
     def update(self):
         print("Update and stuff")
 
+class Mario(pygame.sprite.DirtySprite):
+
+    # Sets the initial state of the Square class
+    def __init__(self):
+        super().__init__()
+        self.surf = pygame.Surface((35, 35))
+
+    # This function switches whether the square is black or colored
+    def update(self):
+        print("Update and stuff")
 class Goomba(egs.Game_objects.drawupdateable):
     color = (255,0,0)
 
@@ -47,7 +57,7 @@ class Ground(egs.Game_objects.drawable):
     def __init__(self, x, y, w, h):
         super().__init__()
 
-        filename = "world1-1.png"
+        filename = "ground.png"
 
         piece_ss = SpriteSheet(filename)
 
@@ -107,7 +117,7 @@ class SuperMario(egs.Game_objects.drawupdateable):
     def __init__(self):
         super().__init__()
 
-        filename = "marioSprites.png"
+        filename = "superMarioSprites.png"
 
         piece_ss = SpriteSheet(filename)
         for i in range(4):

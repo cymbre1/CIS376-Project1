@@ -63,6 +63,8 @@ class Flag(egs.Game_objects.drawupdateable):
                 self.dirty = 0
         else:
             self.counter += 1
+
+        self.rect.center = self.body.position[0] * b2p, 775 - self.body.position[1] * b2p
                     
 class Goomba(egs.Game_objects.drawupdateable):
     goomba_sprites = []
@@ -220,7 +222,7 @@ class Mario(egs.Game_objects.drawupdateable):
     def __init__(self):
         super().__init__()
 
-        filename = "marioSprites.png"
+        filename = "superMarioSprites.png"
 
         piece_ss = SpriteSheet(filename)
         for i in range(3):
@@ -425,7 +427,7 @@ ground = Ground(0,.64,11.04, .64)
 platform = Ground(1,2.5,.64,.64)
 mario = Mario()
 goomba = Goomba((7,4))
-# flag = Flag()
+flag = Flag()
 koopa = Koopa()
 
 groundGroup = pygame.sprite.Group()
@@ -437,10 +439,12 @@ scene.drawables.add(platform)
 scene.drawables.add(mario)
 scene.drawables.add(goomba)
 scene.drawables.add(koopa)
+scene.drawables.add(flag)
 
 scene.updateables.append(Updater())
 scene.updateables.append(mario)
 scene.updateables.append(goomba)
 scene.updateables.append(koopa)
+scene.updateables.append(flag)
 
 engine.start_game()

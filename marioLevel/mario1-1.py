@@ -131,6 +131,7 @@ class Ground(egs.Game_objects.drawable):
         ground_rect = (0, 0, width_in_pixels//2, height_in_pixels//2)
         ground_image = piece_ss.image_at(ground_rect)
 
+        self.dirty = 2
 
         self.body = world.CreateStaticBody(position=(x, y), shapes=b2PolygonShape(box=(w, h)))
         # self.image = pygame.Surface((2*w*b2w, 2*h*b2w))
@@ -141,28 +142,71 @@ class Ground(egs.Game_objects.drawable):
         self.rect.center = self.body.position.x * b2p, 768 - self.body.position.y * b2p
 
 class Koopa(egs.Game_objects.drawupdateable):
-    color = (255,0,0)
-
-    # Sets the initial state of the Square class
-    def __init__(self):
-        super(self).__init__()
-        self.surf = pygame.Surface((35, 35))
-
-    # This function switches whether the square is black or colored
-    def update(self):
-        print("Update and stuff")
-
-class KoopaShell(egs.Game_objects.drawupdateable):
-    color = (255,0,0)
+    flipped = False
+    koopa_walking = []
+    current_koopa = 0
+    counter = 0
+    step_counter = 0
 
     # Sets the initial state of the Square class
     def __init__(self):
         super().__init__()
-        self.surf = pygame.Surface((35, 35))
+        
+        filename = "enemies.png"
+        piece_ss = SpriteSheet(filename)
+        
+        koopa_rect = (0, 16, 16, 24)
+        koopa_image = piece_ss.image_at(koopa_rect)
+        self.koopa_walking.append(koopa_image)
+
+        self.body = world.CreateDynamicBody(position=(5,5))
+        shape=b2PolygonShape(box=(.16, .16))
+        fixDef = b2FixtureDef(shape=shape, friction=0.3, restitution=0, density=1)
+        box = self.body.CreateFixture(fixDef)
+        self.dirty = 2
+
+        koopa_rect = (16, 16, 16, 24)
+        koopa_image = piece_ss.image_at(koopa_rect)
+        self.koopa_walking.append(koopa_image)
+
+        bigger_img = pygame.transform.scale(self.koopa_walking[self.current_koopa], (64, 96))
+        self.image = bigger_img.convert_alpha()
+        self.current_koopa = (self.current_koopa + 1) % 2
+
+        self.rect = self.image.get_rect()
 
     # This function switches whether the square is black or colored
     def update(self):
-        print("Update and stuff")
+        if self.counter == 30:
+            bigger_img = pygame.transform.scale(self.koopa_walking[self.current_koopa], (64, 96))
+            self.image = bigger_img.convert_alpha()
+            self.current_koopa = (self.current_koopa + 1) % 2
+            self.counter = 0
+            if self.flipped:
+                self.image = pygame.transform.flip(self.image, True, False)
+                self.body.ApplyForce(b2Vec2(5, 0), self.body.position, True)
+                if self.step_counter == 15:
+                    self.flipped = False
+                    self.step_counter = 0
+                else:
+                    self.step_counter = self.step_counter + 1
+            else:
+                self.body.ApplyForce(b2Vec2(-5, 0), self.body.position, True)
+                if self.step_counter == 15:
+                    self.flipped = True
+                    self.step_counter = 0
+                else:
+                    self.step_counter = self.step_counter + 1
+        else:
+            self.counter = self.counter + 1
+
+        self.rect = self.image.get_rect()
+        collided = pygame.sprite.spritecollide(self, groundGroup, False)
+
+        self.rect.center = self.body.position[0] * b2p, 775 - self.body.position[1] * b2p
+
+# class KoopaShell(egs.Game_objects.drawupdateable):
+
 
 class Mario(egs.Game_objects.drawupdateable):
      # Sets the initial state of the Square class
@@ -199,19 +243,19 @@ class Mario(egs.Game_objects.drawupdateable):
         fixDef = b2FixtureDef(shape=shape, friction=0.3, restitution=0, density=1)
         box = self.body.CreateFixture(fixDef)
         self.dirty = 2
-        bigger_img = pygame.transform.scale(self.mario_running[self.current_mario], (64, 64))
+        bigger_img = pygame.transform.scale(self.mario_running[self.current_mario], (64, 134))
         self.image = bigger_img.convert_alpha()
         if(self.flipped):
-            pygame.transform.flip(self.image, True, False)
+            self.image = pygame.transform.flip(self.image, True, False)
         self.rect = self.image.get_rect()
 
     def update(self):
         if not self.previous_bottom == self.rect.bottom:
-            bigger_img = pygame.transform.scale(self.mario_jump, (64, 64))
+            bigger_img = pygame.transform.scale(self.mario_jump, (64, 134))
         elif self.previous_center == self.rect.center:
-            bigger_img = pygame.transform.scale(self.mario_still, (64, 64))
+            bigger_img = pygame.transform.scale(self.mario_still, (64, 134))
         else:
-            bigger_img = pygame.transform.scale(self.mario_running[self.current_mario], (64, 64))
+            bigger_img = pygame.transform.scale(self.mario_running[self.current_mario], (64, 134))
             if self.counter == 10:
                 if self.current_mario == 3:
                     self.current_mario = 0
@@ -275,11 +319,11 @@ class SuperMario(egs.Game_objects.drawupdateable):
         self.mario_jump = piece_ss.image_at(mario_rect)
 
         self.body = world.CreateDynamicBody(position=(5,5))
-        shape=b2PolygonShape(box=(.32, .64))
+        shape=b2PolygonShape(box=(p2b*32, p2b*64))
         fixDef = b2FixtureDef(shape=shape, friction=0.3, restitution=0, density=.5)
         box = self.body.CreateFixture(fixDef)
         self.dirty = 2
-        bigger_img = pygame.transform.scale(self.mario_running[self.current_mario], (64, 128))
+        bigger_img = pygame.transform.scale(self.mario_running[self.current_mario], (64, 134))
         self.image = bigger_img.convert_alpha()
         if(self.flipped):
             pygame.transform.flip(self.image, True, False)
@@ -287,11 +331,11 @@ class SuperMario(egs.Game_objects.drawupdateable):
 
     def update(self):
         if not self.previous_bottom == self.rect.bottom:
-            bigger_img = pygame.transform.scale(self.mario_jump, (64, 128))
+            bigger_img = pygame.transform.scale(self.mario_jump, (64, 134))
         elif self.previous_center == self.rect.center:
-            bigger_img = pygame.transform.scale(self.mario_still, (64, 128))
+            bigger_img = pygame.transform.scale(self.mario_still, (64, 134))
         else:
-            bigger_img = pygame.transform.scale(self.mario_running[self.current_mario], (64, 128))
+            bigger_img = pygame.transform.scale(self.mario_running[self.current_mario], (64, 134))
             if self.counter == 10:
                 if self.current_mario == 3:
                     self.current_mario = 0
@@ -381,6 +425,8 @@ ground = Ground(0,.64,11.04, .64)
 platform = Ground(1,2.5,.64,.64)
 mario = SuperMario()
 goomba = Goomba((7,4))
+flag = Flag()
+koopa = Koopa()
 
 groundGroup = pygame.sprite.Group()
 groundGroup.add(ground)
@@ -390,9 +436,11 @@ scene.drawables.add(ground)
 scene.drawables.add(platform)
 scene.drawables.add(mario)
 scene.drawables.add(goomba)
+scene.drawables.add(koopa)
 
 scene.updateables.append(Updater())
 scene.updateables.append(mario)
 scene.updateables.append(goomba)
+scene.updateables.append(koopa)
 
 engine.start_game()

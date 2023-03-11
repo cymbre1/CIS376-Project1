@@ -41,7 +41,7 @@ class Flag(egs.Game_objects.drawupdateable):
             flag_rect = (i*32, 0, 32, 176)
             flag_image = piece_ss.image_at(flag_rect)
             self.flag_sprites.append(flag_image)
-        self.body = world.CreateStaticBody(position = (6, 5), shapes = b2PolygonShape(box = (.64, 3.52)))
+        self.body = world.CreateStaticBody(position = (6, 5), shapes = b2PolygonShape(box = (p2b* 64, p2b*352)))
         self.dirty = 1
         bigger_img = pygame.transform.scale(self.flag_sprites[self.index], (128, 704))
         self.image = bigger_img.convert_alpha()
@@ -83,7 +83,7 @@ class Goomba(egs.Game_objects.drawupdateable):
             self.goomba_sprites.append(goomba_image)
 
         self.body = world.CreateDynamicBody(position= pos)
-        shape = b2PolygonShape(box = (.32,.32))
+        shape = b2PolygonShape(box = (p2b* 32,p2b*32))
         fixDef = b2FixtureDef(shape=shape, friction = 0.3, restitution=0, density = 1)
         box = self.body.CreateFixture(fixDef)
         self.dirty = 2
@@ -105,8 +105,8 @@ class Goomba(egs.Game_objects.drawupdateable):
                 groundCollided = pygame.sprite.spritecollide(self, groundGroup, False)
                 if groundCollided:
                     self.body.ApplyForce(b2Vec2(self.force, 0), self.body.position, True)
-                if self.rect.center == self.last_center:
-                    self.force = 0 - self.force
+                # if self.rect.center == self.last_center:
+                    # self.force = 0 - self.force
             else:
                 self.last_center = self.rect.center
                 self.rect.center = self.body.position[0] * b2p, 775 - self.body.position[1] * b2p
@@ -162,7 +162,7 @@ class Koopa(egs.Game_objects.drawupdateable):
         self.koopa_walking.append(koopa_image)
 
         self.body = world.CreateDynamicBody(position=(5,5))
-        shape=b2PolygonShape(box=(.16, .16))
+        shape=b2PolygonShape(box=(p2b*16, p2b*16))
         fixDef = b2FixtureDef(shape=shape, friction=0.3, restitution=0, density=1)
         box = self.body.CreateFixture(fixDef)
         self.dirty = 2
@@ -241,7 +241,7 @@ class Mario(egs.Game_objects.drawupdateable):
         self.mario_jump = piece_ss.image_at(mario_rect)
 
         self.body = world.CreateDynamicBody(position=(5,5))
-        shape=b2PolygonShape(box=(.32, .32))
+        shape=b2PolygonShape(box=(p2b*32, p2b*32))
         fixDef = b2FixtureDef(shape=shape, friction=0.3, restitution=0, density=1)
         box = self.body.CreateFixture(fixDef)
         self.dirty = 2

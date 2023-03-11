@@ -31,7 +31,11 @@ class Goomba(egs.Game_objects.drawupdateable):
     # Sets the initial state of the Square class
     def __init__(self):
         super().__init__()
-        self.surf = pygame.Surface((35, 35))
+        filename = "enemies.png"
+
+        piece_ss = SpriteSheet(filename)
+        for i in range (2):
+            goomba_rect = ()
 
     # This function switches whether the square is black or colored
     def update(self):
@@ -196,12 +200,15 @@ egs.Engine.current_scene = scene
 
 
 ground = Ground(0,0.5,25, .5)
+platform = Ground(.0,3,.5,.5)
 mario = SuperMario()
 
 groundGroup = pygame.sprite.Group()
 groundGroup.add(ground)
+groundGroup.add(platform)
 
 scene.drawables.add(ground)
+scene.drawables.add(platform)
 scene.drawables.add(mario)
 
 scene.updateables.append(Updater())

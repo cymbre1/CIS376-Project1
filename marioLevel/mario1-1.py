@@ -10,8 +10,8 @@ gravity = b2Vec2(.5, -10.0)
 world = b2World(gravity, doSleep=False)
 timeStep = 1.0/60
 vec_iters, pos_iters = 6,2
-w2b = 1/100
-b2w = 100
+p2b = 1/100
+b2p = 100
 
 class Brick(egs.Game_objects.drawable):
     color = (255,0,0)
@@ -41,16 +41,16 @@ class Flag(egs.Game_objects.drawupdateable):
             flag_rect = (i*32, 0, 32, 176)
             flag_image = piece_ss.image_at(flag_rect)
             self.flag_sprites.append(flag_image)
-        self.body = world.CreateStaticBody(position = (6, 5), shapes = b2PolygonShape(box = (.32, 1.76)))
+        self.body = world.CreateStaticBody(position = (6, 5), shapes = b2PolygonShape(box = (.64, 3.52)))
         self.dirty = 1
-        bigger_img = pygame.transform.scale(self.flag_sprites[self.index], (64, 352))
+        bigger_img = pygame.transform.scale(self.flag_sprites[self.index], (128, 704))
         self.image = bigger_img.convert_alpha()
         self.rect = self.image.get_rect()
 
     # This function switches whether the square is black or colored
     def update(self):
         # print("update")
-        bigger_img = pygame.transform.scale(self.flag_sprites[self.index], (64, 352))
+        bigger_img = pygame.transform.scale(self.flag_sprites[self.index], (128, 704))
         self.image = bigger_img.convert_alpha()
         self.rect = self.image.get_rect()
 
@@ -65,20 +65,52 @@ class Flag(egs.Game_objects.drawupdateable):
             self.counter += 1
                     
 class Goomba(egs.Game_objects.drawupdateable):
-    color = (255,0,0)
-
-    # Sets the initial state of the Square class
-    def __init__(self):
+    goomba_sprites = []
+    counter = 0
+    current_index = 0
+    force = -13
+    last_center = None
+    def __init__(self, pos):
         super().__init__()
         filename = "enemies.png"
 
         piece_ss = SpriteSheet(filename)
         for i in range (2):
-            goomba_rect = ()
+            goomba_rect = (i*16, 0, 16, 16)
+            goomba_image = piece_ss.image_at(goomba_rect)
+            self.goomba_sprites.append(goomba_image)
+
+        self.body = world.CreateDynamicBody(position= pos)
+        shape = b2PolygonShape(box = (.32,.32))
+        fixDef = b2FixtureDef(shape=shape, friction = 0.3, restitution=0, density = 1)
+        box = self.body.CreateFixture(fixDef)
+        self.dirty = 2
+        bigger_img = pygame.transform.scale(self.goomba_sprites[self.current_index % 2], (64,64))
+        self.image = bigger_img.convert_alpha()
+        self.rect = self.image.get_rect()
 
     # This function switches whether the square is black or colored
     def update(self):
-        print("Update and stuff")
+        if self.rect.right > -100:
+            if self.counter == 10:
+                self.current_index = self.current_index + 1
+                self.counter = 0
+                bigger_img = pygame.transform.scale(self.goomba_sprites[self.current_index % 2], (64,64))
+                self.image = bigger_img.convert_alpha()
+                self.rect = self.image.get_rect()
+
+                self.rect.center = self.body.position[0] * b2p, 775 - self.body.position[1] * b2p
+                groundCollided = pygame.sprite.spritecollide(self, groundGroup, False)
+                if groundCollided:
+                    self.body.ApplyForce(b2Vec2(self.force, 0), self.body.position, True)
+                if self.rect.center == self.last_center:
+                    self.force = 0 - self.force
+            else:
+                self.last_center = self.rect.center
+                self.rect.center = self.body.position[0] * b2p, 775 - self.body.position[1] * b2p
+                self.counter = self.counter + 1 
+        else:
+            self.kill()           
 
 class Ground(egs.Game_objects.drawable):
 
@@ -90,10 +122,13 @@ class Ground(egs.Game_objects.drawable):
 
         piece_ss = SpriteSheet(filename)
 
-        width_in_pixels = w * b2w
-        height_in_pixels = h * b2w
+        self.dirty = 2
 
-        ground_rect = (0, 0, width_in_pixels, height_in_pixels)
+        width_in_pixels = w * b2p
+        height_in_pixels = h * b2p
+        
+        # Pixels may be off due to scaling issues.  Everything is currently multiplied by 4 other places
+        ground_rect = (0, 0, width_in_pixels//2, height_in_pixels//2)
         ground_image = piece_ss.image_at(ground_rect)
 
 
@@ -103,7 +138,7 @@ class Ground(egs.Game_objects.drawable):
         bigger_img = pygame.transform.scale(ground_image, (width_in_pixels * 2, height_in_pixels * 2))
         self.image = bigger_img.convert_alpha()
         self.rect = self.image.get_rect()
-        self.rect.center = self.body.position.x * b2w, 768 - self.body.position.y * b2w
+        self.rect.center = self.body.position.x * b2p, 768 - self.body.position.y * b2p
 
 class Koopa(egs.Game_objects.drawupdateable):
     color = (255,0,0)
@@ -195,7 +230,7 @@ class Mario(egs.Game_objects.drawupdateable):
         if(self.flipped):
             self.image = pygame.transform.flip(self.image, True, False)
 
-        self.rect.center = self.body.position[0] * b2w, 775 - self.body.position[1] * b2w
+        self.rect.center = self.body.position[0] * b2p, 775 - self.body.position[1] * b2p
         collided = pygame.sprite.spritecollide(self, groundGroup, False)
         for event in egs.Engine.events:
             if event.type == pygame.KEYDOWN:
@@ -275,7 +310,7 @@ class SuperMario(egs.Game_objects.drawupdateable):
         if(self.flipped):
             self.image = pygame.transform.flip(self.image, True, False)
 
-        self.rect.center = self.body.position[0] * b2w, 775 - self.body.position[1] * b2w
+        self.rect.center = self.body.position[0] * b2p, 775 - self.body.position[1] * b2p
         collided = pygame.sprite.spritecollide(self, groundGroup, False)
         for event in egs.Engine.events:
             if event.type == pygame.KEYDOWN:
@@ -334,16 +369,18 @@ class Updater(egs.Game_objects.updateable):
         world.ClearForces()
 
 
-
-engine = egs.Engine("Mario 1-1")
+width = 1024
+height = 768
+engine = egs.Engine("Mario 1-1", width = width, height = height)
 
 scene = egs.Scene("Scene 1")
 egs.Engine.current_scene = scene
 
 
-ground = Ground(0,0,11.04, .64)
-platform = Ground(.2,3,.2,.64)
+ground = Ground(0,.64,11.04, .64)
+platform = Ground(1,2.5,.64,.64)
 mario = SuperMario()
+goomba = Goomba((7,4))
 
 groundGroup = pygame.sprite.Group()
 groundGroup.add(ground)
@@ -352,8 +389,10 @@ groundGroup.add(platform)
 scene.drawables.add(ground)
 scene.drawables.add(platform)
 scene.drawables.add(mario)
+scene.drawables.add(goomba)
 
 scene.updateables.append(Updater())
 scene.updateables.append(mario)
+scene.updateables.append(goomba)
 
 engine.start_game()

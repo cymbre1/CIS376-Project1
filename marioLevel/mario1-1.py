@@ -47,19 +47,22 @@ class Ground(egs.Game_objects.drawable):
     def __init__(self, x, y, w, h):
         super().__init__()
 
-        filename = "world1-1.png"
+        filename = "ground.png"
 
         piece_ss = SpriteSheet(filename)
 
-        # ground_rect = (0, 208, 3376, 32)
-        # ground_image = piece_ss.image_at(ground_rect)
+        width_in_pixels = w * b2w
+        height_in_pixels = h * b2w
+
+        ground_rect = (0, 0, width_in_pixels, height_in_pixels)
+        ground_image = piece_ss.image_at(ground_rect)
 
 
         self.body = world.CreateStaticBody(position=(x, y), shapes=b2PolygonShape(box=(w, h)))
-        self.image = pygame.Surface((2*w*b2w, 2*h*b2w))
-        self.image.fill((0, 255, 0))
-        # bigger_img = pygame.transform.scale(ground_image, (3376*2, 64))
-        # self.image = bigger_img.convert_alpha()
+        # self.image = pygame.Surface((2*w*b2w, 2*h*b2w))
+        # self.image.fill((0, 255, 0))
+        bigger_img = pygame.transform.scale(ground_image, (width_in_pixels * 2, height_in_pixels * 2))
+        self.image = bigger_img.convert_alpha()
         self.rect = self.image.get_rect()
         self.rect.center = self.body.position.x * b2w, 768 - self.body.position.y * b2w
 
@@ -87,22 +90,14 @@ class KoopaShell(egs.Game_objects.drawupdateable):
     def update(self):
         print("Update and stuff")
 
-class Mario(pygame.sprite.DirtySprite):
-    color = (255,0,0)
-
-    # Sets the initial state of the Square class
-    def __init__(self):
-        super().__init__()
-        self.surf = pygame.Surface((35, 35))
-
-    # This function switches whether the square is black or colored
-    def update(self):
-        print("Update and stuff")
-
-class SuperMario(egs.Game_objects.drawupdateable):
-    # Sets the initial state of the Square class
-    mario_sprites = []
-    mario_version = 1
+class Mario(egs.Game_objects.drawupdateable):
+     # Sets the initial state of the Square class
+    mario_running = []
+    flipped = False
+    counter = 0
+    current_mario = 0
+    previous_center = ()
+    previous_bottom = ()
 
     def __init__(self):
         super().__init__()
@@ -110,30 +105,56 @@ class SuperMario(egs.Game_objects.drawupdateable):
         filename = "marioSprites.png"
 
         piece_ss = SpriteSheet(filename)
-        for i in range(4):
-            mario_rect = (i*38, 32, 16, 32)
+        for i in range(3):
+            mario_rect = (i*16, 0, 16, 16)
             mario_image = piece_ss.image_at(mario_rect)
-            self.mario_sprites.append(mario_image)
+            self.mario_running.append(mario_image)
+
+        mario_rect = (48, 0, 16, 16)
+        mario_image = piece_ss.image_at(mario_rect)
+        self.mario_running.append(mario_image)
+
+        mario_rect = (0,0,16,16)
+        self.mario_still = piece_ss.image_at(mario_rect)
+
+        mario_rect = (64,0,16,16)
+        self.mario_jump = piece_ss.image_at(mario_rect)
 
         self.body = world.CreateDynamicBody(position=(5,5))
-        shape=b2PolygonShape(box=(.32, .64))
-        fixDef = b2FixtureDef(shape=shape, friction=0.3, restitution=.5, density=.5)
+        shape=b2PolygonShape(box=(.32, .32))
+        fixDef = b2FixtureDef(shape=shape, friction=0.3, restitution=0, density=1)
         box = self.body.CreateFixture(fixDef)
         self.dirty = 2
-        bigger_img = pygame.transform.scale(self.mario_sprites[self.mario_version // 10], (64, 128))
+        bigger_img = pygame.transform.scale(self.mario_running[self.current_mario], (64, 64))
         self.image = bigger_img.convert_alpha()
+        if(self.flipped):
+            pygame.transform.flip(self.image, True, False)
         self.rect = self.image.get_rect()
 
     def update(self):
-        bigger_img = pygame.transform.scale(self.mario_sprites[self.mario_version // 10], (64, 128))
-        self.image = bigger_img.convert_alpha()
-        self.rect = self.image.get_rect()
-        if self.mario_version / 10 > 3:
-            self.mario_version = 1
+        if not self.previous_bottom == self.rect.bottom:
+            bigger_img = pygame.transform.scale(self.mario_jump, (64, 64))
+        elif self.previous_center == self.rect.center:
+            bigger_img = pygame.transform.scale(self.mario_still, (64, 64))
         else:
-                self.mario_version = self.mario_version + 1
+            bigger_img = pygame.transform.scale(self.mario_running[self.current_mario], (64, 64))
+            if self.counter == 10:
+                if self.current_mario == 3:
+                    self.current_mario = 0
+                else:
+                    self.current_mario = self.current_mario + 1
+                self.counter = 0
+            else:
+                self.counter = self.counter + 1
+        
+        self.previous_center = self.rect.center
+        self.previous_bottom = self.rect.bottom
 
-        # self.mario_version = 1 if self.mario_version == 4 else self.mario_version + 1
+        self.image = bigger_img.convert_alpha()
+        self.rect = self.image.get_rect()        
+
+        if(self.flipped):
+            self.image = pygame.transform.flip(self.image, True, False)
 
         self.rect.center = self.body.position[0] * b2w, 775 - self.body.position[1] * b2w
         collided = pygame.sprite.spritecollide(self, groundGroup, False)
@@ -141,8 +162,90 @@ class SuperMario(egs.Game_objects.drawupdateable):
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_a:
                     self.body.ApplyForce(b2Vec2(-75, 0), self.body.position, True)
+                    self.flipped = True
                 if event.key == pygame.K_d:
                     self.body.ApplyForce(b2Vec2(75,0), self.body.position, True)
+                    self.flipped = False
+                if event.key == pygame.K_w:
+                    if collided:
+                        self.body.ApplyLinearImpulse(b2Vec2(0,3), self.body.position, True)
+
+class SuperMario(egs.Game_objects.drawupdateable):
+    # Sets the initial state of the Square class
+    mario_running = []
+    flipped = False
+    counter = 0
+    current_mario = 0
+    previous_center = ()
+    previous_bottom = ()
+
+    def __init__(self):
+        super().__init__()
+
+        filename = "superMarioSprites.png"
+
+        piece_ss = SpriteSheet(filename)
+        for i in range(3):
+            mario_rect = (i*16, 0, 16, 32)
+            mario_image = piece_ss.image_at(mario_rect)
+            self.mario_running.append(mario_image)
+
+        mario_rect = (48, 0, 16, 32)
+        mario_image = piece_ss.image_at(mario_rect)
+        self.mario_running.append(mario_image)
+
+        mario_rect = (0,0,16,32)
+        self.mario_still = piece_ss.image_at(mario_rect)
+
+        mario_rect = (64,0,16,32)
+        self.mario_jump = piece_ss.image_at(mario_rect)
+
+        self.body = world.CreateDynamicBody(position=(5,5))
+        shape=b2PolygonShape(box=(.32, .64))
+        fixDef = b2FixtureDef(shape=shape, friction=0.3, restitution=0, density=.5)
+        box = self.body.CreateFixture(fixDef)
+        self.dirty = 2
+        bigger_img = pygame.transform.scale(self.mario_running[self.current_mario], (64, 128))
+        self.image = bigger_img.convert_alpha()
+        if(self.flipped):
+            pygame.transform.flip(self.image, True, False)
+        self.rect = self.image.get_rect()
+
+    def update(self):
+        if not self.previous_bottom == self.rect.bottom:
+            bigger_img = pygame.transform.scale(self.mario_jump, (64, 128))
+        elif self.previous_center == self.rect.center:
+            bigger_img = pygame.transform.scale(self.mario_still, (64, 128))
+        else:
+            bigger_img = pygame.transform.scale(self.mario_running[self.current_mario], (64, 128))
+            if self.counter == 10:
+                if self.current_mario == 3:
+                    self.current_mario = 0
+                else:
+                    self.current_mario = self.current_mario + 1
+                self.counter = 0
+            else:
+                self.counter = self.counter + 1
+        
+        self.previous_center = self.rect.center
+        self.previous_bottom = self.rect.bottom
+
+        self.image = bigger_img.convert_alpha()
+        self.rect = self.image.get_rect()        
+
+        if(self.flipped):
+            self.image = pygame.transform.flip(self.image, True, False)
+
+        self.rect.center = self.body.position[0] * b2w, 775 - self.body.position[1] * b2w
+        collided = pygame.sprite.spritecollide(self, groundGroup, False)
+        for event in egs.Engine.events:
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_a:
+                    self.body.ApplyForce(b2Vec2(-75, 0), self.body.position, True)
+                    self.flipped = True
+                if event.key == pygame.K_d:
+                    self.body.ApplyForce(b2Vec2(75,0), self.body.position, True)
+                    self.flipped = False
                 if event.key == pygame.K_w:
                     if collided:
                         self.body.ApplyLinearImpulse(b2Vec2(0,3), self.body.position, True)
@@ -199,8 +302,8 @@ scene = egs.Scene("Scene 1")
 egs.Engine.current_scene = scene
 
 
-ground = Ground(0,0.5,25, .5)
-platform = Ground(.0,3,.5,.5)
+ground = Ground(0,0,11.04, .64)
+platform = Ground(.2,3,.2,.64)
 mario = SuperMario()
 
 groundGroup = pygame.sprite.Group()

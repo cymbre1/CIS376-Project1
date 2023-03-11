@@ -42,9 +42,19 @@ class Ground(egs.Game_objects.drawable):
     # Sets the initial state of the Square class
     def __init__(self, x, y, w, h):
         super().__init__()
+
+        filename = "tileset.png"
+
+        piece_ss = SpriteSheet(filename)
+
+        ground_rect = (0, 16, 16, 16)
+        ground_image = piece_ss.image_at(ground_rect)
+
+
         self.body = world.CreateStaticBody(position=(x, y), shapes=b2PolygonShape(box=(w, h)))
-        self.image = pygame.Surface((2*w*b2w, 2*h*b2w))
-        self.image.fill((0, 255, 0))
+        # self.image = pygame.Surface((2*w*b2w, 2*h*b2w))
+        # self.image.fill((0, 255, 0))
+        self.image = ground_image
         self.rect = self.image.get_rect()
         self.rect.center = self.body.position.x * b2w, 768 - self.body.position.y * b2w
 
@@ -86,6 +96,8 @@ class Mario(pygame.sprite.DirtySprite):
 
 class SuperMario(egs.Game_objects.drawupdateable):
     # Sets the initial state of the Square class
+    mario_sprites = []
+    mario_version = 1
 
     def __init__(self):
         super().__init__()
@@ -93,27 +105,39 @@ class SuperMario(egs.Game_objects.drawupdateable):
         filename = "marioSprites.png"
 
         piece_ss = SpriteSheet(filename)
-        mario_rect = (0, 32, 16, 32)
-        mario_image = piece_ss.image_at(mario_rect)
+        for i in range(5):
+            mario_rect = (i*38, 32, 16, 32)
+            mario_image = piece_ss.image_at(mario_rect)
+            self.mario_sprites.append(mario_image)
 
         self.body = world.CreateDynamicBody(position=(5,5))
         shape=b2PolygonShape(box=(.32, .64))
         fixDef = b2FixtureDef(shape=shape, friction=0.3, restitution=.5, density=.5)
         box = self.body.CreateFixture(fixDef)
         self.dirty = 2
-        bigger_img = pygame.transform.scale(mario_image, (64, 128))
+        bigger_img = pygame.transform.scale(self.mario_sprites[self.mario_version // 10], (64, 128))
         self.image = bigger_img.convert_alpha()
         self.rect = self.image.get_rect()
 
     def update(self):
+        bigger_img = pygame.transform.scale(self.mario_sprites[self.mario_version // 10], (64, 128))
+        self.image = bigger_img.convert_alpha()
+        self.rect = self.image.get_rect()
+        if self.mario_version / 10 > 4:
+            self.mario_version = 1
+        else:
+                self.mario_version = self.mario_version + 1
+
+        # self.mario_version = 1 if self.mario_version == 4 else self.mario_version + 1
+
         self.rect.center = self.body.position[0] * b2w, 775 - self.body.position[1] * b2w
         collided = pygame.sprite.spritecollide(self, groundGroup, False)
         for event in egs.Engine.events:
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_a:
-                    self.body.ApplyForce(b2Vec2(-100, 0), self.body.position, True)
+                    self.body.ApplyForce(b2Vec2(-75, 0), self.body.position, True)
                 if event.key == pygame.K_d:
-                    self.body.ApplyForce(b2Vec2(100,0), self.body.position, True)
+                    self.body.ApplyForce(b2Vec2(75,0), self.body.position, True)
                 if event.key == pygame.K_w:
                     if collided:
                         self.body.ApplyLinearImpulse(b2Vec2(0,3), self.body.position, True)

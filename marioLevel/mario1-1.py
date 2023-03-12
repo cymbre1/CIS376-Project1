@@ -30,19 +30,19 @@ class Flag(egs.Game_objects.drawupdateable):
     index = 0
     counter = 0
     # Sets the initial state of the Square class
-    def __init__(self):
+    def __init__(self, pos):
         super().__init__()
 
         # self.reached = True
         
         filename = "flag.png"
         piece_ss = SpriteSheet(filename)
-        for i in range(10):
+        for i in range(9):
             flag_rect = (i*128, 0, 128, 704)
             flag_image = piece_ss.image_at(flag_rect)
             self.flag_sprites.append(flag_image)
-        self.body = world.CreateStaticBody(position = (6, 5), shapes = b2PolygonShape(box = (p2b* 64, p2b*352)))
-        self.dirty = 1
+        self.body = world.CreateStaticBody(position = pos, shapes = b2PolygonShape(box = (p2b* 64, p2b*352)))
+        self.dirty = 2
         self.image = self.flag_sprites[self.index].convert_alpha()
         self.rect = self.image.get_rect()
 
@@ -52,11 +52,8 @@ class Flag(egs.Game_objects.drawupdateable):
 
         if self.counter == 5:
             self.counter = 0
-            if self.index < 9:
-                self.index += 1
-                self.dirty = 1
-            else:
-                self.dirty = 0
+            if self.index < 8:
+                self.index += 1       
         else:
             self.counter += 1
 
@@ -144,7 +141,7 @@ class Koopa(egs.Game_objects.drawupdateable):
     step_counter = 0
 
     # Sets the initial state of the Square class
-    def __init__(self):
+    def __init__(self, pos):
         super().__init__()
         
         filename = "enemies.png"
@@ -154,7 +151,7 @@ class Koopa(egs.Game_objects.drawupdateable):
         koopa_image = piece_ss.image_at(koopa_rect)
         self.koopa_walking.append(koopa_image)
 
-        self.body = world.CreateDynamicBody(position=(5,5))
+        self.body = world.CreateDynamicBody(position=pos)
         shape=b2PolygonShape(box=(p2b*16, p2b*16))
         fixDef = b2FixtureDef(shape=shape, friction=0.3, restitution=0, density=1)
         box = self.body.CreateFixture(fixDef)
@@ -226,7 +223,7 @@ class Mario(egs.Game_objects.drawupdateable):
     previous_bottom = ()
     dead = False
 
-    def __init__(self):
+    def __init__(self, pos):
         super().__init__()
 
         filename = "marioSprites.png"
@@ -247,10 +244,11 @@ class Mario(egs.Game_objects.drawupdateable):
         mario_rect = (256,0,64,64)
         self.mario_jump = piece_ss.image_at(mario_rect)
 
-        mario_rect = (80,0,16,16)
+        mario_rect = (320,0,64,64)
         self.mario_dying = piece_ss.image_at(mario_rect)
 
-        self.body = world.CreateDynamicBody(position=(5,5))
+
+        self.body = world.CreateDynamicBody(position=pos)
         shape=b2PolygonShape(box=(p2b*32, p2b*32))
         fixDef = b2FixtureDef(shape=shape, friction=0.3, restitution=0, density=1)
         box = self.body.CreateFixture(fixDef)
@@ -337,7 +335,7 @@ class SuperMario(egs.Game_objects.drawupdateable):
     collision = [False] * 9
     dead = False
 
-    def __init__(self):
+    def __init__(self, pos):
         super().__init__()
 
         filename = "superMarioSprites.png"
@@ -358,7 +356,7 @@ class SuperMario(egs.Game_objects.drawupdateable):
         mario_rect = (256, 0, 64, 128)
         self.mario_jump = piece_ss.image_at(mario_rect)
 
-        self.body = world.CreateDynamicBody(position=(5,5))
+        self.body = world.CreateDynamicBody(position=pos)
         shape=b2PolygonShape(box=(p2b*32, p2b*64))
         fixDef = b2FixtureDef(shape=shape, friction=0.3, restitution=0, density=.5)
         box = self.body.CreateFixture(fixDef)
@@ -480,12 +478,12 @@ scene = egs.Scene("Scene 1")
 egs.Engine.current_scene = scene
 
 
-ground = Ground(0,.64,11.04, .64)
+ground = Ground(10.24,.64,11.52, .64)
 platform = Ground(2.56 ,2.56,.64,.64)
-mario = SuperMario()
-goomba = Goomba((4,4))
-# flag = Flag()
-# koopa = Koopa()
+mario = SuperMario((3,4))
+# goomba = Goomba((7,4))
+# flag = Flag((5,5))
+koopa = Koopa((5,5))
 
 groundGroup = pygame.sprite.Group()
 groundGroup.add(ground)

@@ -13,6 +13,18 @@ vec_iters, pos_iters = 6,2
 p2b = 1/100
 b2p = 100
 
+class Background(egs.Game_objects.drawable):
+    def __init__(self):
+        super().__init__()
+
+        filename = "background.png"
+
+        self.dirty = 2
+        self.image = pygame.image.load(filename)
+        self.rect = self.image.get_rect()
+        self.rect.topleft = (0,0)
+        
+
 class Brick(egs.Game_objects.drawable):
     color = (255,0,0)
 
@@ -471,42 +483,45 @@ class Updater(egs.Game_objects.updateable):
 
 
 width = 1024
-height = 768
+height = 832
 engine = egs.Engine("Mario 1-1", width = width, height = height)
 
 scene = egs.Scene("Scene 1")
 egs.Engine.current_scene = scene
 
+background = Background()
 
-ground = Ground(10.24,.64,11.52, .64)
+
+ground = Ground(5.12,.64,5.76, .64)
 platform = Ground(2.56 ,2.56,.64,.64)
-mario = SuperMario((3,4))
-# goomba = Goomba((7,4))
-# flag = Flag((5,5))
-koopa = Koopa((5,5))
+mario = SuperMario((2.24, 3.52))
+goomba = Goomba((2.88,3.52))
+flag = Flag((9.6,4.8))
+koopa = Koopa((4.8,1.76))
 
 groundGroup = pygame.sprite.Group()
 groundGroup.add(ground)
 groundGroup.add(platform)
 
 enemiesGroup = pygame.sprite.Group()
-enemiesGroup.add(goomba)
+# enemiesGroup.add(goomba)
 # enemiesGroup.add(koopa)
 
 marioGroup = pygame.sprite.Group()
 marioGroup.add(mario)
 
+scene.drawables.add(background)
 scene.drawables.add(ground)
 scene.drawables.add(platform)
 scene.drawables.add(mario)
 scene.drawables.add(goomba)
-# scene.drawables.add(koopa)
-# scene.drawables.add(flag)
+scene.drawables.add(koopa)
+scene.drawables.add(flag)
 
 scene.updateables.append(Updater())
 scene.updateables.append(mario)
 scene.updateables.append(goomba)
-# scene.updateables.append(koopa)
-# scene.updateables.append(flag)
+scene.updateables.append(koopa)
+scene.updateables.append(flag)
 
 engine.start_game()

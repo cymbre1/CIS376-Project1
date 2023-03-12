@@ -194,9 +194,24 @@ class Koopa(egs.Game_objects.drawupdateable):
             self.counter = self.counter + 1
 
         self.rect = self.image.get_rect()
-        collided = pygame.sprite.spritecollide(self, groundGroup, False)
+        # collided = pygame.sprite.spritecollide(self, groundGroup, False)
+
+        collidedWithEnemy = pygame.sprite.spritecollide(self, marioGroup, False)
+        if(collidedWithEnemy):
+            for e in enemiesGroup:
+                if not self.collided_with_top(e.rect):
+                    self.dead = True
+                    mario = Mario()
+                    scene.drawables.add(mario)
+                    scene.updateables.append(mario)
+                    marioGroup.add(mario)
+                    self.kill()
+                    return
 
         self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p
+
+    def collided_with_top(self, rect):
+        return rect.collidepoint(self.rect.topleft) or rect.collidepoint(self.rect.topright) or rect.collidepoint(self.rect.midtop)
 
 # class KoopaShell(egs.Game_objects.drawupdateable):
 
@@ -209,6 +224,7 @@ class Mario(egs.Game_objects.drawupdateable):
     current_mario = 0
     previous_center = ()
     previous_bottom = ()
+    dead = False
 
     def __init__(self):
         super().__init__()
@@ -231,6 +247,9 @@ class Mario(egs.Game_objects.drawupdateable):
         mario_rect = (256,0,64,64)
         self.mario_jump = piece_ss.image_at(mario_rect)
 
+        mario_rect = (80,0,16,16)
+        self.mario_dying = piece_ss.image_at(mario_rect)
+
         self.body = world.CreateDynamicBody(position=(5,5))
         shape=b2PolygonShape(box=(p2b*32, p2b*32))
         fixDef = b2FixtureDef(shape=shape, friction=0.3, restitution=0, density=1)
@@ -242,6 +261,20 @@ class Mario(egs.Game_objects.drawupdateable):
         self.rect = self.image.get_rect()
 
     def update(self):
+        if self.dead and self.counter < 30:
+            bigger_img = pygame.transform.scale(self.mario_dying, (64, 64))
+            self.image = bigger_img.convert_alpha()
+            self.rect = self.image.get_rect()
+            self.counter += 1
+            self.rect.center = self.body.position[0] * b2p, 775 - self.body.position[1] * b2p
+            return
+        if self.dead and self.counter == 30:
+            self.kill()
+            return
+        
+        if self.dead:
+            return
+
         if not self.previous_bottom == self.rect.bottom:
             bigger_img = self.mario_jump
         elif self.previous_center == self.rect.center:
@@ -268,6 +301,16 @@ class Mario(egs.Game_objects.drawupdateable):
 
         self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p
         collided = pygame.sprite.spritecollide(self, groundGroup, False)
+
+        # Deal with Collisions with Enemies
+        collidedWithEnemy = pygame.sprite.spritecollide(self, enemiesGroup, False)
+        if(collidedWithEnemy):
+            for e in enemiesGroup:
+                if not self.collided_with_bottom(e.rect):
+                    self.dead = True
+                    self.counter = 0
+                    return
+
         for event in egs.Engine.events:
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_a:
@@ -280,6 +323,9 @@ class Mario(egs.Game_objects.drawupdateable):
                     if collided:
                         self.body.ApplyLinearImpulse(b2Vec2(0,3), self.body.position, True)
 
+    def collided_with_bottom(self, rect):
+        return rect.collidepoint(self.rect.bottomleft) or rect.collidepoint(self.rect.bottomright) or rect.collidepoint(self.rect.midbottom)
+
 class SuperMario(egs.Game_objects.drawupdateable):
     # Sets the initial state of the Square class
     mario_running = []
@@ -288,6 +334,8 @@ class SuperMario(egs.Game_objects.drawupdateable):
     current_mario = 0
     previous_center = ()
     previous_bottom = ()
+    collision = [False] * 9
+    dead = False
 
     def __init__(self):
         super().__init__()
@@ -321,6 +369,9 @@ class SuperMario(egs.Game_objects.drawupdateable):
         self.rect = self.image.get_rect()
 
     def update(self):
+        if(self.dead):
+            return
+
         if not self.previous_bottom == self.rect.bottom:
             bigger_img =self.mario_jump
         elif self.previous_center == self.rect.center:
@@ -347,6 +398,20 @@ class SuperMario(egs.Game_objects.drawupdateable):
 
         self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p
         collided = pygame.sprite.spritecollide(self, groundGroup, False)
+        
+        # Deal with Collisions with Enemies
+        collidedWithEnemy = pygame.sprite.spritecollide(self, enemiesGroup, False)
+        if(collidedWithEnemy):
+            for e in enemiesGroup:
+                if not self.collided_with_bottom(e.rect):
+                    self.dead = True
+                    mario = Mario()
+                    scene.drawables.add(mario)
+                    scene.updateables.append(mario)
+                    marioGroup.add(mario)
+                    self.kill()
+                    return
+
         for event in egs.Engine.events:
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_a:
@@ -358,6 +423,9 @@ class SuperMario(egs.Game_objects.drawupdateable):
                 if event.key == pygame.K_w:
                     if collided:
                         self.body.ApplyLinearImpulse(b2Vec2(0,3), self.body.position, True)
+
+    def collided_with_bottom(self, rect):
+        return rect.collidepoint(self.rect.bottomleft) or rect.collidepoint(self.rect.bottomright) or rect.collidepoint(self.rect.midbottom)
 
 class QuestionBlock(egs.Game_objects.drawable):
     color = (255,0,0)
@@ -415,25 +483,32 @@ egs.Engine.current_scene = scene
 ground = Ground(0,.64,11.04, .64)
 platform = Ground(2.56 ,2.56,.64,.64)
 mario = SuperMario()
-goomba = Goomba((7,4))
+goomba = Goomba((4,4))
 # flag = Flag()
-koopa = Koopa()
+# koopa = Koopa()
 
 groundGroup = pygame.sprite.Group()
 groundGroup.add(ground)
 groundGroup.add(platform)
 
+enemiesGroup = pygame.sprite.Group()
+enemiesGroup.add(goomba)
+# enemiesGroup.add(koopa)
+
+marioGroup = pygame.sprite.Group()
+marioGroup.add(mario)
+
 scene.drawables.add(ground)
 scene.drawables.add(platform)
 scene.drawables.add(mario)
 scene.drawables.add(goomba)
-scene.drawables.add(koopa)
+# scene.drawables.add(koopa)
 # scene.drawables.add(flag)
 
 scene.updateables.append(Updater())
 scene.updateables.append(mario)
 scene.updateables.append(goomba)
-scene.updateables.append(koopa)
+# scene.updateables.append(koopa)
 # scene.updateables.append(flag)
 
 engine.start_game()

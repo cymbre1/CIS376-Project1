@@ -111,7 +111,7 @@ class Goomba(egs.Game_objects.drawupdateable):
             self.image = bigger_img.convert_alpha()
             self.rect = self.image.get_rect()
             self.counter += 1
-            self.rect.center = self.body.position[0] * b2p, 775 - self.body.position[1] * b2p
+            self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p
             enemiesGroup.remove(self)
             return
         if self.dead and self.counter == 30:

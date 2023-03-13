@@ -199,7 +199,7 @@ class Koopa(egs.Game_objects.drawupdateable):
         self.koopa_walking.append(koopa_image)
 
         self.body = world.CreateDynamicBody(position=pos, fixedRotation = True)
-        shape=b2PolygonShape(box=(p2b*16, p2b*16))
+        shape=b2PolygonShape(box=(p2b*32, p2b*48))
         fixDef = b2FixtureDef(shape=shape, friction=0.3, restitution=0, density=1)
         box = self.body.CreateFixture(fixDef)
         self.dirty = 2
@@ -274,7 +274,7 @@ class KoopaShell(egs.Game_objects.drawupdateable):
         self.koopa_shell_legs = piece_ss.image_at(koopa_rect)
 
         self.body = world.CreateDynamicBody(position=pos, fixedRotation = True)
-        shape=b2PolygonShape(box=(p2b*16, p2b*16))
+        shape=b2PolygonShape(box=(p2b*32, p2b*32))
         fixDef = b2FixtureDef(shape=shape, friction=0.05, restitution=0, density=1)
         box = self.body.CreateFixture(fixDef)
         self.dirty = 2

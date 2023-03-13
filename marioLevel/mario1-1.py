@@ -28,21 +28,69 @@ class Background(egs.Game_objects.drawable):
         self.rect.topleft = (0,0)
         
 
-# class Brick(egs.Game_objects.drawable):
-    # # Sets the initial state of the Square class
-    # def __init__(self, pos):
-    #     super().__init__()
+class Brick(egs.Game_objects.drawable):
+    # Sets the initial state of the Square class
+    def __init__(self, pos):
+        super().__init__()
 
-    #     filename = "ground.png"
+        filename = "image/tileset.png"
 
-    #     piece_ss = SpriteSheet(filename)
+        piece_ss = SpriteSheet(filename)
 
-    #     brick_rect = (0, 0, 64, 64)
-    #     ground_image = piece_ss.image_at(brick_rect)
+        self.dirty = 2
 
-    # # This function switches whether the square is black or colored
-    # def update(self):
-    #     print("Update and stuff")
+        brick_rect = (0, 68, 68, 68)
+        ground_image = piece_ss.image_at(brick_rect)
+        self.image = ground_image.convert_alpha()
+        self.body = world.CreateStaticBody(position = pos, shapes = b2PolygonShape(box = (p2b*32, p2b*32)))
+        self.rect = self.image.get_rect()
+
+        self.rect.center = self.body.position[0] * b2p , height - self.body.position[1] * b2p
+
+    # This function switches whether the square is black or colored
+    def update(self):
+        collidedWithMario = pygame.sprite.spritecollide(self, groundGroup, False)
+
+        if collidedWithMario:
+            for m in marioGroup:
+                if m.rect.collidepoint(self.rect.midbottom):
+                    self.kill()
+                    self.body.position = (-10.0, -10.0)
+
+        self.rect.center = self.body.position[0] * b2p , height - self.body.position[1] * b2p
+
+class Coin(egs.Game_objects.drawupdateable):
+    def __init__(self, pos):
+        super().__init__()
+
+        filename = "image/tileset.png"
+
+        piece_ss = SpriteSheet(filename)
+
+        self.dirty = 2
+
+        coin_rect = (134, 0, 68, 68)
+        ground_image = piece_ss.image_at(coin_rect)
+        self.image = ground_image.convert_alpha()
+        self.body = world.CreateStaticBody(position = pos, shapes = b2PolygonShape(box = (p2b*32, p2b*32)))
+        self.rect = self.image.get_rect()
+
+        self.rect.center = self.body.position[0] * b2p , height - self.body.position[1] * b2p
+
+    # This function switches whether the square is black or colored
+    def update(self):
+        global coin_count
+        collidedWithMario = pygame.sprite.spritecollide(self, marioGroup, False)
+
+        if collidedWithMario:
+            self.kill()
+            self.body.position = (-10.0, -10.0)
+            self.rect.center = -100 * b2p, height - -100 * b2p
+            coin_count += 1
+
+
+        self.rect.center = self.body.position[0] * b2p , height - self.body.position[1] * b2p
+
 
 class Flag(egs.Game_objects.drawupdateable):
     flag_sprites = []
@@ -115,6 +163,9 @@ class Goomba(egs.Game_objects.drawupdateable):
 
     # This function switches whether the square is black or colored
     def update(self):
+        if not self.body:
+            return
+
         if self.dead and self.counter < 30:
             bigger_img = pygame.transform.scale(self.goomba_dying, (64, 64))
             self.image = bigger_img.convert_alpha()
@@ -124,10 +175,12 @@ class Goomba(egs.Game_objects.drawupdateable):
             enemiesGroup.remove(self)
             return
         if self.dead and self.counter == 30:
+            self.body.position = (-10.0, -10.0)
             self.kill()
             return
         
         if self.dead:
+            self.rect.center = -100 * b2p, height - -100 * b2p
             return
 
         if self.rect.right > -100:
@@ -144,10 +197,11 @@ class Goomba(egs.Game_objects.drawupdateable):
 
                 collidedWithEnemy = pygame.sprite.spritecollide(self, marioGroup, False)
                 if(collidedWithEnemy):
-                    for e in enemiesGroup:
-                        if self.collided_with_top(e.rect):
+                    for m in marioGroup:
+                        if self.collided_with_top(m.rect):
                             self.dead = True
                             self.counter = 0
+                            enemiesGroup.remove(self)
                             return
 
             else:
@@ -155,7 +209,9 @@ class Goomba(egs.Game_objects.drawupdateable):
                 self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p
                 self.counter = self.counter + 1 
         else:
-            self.kill()          
+            self.kill()    
+            self.body.position = (-10.0, -10.0)
+      
 
     def collided_with_top(self, rect):
         return rect.collidepoint(self.rect.topleft) or rect.collidepoint(self.rect.topright) or rect.collidepoint(self.rect.midtop)
@@ -232,6 +288,7 @@ class Koopa(egs.Game_objects.drawupdateable):
     # This function switches whether the square is black or colored
     def update(self):
         if self.dead:
+            self.rect.center = -100 * b2p, height - -100 * b2p
             return
 
         if self.counter == 30:
@@ -264,7 +321,13 @@ class Koopa(egs.Game_objects.drawupdateable):
             for e in enemiesGroup:
                 if self.collided_with_top(e.rect):
                     self.dead = True
+                    koopa = KoopaShell(self.body.position)
+                    scene.drawables.add(koopa)
+                    scene.updateables.append(koopa)
+                    enemiesGroup.add(koopa)
+                    enemiesGroup.remove(self)
                     self.kill()
+                    self.body.position = (-10.0, -10.0)
                     return
 
         self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p
@@ -304,6 +367,7 @@ class KoopaShell(egs.Game_objects.drawupdateable):
     # This function switches whether the square is black or colored
     def update(self):
         if self.dead:
+            self.rect.center = -100 * b2p, height - -100 * b2p
             return
 
         if self.counter == 560:
@@ -313,6 +377,7 @@ class KoopaShell(egs.Game_objects.drawupdateable):
             scene.updateables.append(koopa)
             self.dead = True
             self.kill()
+            self.body.position = (-10.0, -10.0)
             return
         
         if self.counter == 360:
@@ -344,8 +409,10 @@ class Mario(egs.Game_objects.drawupdateable):
     previous_bottom = ()
     dead = False
 
-    def __init__(self, pos):
+    def __init__(self, pos, immunity = 0):
         super().__init__()
+
+        self.immune = immunity
 
         if os.name == 'nt':
             filename = "image\\marioSprites.png"
@@ -372,7 +439,7 @@ class Mario(egs.Game_objects.drawupdateable):
         self.mario_dying = piece_ss.image_at(mario_rect)
 
 
-        self.body = world.CreateDynamicBody(position=pos)
+        self.body = world.CreateDynamicBody(position=pos, fixedRotation=True)
         shape=b2PolygonShape(box=(p2b*32, p2b*32))
         fixDef = b2FixtureDef(shape=shape, friction=0.3, restitution=0, density=1)
         box = self.body.CreateFixture(fixDef)
@@ -383,6 +450,7 @@ class Mario(egs.Game_objects.drawupdateable):
         self.rect = self.image.get_rect()
 
     def update(self):
+
         if self.dead and self.counter < 30:
             self.image = self.mario_dying.convert_alpha()
             self.rect = self.image.get_rect()
@@ -391,11 +459,12 @@ class Mario(egs.Game_objects.drawupdateable):
             return
         if self.dead and self.counter == 30:
             self.kill()
+            self.body.position = (-10.0, -10.0)
             return
         
         if self.dead:
             return
-
+        
         if not self.previous_bottom == self.rect.bottom:
             bigger_img = self.mario_jump
         elif self.previous_center == self.rect.center:
@@ -423,14 +492,15 @@ class Mario(egs.Game_objects.drawupdateable):
         self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p
         collided = pygame.sprite.spritecollide(self, groundGroup, False)
 
-        # Deal with Collisions with Enemies
-        collidedWithEnemy = pygame.sprite.spritecollide(self, enemiesGroup, False)
-        if(collidedWithEnemy):
-            for e in enemiesGroup:
-                if not self.collided_with_bottom(e.rect):
-                    self.dead = True
-                    self.counter = 0
-                    return
+        if self.immune < 0:
+            # Deal with Collisions with Enemies
+            collidedWithEnemy = pygame.sprite.spritecollide(self, enemiesGroup, False)
+            if(collidedWithEnemy):
+                for e in enemiesGroup:
+                    if not self.collided_with_bottom(e.rect):
+                        self.dead = True
+                        self.counter = 0
+                        return
 
         for event in egs.Engine.events:
             if event.type == pygame.KEYDOWN:
@@ -444,6 +514,7 @@ class Mario(egs.Game_objects.drawupdateable):
                     if collided:
                         self.body.ApplyLinearImpulse(b2Vec2(0,3), self.body.position, True)
         
+        self.immune -= 1
         self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p
 
     def collided_with_bottom(self, rect):
@@ -531,11 +602,12 @@ class SuperMario(egs.Game_objects.drawupdateable):
             for e in enemiesGroup:
                 if not self.collided_with_bottom(e.rect):
                     self.dead = True
-                    mario = Mario(self.body.position)
+                    mario = Mario(self.body.position, 500)
                     scene.drawables.add(mario)
                     scene.updateables.append(mario)
                     marioGroup.add(mario)
                     self.kill()
+                    self.body.position = (-10.0, -10.0)
                     return
 
         for event in egs.Engine.events:
@@ -553,18 +625,52 @@ class SuperMario(egs.Game_objects.drawupdateable):
         self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p
 
     def collided_with_bottom(self, rect):
-        return rect.collidepoint(self.rect.bottomleft) or rect.collidepoint(self.rect.bottomright) or rect.collidepoint(self.rect.midbottom)
+        return rect.collidepoint(self.rect.midbottom)
 class QuestionBlock(egs.Game_objects.drawable):
-    color = (255,0,0)
-
-    # Sets the initial state of the Square class
-    def __init__(self):
+    destroyed = False
+     # Sets the initial state of the Square class
+    def __init__(self, pos, powerup = 'coin'):
         super().__init__()
-        self.surf = pygame.Surface((35, 35))
+
+        filename = "image/tileset.png"
+
+        piece_ss = SpriteSheet(filename)
+        self.powerup = powerup
+
+        self.dirty = 2
+
+        brick_rect = (68, 0, 68, 68)
+        ground_image = piece_ss.image_at(brick_rect)
+        self.image = ground_image.convert_alpha()
+        self.body = world.CreateStaticBody(position = pos, shapes = b2PolygonShape(box = (p2b*32, p2b*32)))
+        self.rect = self.image.get_rect()
+
+        self.rect.center = self.body.position[0] * b2p , height - self.body.position[1] * b2p
 
     # This function switches whether the square is black or colored
     def update(self):
-        print("Update and stuff")
+        if self.destroyed:
+            return
+
+        collidedWithMario = pygame.sprite.spritecollide(self, groundGroup, False)
+
+        if collidedWithMario:
+            for m in marioGroup:
+                if m.rect.collidepoint(self.rect.midbottom):
+                    self.kill()
+                    stone = SolidStone(self.body.position)
+                    powerup = Coin((self.body.position.x, self.body.position.y + .64))
+                    self.body.position = (-10.0, -10.0)
+                    groundGroup.add(stone)
+                    scene.drawables.add(stone)
+                    scene.drawables.add(powerup)
+                    scene.updateables.append(stone)
+                    scene.updateables.append(powerup)
+                    self.destroyed = True
+                    return
+
+
+        self.rect.center = self.body.position[0] * b2p , height - self.body.position[1] * b2p
 
 class Pipe(egs.Game_objects.drawable):
     color = (255,0,0)
@@ -579,28 +685,38 @@ class Pipe(egs.Game_objects.drawable):
         print("Update and stuff")
 
 class SolidStone(egs.Game_objects.drawable):
-    color = (255,0,0)
-
-    # Sets the initial state of the Square class
-    def __init__(self):
+     # Sets the initial state of the Square class
+    def __init__(self, pos):
         super().__init__()
-        self.surf = pygame.Surface((35, 35))
 
-    # This function switches whether the square is black or colored
-    def update(self):
-        print("Update and stuff")
+        filename = "image/tileset.png"
+
+        piece_ss = SpriteSheet(filename)
+
+        self.dirty = 2
+
+        brick_rect = (68, 68, 68, 68)
+        ground_image = piece_ss.image_at(brick_rect)
+        self.image = ground_image.convert_alpha()
+        self.body = world.CreateStaticBody(position = pos, shapes = b2PolygonShape(box = (p2b*32, p2b*32)))
+        self.rect = self.image.get_rect()
+
+        self.rect.center = self.body.position[0] * b2p , height - self.body.position[1] * b2p
 
 class Updater(egs.Game_objects.updateable):
     def __init__(self):
         super().__init__()
 
     def update(self):
-        world.Step(timeStep, vec_iters, pos_iters)
-        world.ClearForces()
-
+        try:
+            world.Step(timeStep, vec_iters, pos_iters)
+            world.ClearForces()
+        except:
+            print("Oh no")
 
 width = 1024
 height = 832
+coin_count = 0
 engine = egs.Engine("Mario 1-1", width = width, height = height)
 
 scene = egs.Scene("Scene 1")
@@ -610,15 +726,15 @@ background = Background()
 
 
 ground = Ground(5.12,.64,12.8, 1.28)
-# platform = Ground(2.56 ,2.56,.64,.64)
-mario = Mario((2.24, 3.52))
+platform = QuestionBlock((2.56, 3.20))
+mario = SuperMario((2.24, 3.52))
 goomba = Goomba((4,3.52))
 flag = Flag((9.92,4.8))
-koopa = KoopaShell((4.8,1.76))
+koopa = Koopa((4.8,1.76))
 
 groundGroup = pygame.sprite.Group()
 groundGroup.add(ground)
-# groundGroup.add(platform)
+groundGroup.add(platform)
 
 enemiesGroup = pygame.sprite.Group()
 enemiesGroup.add(goomba)
@@ -629,7 +745,7 @@ marioGroup.add(mario)
 
 scene.drawables.add(background)
 scene.drawables.add(ground)
-# scene.drawables.add(platform)
+scene.drawables.add(platform)
 scene.drawables.add(mario)
 scene.drawables.add(goomba)
 scene.drawables.add(koopa)
@@ -637,6 +753,7 @@ scene.drawables.add(flag)
 
 scene.updateables.append(Updater())
 scene.updateables.append(mario)
+scene.updateables.append(platform)
 scene.updateables.append(goomba)
 scene.updateables.append(koopa)
 scene.updateables.append(flag)

@@ -54,7 +54,7 @@ class Flag(egs.Game_objects.drawupdateable):
         filename = "image\\flag.png"
         piece_ss = SpriteSheet(filename)
         for i in range(9):
-            flag_rect = (i*128, 0, 128, 705)
+            flag_rect = (i*128, 0, 128, 708)
             flag_image = piece_ss.image_at(flag_rect)
             self.flag_sprites.append(flag_image)
         self.body = world.CreateStaticBody(position = pos, shapes = b2PolygonShape(box = (p2b* 64, p2b*352)))
@@ -89,11 +89,11 @@ class Goomba(egs.Game_objects.drawupdateable):
 
         piece_ss = SpriteSheet(filename)
         for i in range (2):
-            goomba_rect = (i*64, 0, 64, 64)
+            goomba_rect = (i*68, 0, 68, 68)
             goomba_image = piece_ss.image_at(goomba_rect)
             self.goomba_sprites.append(goomba_image)
 
-        goomba_rect = (128, 0, 64, 64)
+        goomba_rect = (136, 0, 68, 68)
         self.goomba_dying = piece_ss.image_at(goomba_rect)
 
         self.body = world.CreateDynamicBody(position= pos, )
@@ -163,8 +163,8 @@ class Ground(egs.Game_objects.drawable):
 
         self.dirty = 2
 
-        width_in_pixels = w * b2p * 2
-        height_in_pixels = h * b2p * 2
+        width_in_pixels = w * b2p 
+        height_in_pixels = h * b2p + 4
         
         # Pixels may be off due to scaling issues.  Everything is currently multiplied by 4 other places
         ground_rect = (0, 0, width_in_pixels, height_in_pixels)
@@ -172,7 +172,7 @@ class Ground(egs.Game_objects.drawable):
 
         self.dirty = 2
 
-        self.body = world.CreateStaticBody(position=(x, y), shapes=b2PolygonShape(box=(w, h)))
+        self.body = world.CreateStaticBody(position=(x, y), shapes=b2PolygonShape(box=(w/2, h/2)))
         # self.image = pygame.Surface((2*w*b2w, 2*h*b2w))
         # self.image.fill((0, 255, 0))
         self.image = ground_image.convert_alpha()
@@ -194,7 +194,7 @@ class Koopa(egs.Game_objects.drawupdateable):
         filename = "image\\enemies.png"
         piece_ss = SpriteSheet(filename)
         
-        koopa_rect = (0, 64, 64, 96)
+        koopa_rect = (0, 68, 68, 100)
         koopa_image = piece_ss.image_at(koopa_rect)
         self.koopa_walking.append(koopa_image)
 
@@ -204,7 +204,7 @@ class Koopa(egs.Game_objects.drawupdateable):
         box = self.body.CreateFixture(fixDef)
         self.dirty = 2
 
-        koopa_rect = (64, 64, 64, 96)
+        koopa_rect = (68, 68, 68, 100)
         koopa_image = piece_ss.image_at(koopa_rect)
         self.koopa_walking.append(koopa_image)
 
@@ -267,10 +267,10 @@ class KoopaShell(egs.Game_objects.drawupdateable):
         filename = "image\\enemies.png"
         piece_ss = SpriteSheet(filename)
         
-        koopa_rect = (128, 96, 64, 64)
+        koopa_rect = (136, 100, 68, 68)
         self.koopa_shell = piece_ss.image_at(koopa_rect)
 
-        koopa_rect = (192, 96, 64, 64)
+        koopa_rect = (204, 100, 68, 68)
         self.koopa_shell_legs = piece_ss.image_at(koopa_rect)
 
         self.body = world.CreateDynamicBody(position=pos, fixedRotation = True)
@@ -332,21 +332,21 @@ class Mario(egs.Game_objects.drawupdateable):
 
         piece_ss = SpriteSheet(filename)
         for i in range(3):
-            mario_rect = (i*68, 0, 68, 70)
+            mario_rect = (i*68, 0, 68, 68)
             mario_image = piece_ss.image_at(mario_rect)
             self.mario_running.append(mario_image)
 
-        mario_rect = (204, 0, 68, 70)
+        mario_rect = (204, 0, 68, 68)
         mario_image = piece_ss.image_at(mario_rect)
         self.mario_running.append(mario_image)
 
-        mario_rect = (0, 0, 68, 70)
+        mario_rect = (0, 0, 68, 68)
         self.mario_still = piece_ss.image_at(mario_rect)
 
-        mario_rect = (272, 0, 68, 70)
+        mario_rect = (272, 0, 68, 68)
         self.mario_jump = piece_ss.image_at(mario_rect)
 
-        mario_rect = (340, 0, 68, 70)
+        mario_rect = (340, 0, 68, 68)
         self.mario_dying = piece_ss.image_at(mario_rect)
 
 
@@ -362,8 +362,7 @@ class Mario(egs.Game_objects.drawupdateable):
 
     def update(self):
         if self.dead and self.counter < 30:
-            bigger_img = pygame.transform.scale(self.mario_dying, (64, 64))
-            self.image = bigger_img.convert_alpha()
+            self.image = self.mario_dying.convert_alpha()
             self.rect = self.image.get_rect()
             self.counter += 1
             self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p
@@ -446,18 +445,18 @@ class SuperMario(egs.Game_objects.drawupdateable):
 
         piece_ss = SpriteSheet(filename)
         for i in range(3):
-            mario_rect = (i*68, 0, 68, 134)
+            mario_rect = (i*68, 0, 68, 132)
             mario_image = piece_ss.image_at(mario_rect)
             self.mario_running.append(mario_image)
 
-        mario_rect = (204, 0, 68, 134)
+        mario_rect = (204, 0, 68, 132)
         mario_image = piece_ss.image_at(mario_rect)
         self.mario_running.append(mario_image)
 
-        mario_rect = (0, 0, 68, 134)
+        mario_rect = (0, 0, 68, 132)
         self.mario_still = piece_ss.image_at(mario_rect)
 
-        mario_rect = (272, 0, 68, 134)
+        mario_rect = (272, 0, 68, 132)
         self.mario_jump = piece_ss.image_at(mario_rect)
 
         self.body = world.CreateDynamicBody(position=pos, fixedRotation = True)
@@ -585,36 +584,36 @@ egs.Engine.current_scene = scene
 background = Background()
 
 
-ground = Ground(5.12,.64,5.76, .64)
-platform = Ground(2.56 ,2.56,.64,.64)
-mario = SuperMario((2.24, 3.52))
+ground = Ground(5.12,.64,12.8, 1.28)
+# platform = Ground(2.56 ,2.56,.64,.64)
+mario = Mario((2.24, 3.52))
 # goomba = Goomba((4,3.52))
 flag = Flag((9.6,4.8))
-koopa = KoopaShell((4.8,1.76))
+# koopa = KoopaShell((4.8,1.76))
 
 groundGroup = pygame.sprite.Group()
 groundGroup.add(ground)
-groundGroup.add(platform)
+# groundGroup.add(platform)
 
 enemiesGroup = pygame.sprite.Group()
 # enemiesGroup.add(goomba)
-enemiesGroup.add(koopa)
+# enemiesGroup.add(koopa)
 
 marioGroup = pygame.sprite.Group()
 marioGroup.add(mario)
 
 scene.drawables.add(background)
 scene.drawables.add(ground)
-scene.drawables.add(platform)
+# scene.drawables.add(platform)
 scene.drawables.add(mario)
 # scene.drawables.add(goomba)
-scene.drawables.add(koopa)
+# scene.drawables.add(koopa)
 scene.drawables.add(flag)
 
 scene.updateables.append(Updater())
 scene.updateables.append(mario)
 # scene.updateables.append(goomba)
-scene.updateables.append(koopa)
+# scene.updateables.append(koopa)
 scene.updateables.append(flag)
 
 engine.start_game()

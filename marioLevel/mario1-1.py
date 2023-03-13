@@ -112,6 +112,7 @@ class Goomba(egs.Game_objects.drawupdateable):
             self.rect = self.image.get_rect()
             self.counter += 1
             self.rect.center = self.body.position[0] * b2p, 775 - self.body.position[1] * b2p
+            enemiesGroup.remove(self)
             return
         if self.dead and self.counter == 30:
             self.kill()
@@ -398,7 +399,6 @@ class Mario(egs.Game_objects.drawupdateable):
         if(self.flipped):
             self.image = pygame.transform.flip(self.image, True, False)
 
-        self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p
         collided = pygame.sprite.spritecollide(self, groundGroup, False)
 
         # Deal with Collisions with Enemies
@@ -421,6 +421,8 @@ class Mario(egs.Game_objects.drawupdateable):
                 if event.key == pygame.K_w:
                     if collided:
                         self.body.ApplyLinearImpulse(b2Vec2(0,3), self.body.position, True)
+        
+        self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p
 
     def collided_with_bottom(self, rect):
         return rect.collidepoint(self.rect.bottomleft) or rect.collidepoint(self.rect.bottomright) or rect.collidepoint(self.rect.midbottom)
@@ -495,7 +497,6 @@ class SuperMario(egs.Game_objects.drawupdateable):
         if(self.flipped):
             self.image = pygame.transform.flip(self.image, True, False)
 
-        self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p
         collided = pygame.sprite.spritecollide(self, groundGroup, False)
         
         # Deal with Collisions with Enemies
@@ -522,10 +523,11 @@ class SuperMario(egs.Game_objects.drawupdateable):
                 if event.key == pygame.K_w:
                     if collided:
                         self.body.ApplyLinearImpulse(b2Vec2(0,3), self.body.position, True)
+        
+        self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p
 
     def collided_with_bottom(self, rect):
         return rect.collidepoint(self.rect.bottomleft) or rect.collidepoint(self.rect.bottomright) or rect.collidepoint(self.rect.midbottom)
-
 class QuestionBlock(egs.Game_objects.drawable):
     color = (255,0,0)
 
@@ -586,7 +588,7 @@ platform = Ground(2.56 ,2.56,.64,.64)
 mario = SuperMario((2.24, 3.52))
 goomba = Goomba((4,3.52))
 flag = Flag((9.6,4.8))
-koopa = Koopa((4.8,1.76))
+# koopa = KoopaShell((4.8,1.76))
 
 groundGroup = pygame.sprite.Group()
 groundGroup.add(ground)
@@ -594,7 +596,7 @@ groundGroup.add(platform)
 
 enemiesGroup = pygame.sprite.Group()
 enemiesGroup.add(goomba)
-enemiesGroup.add(koopa)
+# enemiesGroup.add(koopa)
 
 marioGroup = pygame.sprite.Group()
 marioGroup.add(mario)
@@ -604,13 +606,13 @@ scene.drawables.add(ground)
 scene.drawables.add(platform)
 scene.drawables.add(mario)
 scene.drawables.add(goomba)
-scene.drawables.add(koopa)
+# scene.drawables.add(koopa)
 scene.drawables.add(flag)
 
 scene.updateables.append(Updater())
 scene.updateables.append(mario)
 scene.updateables.append(goomba)
-scene.updateables.append(koopa)
+# scene.updateables.append(koopa)
 scene.updateables.append(flag)
 
 engine.start_game()

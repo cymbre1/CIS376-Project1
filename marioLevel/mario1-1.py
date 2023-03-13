@@ -332,21 +332,21 @@ class Mario(egs.Game_objects.drawupdateable):
 
         piece_ss = SpriteSheet(filename)
         for i in range(3):
-            mario_rect = (i*64, 0, 64, 64)
+            mario_rect = (i*68, 0, 68, 70)
             mario_image = piece_ss.image_at(mario_rect)
             self.mario_running.append(mario_image)
 
-        mario_rect = (192, 0, 64, 64)
+        mario_rect = (204, 0, 68, 70)
         mario_image = piece_ss.image_at(mario_rect)
         self.mario_running.append(mario_image)
 
-        mario_rect = (0,0,64,64)
+        mario_rect = (0, 0, 68, 70)
         self.mario_still = piece_ss.image_at(mario_rect)
 
-        mario_rect = (256,0,64,64)
+        mario_rect = (272, 0, 68, 70)
         self.mario_jump = piece_ss.image_at(mario_rect)
 
-        mario_rect = (320,0,64,64)
+        mario_rect = (340, 0, 68, 70)
         self.mario_dying = piece_ss.image_at(mario_rect)
 
 
@@ -366,7 +366,7 @@ class Mario(egs.Game_objects.drawupdateable):
             self.image = bigger_img.convert_alpha()
             self.rect = self.image.get_rect()
             self.counter += 1
-            self.rect.center = self.body.position[0] * b2p, 775 - self.body.position[1] * b2p
+            self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p
             return
         if self.dead and self.counter == 30:
             self.kill()
@@ -446,18 +446,18 @@ class SuperMario(egs.Game_objects.drawupdateable):
 
         piece_ss = SpriteSheet(filename)
         for i in range(3):
-            mario_rect = (i*68, 0, 68, 132)
+            mario_rect = (i*68, 0, 68, 134)
             mario_image = piece_ss.image_at(mario_rect)
             self.mario_running.append(mario_image)
 
-        mario_rect = (204, 0, 68, 132)
+        mario_rect = (204, 0, 68, 134)
         mario_image = piece_ss.image_at(mario_rect)
         self.mario_running.append(mario_image)
 
-        mario_rect = (0, 0, 68, 132)
+        mario_rect = (0, 0, 68, 134)
         self.mario_still = piece_ss.image_at(mario_rect)
 
-        mario_rect = (272, 0, 68, 132)
+        mario_rect = (272, 0, 68, 134)
         self.mario_jump = piece_ss.image_at(mario_rect)
 
         self.body = world.CreateDynamicBody(position=pos)
@@ -588,7 +588,7 @@ background = Background()
 ground = Ground(5.12,.64,5.76, .64)
 platform = Ground(2.56 ,2.56,.64,.64)
 mario = SuperMario((2.24, 3.52))
-# goomba = Goomba((4,3.52))
+goomba = Goomba((4,3.52))
 flag = Flag((9.6,4.8))
 # koopa = KoopaShell((4.8,1.76))
 
@@ -597,23 +597,23 @@ groundGroup.add(ground)
 groundGroup.add(platform)
 
 enemiesGroup = pygame.sprite.Group()
-# enemiesGroup.add(goomba)
+enemiesGroup.add(goomba)
 # enemiesGroup.add(koopa)
 
 marioGroup = pygame.sprite.Group()
-# marioGroup.add(mario)
+marioGroup.add(mario)
 
 scene.drawables.add(background)
 scene.drawables.add(ground)
 scene.drawables.add(platform)
 scene.drawables.add(mario)
-# scene.drawables.add(goomba)
+scene.drawables.add(goomba)
 # scene.drawables.add(koopa)
 scene.drawables.add(flag)
 
 scene.updateables.append(Updater())
 scene.updateables.append(mario)
-# scene.updateables.append(goomba)
+scene.updateables.append(goomba)
 # scene.updateables.append(koopa)
 scene.updateables.append(flag)
 

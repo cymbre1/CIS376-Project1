@@ -54,10 +54,10 @@ class Flag(egs.Game_objects.drawupdateable):
         filename = "image\\flag.png"
         piece_ss = SpriteSheet(filename)
         for i in range(9):
-            flag_rect = (i*128, 0, 128, 708)
+            flag_rect = (i*128, 0, 128, 706)
             flag_image = piece_ss.image_at(flag_rect)
             self.flag_sprites.append(flag_image)
-        self.body = world.CreateStaticBody(position = pos, shapes = b2PolygonShape(box = (p2b* 64, p2b*352)))
+        self.body = world.CreateStaticBody(position = pos, shapes = b2PolygonShape(box = (p2b* 32, p2b*352)))
         self.dirty = 2
         self.image = self.flag_sprites[self.index].convert_alpha()
         self.rect = self.image.get_rect()
@@ -73,7 +73,7 @@ class Flag(egs.Game_objects.drawupdateable):
         else:
             self.counter += 1
 
-        self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p
+        self.rect.center = self.body.position[0] * b2p - 32 , height - self.body.position[1] * b2p
                     
 class Goomba(egs.Game_objects.drawupdateable):
     goomba_sprites = []
@@ -544,7 +544,7 @@ class QuestionBlock(egs.Game_objects.drawable):
 class Pipe(egs.Game_objects.drawable):
     color = (255,0,0)
 
-    # Sets the initial state of the Square class
+    # Should take position and pipe height
     def __init__(self):
         super().__init__()
         self.surf = pygame.Surface((35, 35))
@@ -587,17 +587,17 @@ background = Background()
 ground = Ground(5.12,.64,12.8, 1.28)
 # platform = Ground(2.56 ,2.56,.64,.64)
 mario = Mario((2.24, 3.52))
-# goomba = Goomba((4,3.52))
-flag = Flag((9.6,4.8))
-# koopa = KoopaShell((4.8,1.76))
+goomba = Goomba((4,3.52))
+flag = Flag((9.92,4.8))
+koopa = KoopaShell((4.8,1.76))
 
 groundGroup = pygame.sprite.Group()
 groundGroup.add(ground)
 # groundGroup.add(platform)
 
 enemiesGroup = pygame.sprite.Group()
-# enemiesGroup.add(goomba)
-# enemiesGroup.add(koopa)
+enemiesGroup.add(goomba)
+enemiesGroup.add(koopa)
 
 marioGroup = pygame.sprite.Group()
 marioGroup.add(mario)
@@ -606,14 +606,14 @@ scene.drawables.add(background)
 scene.drawables.add(ground)
 # scene.drawables.add(platform)
 scene.drawables.add(mario)
-# scene.drawables.add(goomba)
-# scene.drawables.add(koopa)
+scene.drawables.add(goomba)
+scene.drawables.add(koopa)
 scene.drawables.add(flag)
 
 scene.updateables.append(Updater())
 scene.updateables.append(mario)
-# scene.updateables.append(goomba)
-# scene.updateables.append(koopa)
+scene.updateables.append(goomba)
+scene.updateables.append(koopa)
 scene.updateables.append(flag)
 
 engine.start_game()

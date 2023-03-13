@@ -611,10 +611,10 @@ background = Background()
 
 ground = Ground(5.12,.64,12.8, 1.28)
 # platform = Ground(2.56 ,2.56,.64,.64)
-mario = Mario((2.24, 3.52))
+mario = SuperMario((2.24, 3.52))
 goomba = Goomba((4,3.52))
 flag = Flag((9.92,4.8))
-koopa = KoopaShell((4.8,1.76))
+koopa = Koopa((4.8,1.76))
 
 groundGroup = pygame.sprite.Group()
 groundGroup.add(ground)

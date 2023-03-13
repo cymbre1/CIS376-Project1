@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import pygame
 
-import sys
+import os
 from Box2D import *
 import egs
 from spriteSheet import SpriteSheet
@@ -16,8 +16,11 @@ b2p = 100
 class Background(egs.Game_objects.drawable):
     def __init__(self):
         super().__init__()
-
-        filename = "image\\background.png"
+        
+        if os.name == 'nt':
+            filename = "image\\background.png"
+        else:
+            filename = "image/background.png"
 
         self.dirty = 2
         self.image = pygame.image.load(filename)
@@ -50,8 +53,11 @@ class Flag(egs.Game_objects.drawupdateable):
         super().__init__()
 
         # self.reached = True
-        
-        filename = "image\\flag.png"
+        if os.name == 'nt':
+            filename = "image\\flag.png"
+        else:
+            filename = 'image/flag.png'
+
         piece_ss = SpriteSheet(filename)
         for i in range(9):
             flag_rect = (i*128, 0, 128, 706)
@@ -85,7 +91,10 @@ class Goomba(egs.Game_objects.drawupdateable):
 
     def __init__(self, pos):
         super().__init__()
-        filename = "image\\enemies.png"
+        if os.name == 'nt':
+            filename = "image\\enemies.png"
+        else:
+            filename = 'image/enemies.png'
 
         piece_ss = SpriteSheet(filename)
         for i in range (2):
@@ -157,7 +166,10 @@ class Ground(egs.Game_objects.drawable):
     def __init__(self, x, y, w, h):
         super().__init__()
 
-        filename = "image\\ground.png"
+        if os.name == 'nt':
+            filename = "image\\ground.png"
+        else:
+            filename = 'image/ground.png'
 
         piece_ss = SpriteSheet(filename)
 
@@ -191,7 +203,11 @@ class Koopa(egs.Game_objects.drawupdateable):
     def __init__(self, pos):
         super().__init__()
         
-        filename = "image\\enemies.png"
+        if os.name == 'nt':
+            filename = "image\\enemies.png"
+        else:
+            filename = 'image/enemies.png'
+
         piece_ss = SpriteSheet(filename)
         
         koopa_rect = (0, 68, 68, 100)
@@ -264,7 +280,10 @@ class KoopaShell(egs.Game_objects.drawupdateable):
     def __init__(self, pos):
         super().__init__()
         
-        filename = "image\\enemies.png"
+        if os.name == 'nt':
+            filename = "image\\enemies.png"
+        else:
+            filename = 'image/enemies.png'
         piece_ss = SpriteSheet(filename)
         
         koopa_rect = (136, 100, 68, 68)
@@ -328,7 +347,10 @@ class Mario(egs.Game_objects.drawupdateable):
     def __init__(self, pos):
         super().__init__()
 
-        filename = "image\\marioSprites.png"
+        if os.name == 'nt':
+            filename = "image\\marioSprites.png"
+        else:
+            filename = 'image/marioSprites.png'
 
         piece_ss = SpriteSheet(filename)
         for i in range(3):
@@ -441,7 +463,10 @@ class SuperMario(egs.Game_objects.drawupdateable):
     def __init__(self, pos):
         super().__init__()
 
-        filename = "image\\superMarioSprites.png"
+        if os.name == 'nt':
+            filename = "image\\superMarioSprites.png"
+        else:
+            filename = 'image/superMarioSprites.png'
 
         piece_ss = SpriteSheet(filename)
         for i in range(3):

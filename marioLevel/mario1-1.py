@@ -91,7 +91,6 @@ class Coin(egs.Game_objects.drawupdateable):
 
         self.rect.center = self.body.position[0] * b2p , height - self.body.position[1] * b2p
 
-
 class Flag(egs.Game_objects.drawupdateable):
     flag_sprites = []
     index = 0
@@ -198,11 +197,12 @@ class Goomba(egs.Game_objects.drawupdateable):
                 collidedWithEnemy = pygame.sprite.spritecollide(self, marioGroup, False)
                 if(collidedWithEnemy):
                     for m in marioGroup:
-                        if self.collided_with_top(m.rect):
-                            self.dead = True
-                            self.counter = 0
-                            enemiesGroup.remove(self)
-                            return
+                        if self.rect.colliderect(m.rect):
+                            if self.rect.top + 10 >= m.rect.bottom:                            
+                                self.dead = True
+                                self.counter = 0
+                                enemiesGroup.remove(self)
+                                return
 
             else:
                 self.last_center = self.rect.center
@@ -284,6 +284,8 @@ class Koopa(egs.Game_objects.drawupdateable):
         self.current_koopa = (self.current_koopa + 1) % 2
 
         self.rect = self.image.get_rect()
+        self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p
+
 
     # This function switches whether the square is black or colored
     def update(self):
@@ -313,23 +315,23 @@ class Koopa(egs.Game_objects.drawupdateable):
         else:
             self.counter = self.counter + 1
 
-        self.rect = self.image.get_rect()
-        # collided = pygame.sprite.spritecollide(self, groundGroup, False)
-
+        
         collidedWithEnemy = pygame.sprite.spritecollide(self, marioGroup, False)
         if(collidedWithEnemy):
             for e in enemiesGroup:
-                if self.collided_with_top(e.rect):
-                    self.dead = True
-                    koopa = KoopaShell(self.body.position)
-                    scene.drawables.add(koopa)
-                    scene.updateables.append(koopa)
-                    enemiesGroup.add(koopa)
-                    enemiesGroup.remove(self)
-                    self.kill()
-                    self.body.position = (-10.0, -10.0)
-                    return
+                if self.rect.colliderect(e.rect):
+                    if self.rect.top + 20 >= e.rect.bottom:
+                        self.dead = True
+                        koopa = KoopaShell(self.body.position)
+                        scene.drawables.add(koopa)
+                        scene.updateables.append(koopa)
+                        enemiesGroup.add(koopa)
+                        enemiesGroup.remove(self)
+                        self.kill()
+                        self.body.position = (-10.0, -10.0)
+                        return
 
+        self.rect = self.image.get_rect()
         self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p
 
     def collided_with_top(self, rect):
@@ -497,10 +499,11 @@ class Mario(egs.Game_objects.drawupdateable):
             collidedWithEnemy = pygame.sprite.spritecollide(self, enemiesGroup, False)
             if(collidedWithEnemy):
                 for e in enemiesGroup:
-                    if not self.collided_with_bottom(e.rect):
-                        self.dead = True
-                        self.counter = 0
-                        return
+                    if self.rect.colliderect(e.rect):
+                        if self.rect.bottom - 10 >= e.rect.top:
+                            self.dead = True
+                            self.counter = 0
+                            return
 
         for event in egs.Engine.events:
             if event.type == pygame.KEYDOWN:
@@ -600,15 +603,16 @@ class SuperMario(egs.Game_objects.drawupdateable):
         collidedWithEnemy = pygame.sprite.spritecollide(self, enemiesGroup, False)
         if(collidedWithEnemy):
             for e in enemiesGroup:
-                if not self.collided_with_bottom(e.rect):
-                    self.dead = True
-                    mario = Mario(self.body.position, 500)
-                    scene.drawables.add(mario)
-                    scene.updateables.append(mario)
-                    marioGroup.add(mario)
-                    self.kill()
-                    self.body.position = (-10.0, -10.0)
-                    return
+                if self.rect.colliderect(e.rect):
+                    if self.rect.bottom  - 10 > e.rect.top:
+                        self.dead = True
+                        mario = Mario(self.body.position, 500)
+                        scene.drawables.add(mario)
+                        scene.updateables.append(mario)
+                        marioGroup.add(mario)
+                        self.kill()
+                        self.body.position = (-10.0, -10.0)
+                        return
 
         for event in egs.Engine.events:
             if event.type == pygame.KEYDOWN:
@@ -624,8 +628,6 @@ class SuperMario(egs.Game_objects.drawupdateable):
         
         self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p
 
-    def collided_with_bottom(self, rect):
-        return rect.collidepoint(self.rect.midbottom)
 class QuestionBlock(egs.Game_objects.drawable):
     destroyed = False
      # Sets the initial state of the Square class

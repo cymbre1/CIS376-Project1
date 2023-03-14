@@ -286,7 +286,6 @@ class Koopa(egs.Game_objects.drawupdateable):
         self.rect = self.image.get_rect()
         self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p
 
-
     # This function switches whether the square is black or colored
     def update(self):
         if self.dead:
@@ -320,7 +319,7 @@ class Koopa(egs.Game_objects.drawupdateable):
         if(collidedWithEnemy):
             for e in enemiesGroup:
                 if self.rect.colliderect(e.rect):
-                    if self.rect.top + 20 >= e.rect.bottom:
+                    if e.rect.bottom > self.rect.top:
                         self.dead = True
                         koopa = KoopaShell(self.body.position)
                         scene.drawables.add(koopa)

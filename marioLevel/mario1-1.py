@@ -84,7 +84,7 @@ class Camera(egs.Game_objects.updateable):
         print(self.offset)
         for e in scene.drawables:
             if(type(e) != Updater and type(e) != Camera):
-                e.body.position[0] -= .1
+                e.body.position = (e.body.position[0] - .1, e.body.position[1])
                 e.rect.center = e.body.position[0] * b2p, height - e.body.position[1] * b2p
                 print(e.body.position[0])
                 print(e.rect.centerx)

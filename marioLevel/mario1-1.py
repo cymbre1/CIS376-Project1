@@ -7,13 +7,13 @@ import egs
 from spriteSheet import SpriteSheet
 
 gravity = b2Vec2(.5, -10.0)
-world = b2World(gravity, doSleep=False)
+world = b2World(gravity, doSleep=True)
 timeStep = 1.0/60
 vec_iters, pos_iters = 6,2
 p2b = 1/100
 b2p = 100
 
-class Background(egs.Game_objects.drawupdateable):
+class Background(egs.Game_objects.drawable):
     def __init__(self):
         super().__init__()
         
@@ -26,9 +26,6 @@ class Background(egs.Game_objects.drawupdateable):
         self.body = world.CreateStaticBody(position = (121.92/2, height*p2b/2), active = False, shapes = b2PolygonShape(box = (121.92/2, height*p2b/2))) # body should be 121.92 meters.  Use active = false
         self.image = pygame.image.load(filename)
         self.rect = self.image.get_rect()
-        self.rect.center = self.body.position.x * b2p, height - self.body.position.y * b2p
-    
-    def update(self):
         self.rect.center = self.body.position.x * b2p, height - self.body.position.y * b2p
         
 
@@ -74,20 +71,18 @@ class Camera(egs.Game_objects.updateable):
         self.moveable_rect = pygame.Rect(0,0,384,height)
         self.last_rect = pygame.Rect(0,0, 384, height)
 
+        self.previous_offset = 0.0
         self.offset = 0.0
     
     def update(self):
+        self.previous_offset = self.offset
         if mario.rect.right > 384:
             self.offset= (mario.rect.right - 384) * p2b
         else:
             self.offset = 0.0
-        print(self.offset)
         for e in scene.drawables:
-            if(type(e) != Updater and type(e) != Camera):
-                e.body.position = (e.body.position[0] - .1, e.body.position[1])
-                e.rect.center = e.body.position[0] * b2p, height - e.body.position[1] * b2p
-                print(e.body.position[0])
-                print(e.rect.centerx)
+            e.body.position = (e.body.position[0] - self.offset, e.body.position[1])
+            e.rect.center = e.body.position[0] * b2p, height - e.body.position[1] * b2p
 
 class Coin(egs.Game_objects.drawupdateable):
     def __init__(self, pos):
@@ -210,7 +205,7 @@ class FireMario(egs.Game_objects.drawupdateable):
 
         if not self.previous_bottom == self.rect.bottom:
             bigger_img =self.mario_jump
-        elif self.previous_center == self.rect.center:
+        elif self.body.linearVelocity == (0,0):
             bigger_img = self.mario_still
         else:
             bigger_img = self.mario_running[self.current_mario]
@@ -396,7 +391,7 @@ class Goomba(egs.Game_objects.drawupdateable):
     def collided_with_top(self, rect):
         return rect.collidepoint(self.rect.topleft) or rect.collidepoint(self.rect.topright) or rect.collidepoint(self.rect.midtop)
 
-class Ground(egs.Game_objects.drawupdateable):
+class Ground(egs.Game_objects.drawable):
 
     # Sets the initial state of the Square class
     def __init__(self, x, y, w, h= 1.28):
@@ -425,9 +420,6 @@ class Ground(egs.Game_objects.drawupdateable):
         self.image = ground_image.convert_alpha()
         self.rect = self.image.get_rect()
         self.rect.center = self.body.position.x * b2p, height - self.body.position.y * b2p
-    
-    def update(self):
-        self.rect.center = self.rect.center = self.body.position.x * b2p, height - self.body.position.y * b2p
 
 class Koopa(egs.Game_objects.drawupdateable):
     flipped = False
@@ -662,7 +654,7 @@ class Mario(egs.Game_objects.drawupdateable):
         
         if not self.previous_bottom == self.rect.bottom:
             bigger_img = self.mario_jump
-        elif self.previous_center == self.rect.center:
+        elif self.body.linearVelocity == (0,0):
             bigger_img = self.mario_still
         else:
             bigger_img = self.mario_running[self.current_mario]
@@ -709,10 +701,10 @@ class Mario(egs.Game_objects.drawupdateable):
         for event in egs.Engine.events:
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_a:
-                    self.body.ApplyForce(b2Vec2(-30, 0), self.body.position, True)
+                    self.body.ApplyForce(b2Vec2(-75, 0), self.body.position, True)
                     self.flipped = True
                 if event.key == pygame.K_d:
-                    self.body.ApplyForce(b2Vec2(30,0), self.body.position, True)
+                    self.body.ApplyForce(b2Vec2(75,0), self.body.position, True)
                     self.flipped = False
                 if event.key == pygame.K_w:
                     if collided:
@@ -806,7 +798,7 @@ class SuperMario(egs.Game_objects.drawupdateable):
 
         if not self.previous_bottom == self.rect.bottom:
             bigger_img =self.mario_jump
-        elif self.previous_center == self.rect.center:
+        elif self.body.linearVelocity == (0,0):
             bigger_img = self.mario_still
         else:
             bigger_img = self.mario_running[self.current_mario]
@@ -981,7 +973,7 @@ background = Background()
 ground = Ground(5.12,.64,12.8, 1.28)
 question = QuestionBlock((2.56, 3.20))
 brick = Brick((3.20, 3.20))
-mario = Mario((2.24, 3.52))
+mario = FireMario((2.24, 3.52))
 goomba = Goomba((4,3.52))
 flag = Flag((90.92,4.8))
 koopa = Koopa((4.8,1.76))

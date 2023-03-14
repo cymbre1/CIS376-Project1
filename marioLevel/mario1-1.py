@@ -71,13 +71,15 @@ class Camera(egs.Game_objects.updateable):
         super().__init__()
 
         self.moveable_rect = pygame.Rect(0,0,384,height)
+        self.last_rect = pygame.Rect(0,0, 384, height)
 
         self.offset = 0.0
     
     def update(self):
         if mario.rect.right > self.moveable_rect.right:
+            self.last_rect = self.moveable_rect.copy()
             self.moveable_rect.right = mario.rect.right
-        self.offset = self.moveable_rect.left * p2b
+        self.offset = (self.moveable_rect.left - self.last_rect.left) * p2b
 
 class Coin(egs.Game_objects.drawupdateable):
     def __init__(self, pos):
@@ -772,17 +774,17 @@ ground = Ground(5.12,.64,12.8)
 test = Ground(100,100,12.8,1.28)
 platform = QuestionBlock((2.56, 3.20))
 mario = Mario((2.24, 3.52))
-goomba = Goomba((4,3.52))
+# goomba = Goomba((4,3.52))
 flag = Flag((9.92,4.8))
-koopa = Koopa((4.8,1.76))
+# koopa = Koopa((4.8,1.76))
 
 groundGroup = pygame.sprite.Group()
 groundGroup.add(ground)
 groundGroup.add(platform)
 
 enemiesGroup = pygame.sprite.Group()
-enemiesGroup.add(goomba)
-enemiesGroup.add(koopa)
+# enemiesGroup.add(goomba)
+# enemiesGroup.add(koopa)
 
 marioGroup = pygame.sprite.Group()
 marioGroup.add(mario)
@@ -791,8 +793,8 @@ scene.drawables.add(background)
 scene.drawables.add(ground)
 scene.drawables.add(platform)
 scene.drawables.add(mario)
-scene.drawables.add(goomba)
-scene.drawables.add(koopa)
+# scene.drawables.add(goomba)
+# scene.drawables.add(koopa)
 scene.drawables.add(flag)
 
 scene.updateables.append(Updater())
@@ -800,8 +802,8 @@ scene.updateables.append(background)
 scene.updateables.append(mario)
 scene.updateables.append(ground)
 scene.updateables.append(platform)
-scene.updateables.append(goomba)
-scene.updateables.append(koopa)
+# scene.updateables.append(goomba)
+# scene.updateables.append(koopa)
 scene.updateables.append(flag)
 scene.updateables.append(view)
 

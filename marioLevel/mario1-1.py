@@ -7,7 +7,7 @@ import egs
 from spriteSheet import SpriteSheet
 
 gravity = b2Vec2(.5, -10.0)
-world = b2World(gravity, doSleep=True)
+world = b2World(gravity, doSleep=False)
 timeStep = 1.0/60
 vec_iters, pos_iters = 6,2
 p2b = 1/100
@@ -23,12 +23,11 @@ class Background(egs.Game_objects.drawable):
             filename = "image/background.png"
 
         self.dirty = 2
-        self.body = world.CreateStaticBody(position = (121.92/2, height*p2b/2), active = False, shapes = b2PolygonShape(box = (121.92/2, height*p2b/2))) # body should be 121.92 meters.  Use active = false
+        self.body = world.CreateStaticBody(position = (135.04/2, height*p2b/2), active = False, shapes = b2PolygonShape(box = (135.04/2, height*p2b/2))) # body should be 121.92 meters.  Use active = false
         self.image = pygame.image.load(filename)
         self.rect = self.image.get_rect()
         self.rect.center = self.body.position.x * b2p, height - self.body.position.y * b2p
         
-
 class Brick(egs.Game_objects.drawupdateable):
     # Sets the initial state of the Square class
     def __init__(self, pos):
@@ -60,9 +59,7 @@ class Brick(egs.Game_objects.drawupdateable):
                 if m.rect.collidepoint(self.rect.midbottom):
                     self.kill()
                     self.body.position = (-10.0, -10.0)
-        self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p
-    
-    
+        self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p   
 
 class Camera(egs.Game_objects.updateable):
     def __init__(self):
@@ -394,7 +391,7 @@ class Goomba(egs.Game_objects.drawupdateable):
 class Ground(egs.Game_objects.drawable):
 
     # Sets the initial state of the Square class
-    def __init__(self, x, y, w, h= 1.28):
+    def __init__(self, x, w, y=.64, h= 1.28):
         super().__init__()
 
         if os.name == 'nt':
@@ -969,44 +966,54 @@ view = Camera()
 
 background = Background()
 
+#creating the ground
+ground = Ground(22.08,44.16)
+ground2 = Ground(50.24,9.6)
+ground3 = Ground(77.44, 40.96)
+ground4 = Ground(117.12, 35.84)
 
-ground = Ground(5.12,.64,12.8, 1.28)
-question = QuestionBlock((2.56, 3.20))
-brick = Brick((3.20, 3.20))
-mario = FireMario((2.24, 3.52))
-goomba = Goomba((4,3.52))
-flag = Flag((90.92,4.8))
-koopa = Koopa((4.8,1.76))
+
+# question = QuestionBlock((2.56, 3.20))
+# brick = Brick((3.20, 3.20))
+mario = SuperMario((2.24, 3.52))
+# goomba = Goomba((4,3.52))
+# flag = Flag((90.92,4.8))
+# koopa = Koopa((4.8,1.76))
 
 groundGroup = pygame.sprite.Group()
 groundGroup.add(ground)
-groundGroup.add(question)
-groundGroup.add(brick)
+groundGroup.add(ground2)
+groundGroup.add(ground3)
+groundGroup.add(ground4)
+# groundGroup.add(question)
+# groundGroup.add(brick)
 
 enemiesGroup = pygame.sprite.Group()
-enemiesGroup.add(goomba)
-enemiesGroup.add(koopa)
+# enemiesGroup.add(goomba)
+# enemiesGroup.add(koopa)
 
 marioGroup = pygame.sprite.Group()
 marioGroup.add(mario)
 
 scene.drawables.add(background)
 scene.drawables.add(ground)
-scene.drawables.add(question)
+scene.drawables.add(ground2)
+scene.drawables.add(ground3)
+scene.drawables.add(ground4)
+# scene.drawables.add(question)
 scene.drawables.add(mario)
-scene.drawables.add(goomba)
-scene.drawables.add(koopa)
-scene.drawables.add(flag)
-scene.drawables.add(brick)
+# scene.drawables.add(goomba)
+# scene.drawables.add(koopa)
+# scene.drawables.add(flag)
+# scene.drawables.add(brick)
 
 scene.updateables.append(Updater())
-scene.updateables.append(background)
 scene.updateables.append(mario)
-scene.updateables.append(question)
-scene.updateables.append(goomba)
-scene.updateables.append(koopa)
-scene.updateables.append(flag)
-scene.updateables.append(brick)
+# scene.updateables.append(question)
+# scene.updateables.append(goomba)
+# scene.updateables.append(koopa)
+# scene.updateables.append(flag)
+# scene.updateables.append(brick)
 scene.updateables.append(view)
 
 engine.start_game()

@@ -29,7 +29,6 @@ class Background(egs.Game_objects.drawupdateable):
         self.rect.center = self.body.position.x * b2p, height - self.body.position.y * b2p
     
     def update(self):
-        self.body.position.x -= view.offset
         self.rect.center = self.body.position.x * b2p, height - self.body.position.y * b2p
         
 
@@ -53,7 +52,6 @@ class Brick(egs.Game_objects.drawable):
         self.body = world.CreateStaticBody(position = pos, shapes = b2PolygonShape(box = (p2b*32, p2b*32)))
         self.rect = self.image.get_rect()
 
-        self.body.position[0] -= view.offset
         self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p
 
     # This function switches whether the square is black or colored
@@ -65,8 +63,6 @@ class Brick(egs.Game_objects.drawable):
                 if m.rect.collidepoint(self.rect.midbottom):
                     self.kill()
                     self.body.position = (-10.0, -10.0)
-
-        self.body.position[0] -= view.offset
         self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p
 
 class Camera(egs.Game_objects.updateable):
@@ -83,6 +79,10 @@ class Camera(egs.Game_objects.updateable):
             self.last_rect = self.moveable_rect.copy()
             self.moveable_rect.right = mario.rect.right
         self.offset = (self.moveable_rect.left - self.last_rect.left) * p2b
+        print(self.offset)
+        for e in scene.updateables:
+            if(type(e) != Updater and type(e) != Camera ):
+                e.body.position[0] -= self.offset
 
 class Coin(egs.Game_objects.drawupdateable):
     def __init__(self, pos):
@@ -103,7 +103,7 @@ class Coin(egs.Game_objects.drawupdateable):
         self.body = world.CreateStaticBody(position = pos, shapes = b2PolygonShape(box = (p2b*32, p2b*32)))
         self.rect = self.image.get_rect()
 
-        self.body.position[0] -= view.offset
+
         self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p
 
     # This function switches whether the square is black or colored
@@ -138,7 +138,6 @@ class FireFlower(egs.Game_objects.drawupdateable):
         self.body = world.CreateStaticBody(position = pos, shapes = b2PolygonShape(box = (p2b*32, p2b*32)))
         self.rect = self.image.get_rect()
 
-        self.body.position[0] -= view.offset
         self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p
 
     def update(self):
@@ -301,7 +300,6 @@ class Flag(egs.Game_objects.drawupdateable):
         else:
             self.counter += 1
 
-        self.body.position[0] -= view.offset
         self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p
                     
 class Goomba(egs.Game_objects.drawupdateable):
@@ -346,7 +344,6 @@ class Goomba(egs.Game_objects.drawupdateable):
             self.image = bigger_img.convert_alpha()
             self.rect = self.image.get_rect()
             self.counter += 1
-            self.body.position[0] -= view.offset
             self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p
             enemiesGroup.remove(self)
             return
@@ -366,7 +363,6 @@ class Goomba(egs.Game_objects.drawupdateable):
                 self.image = self.goomba_sprites[self.current_index % 2].convert_alpha()
                 self.rect = self.image.get_rect()
 
-                self.body.position[0] -= view.offset
                 self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p
 
                 groundCollided = pygame.sprite.spritecollide(self, groundGroup, False)
@@ -385,7 +381,6 @@ class Goomba(egs.Game_objects.drawupdateable):
 
             else:
                 self.last_center = self.rect.center
-                self.body.position[0] -= view.offset
                 self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p
                 self.counter = self.counter + 1 
         else:
@@ -421,14 +416,12 @@ class Ground(egs.Game_objects.drawupdateable):
         self.dirty = 2
 
         self.body = world.CreateStaticBody(position=(x, y), shapes=b2PolygonShape(box=(w/2, h/2)))
-        # self.image = pygame.Surface((2*w*b2w, 2*h*b2w))
-        # self.image.fill((0, 255, 0))
+
         self.image = ground_image.convert_alpha()
         self.rect = self.image.get_rect()
         self.rect.center = self.body.position.x * b2p, height - self.body.position.y * b2p
     
     def update(self):
-        self.body.position.x = self.body.position.x - view.offset
         self.rect.center = self.rect.center = self.body.position.x * b2p, height - self.body.position.y * b2p
 
 class Koopa(egs.Game_objects.drawupdateable):
@@ -576,7 +569,6 @@ class KoopaShell(egs.Game_objects.drawupdateable):
         if self.counter == 360:
             self.image = self.koopa_shell_legs.convert_alpha()
             self.rect = self.image.get_rect()
-            self.body.position[0] -= view.offset
             self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p 
 
             collidedWithEnemy = pygame.sprite.spritecollide(self, marioGroup, False)
@@ -591,7 +583,6 @@ class KoopaShell(egs.Game_objects.drawupdateable):
                         
         self.counter += 1
         self.rect = self.image.get_rect()
-        self.body.position[0] -= view.offset
         self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p
 
 class Mario(egs.Game_objects.drawupdateable):
@@ -654,7 +645,6 @@ class Mario(egs.Game_objects.drawupdateable):
             self.image = self.mario_dying.convert_alpha()
             self.rect = self.image.get_rect()
             self.counter += 1
-            self.body.position[0] -= view.offset
             self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p
             return
         if self.dead and self.counter == 30:
@@ -689,7 +679,6 @@ class Mario(egs.Game_objects.drawupdateable):
         if(self.flipped):
             self.image = pygame.transform.flip(self.image, True, False)
 
-        self.body.position[0] -= view.offset
         self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p
         collided = pygame.sprite.spritecollide(self, groundGroup, False)
 
@@ -725,7 +714,6 @@ class Mario(egs.Game_objects.drawupdateable):
                         self.body.ApplyLinearImpulse(b2Vec2(0,3), self.body.position, True)
         
         self.immune -= 1
-        self.body.position[0] -= view.offset
         self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p
 
 class Mushroom(egs.Game_objects.drawupdateable):
@@ -835,7 +823,6 @@ class SuperMario(egs.Game_objects.drawupdateable):
         if(self.flipped):
             self.image = pygame.transform.flip(self.image, True, False)
 
-        self.body.position[0] -= view.offset
         self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p
         collided = pygame.sprite.spritecollide(self, groundGroup, False)
         
@@ -904,7 +891,6 @@ class QuestionBlock(egs.Game_objects.drawable):
         self.body = world.CreateStaticBody(position = pos, shapes = b2PolygonShape(box = (p2b*32, p2b*32)))
         self.rect = self.image.get_rect()
 
-        self.body.position[0] -= view.offset
         self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p
 
     # This function switches whether the square is black or colored
@@ -930,7 +916,6 @@ class QuestionBlock(egs.Game_objects.drawable):
                     return
 
 
-        self.body.position[0] -= view.offset
         self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p
 
 class Pipe(egs.Game_objects.drawable):
@@ -962,7 +947,6 @@ class SolidStone(egs.Game_objects.drawable):
         self.body = world.CreateStaticBody(position = pos, shapes = b2PolygonShape(box = (p2b*32, p2b*32)))
         self.rect = self.image.get_rect()
 
-        self.body.position[0] -= view.offset
         self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p
 
 class Updater(egs.Game_objects.updateable):
@@ -1019,6 +1003,7 @@ scene.drawables.add(flag)
 scene.drawables.add(brick)
 
 scene.updateables.append(Updater())
+scene.updateables.append(view)
 scene.updateables.append(background)
 scene.updateables.append(mario)
 scene.updateables.append(question)

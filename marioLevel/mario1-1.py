@@ -32,7 +32,7 @@ class Background(egs.Game_objects.drawupdateable):
         self.rect.center = self.body.position.x * b2p, height - self.body.position.y * b2p
         
 
-class Brick(egs.Game_objects.drawable):
+class Brick(egs.Game_objects.drawupdateable):
     # Sets the initial state of the Square class
     def __init__(self, pos):
         super().__init__()
@@ -64,6 +64,8 @@ class Brick(egs.Game_objects.drawable):
                     self.kill()
                     self.body.position = (-10.0, -10.0)
         self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p
+    
+    
 
 class Camera(egs.Game_objects.updateable):
     def __init__(self):
@@ -75,14 +77,17 @@ class Camera(egs.Game_objects.updateable):
         self.offset = 0.0
     
     def update(self):
-        if mario.rect.right > self.moveable_rect.right:
-            self.last_rect = self.moveable_rect.copy()
-            self.moveable_rect.right = mario.rect.right
-        self.offset = (self.moveable_rect.left - self.last_rect.left) * p2b
+        if mario.rect.right > 384:
+            self.offset= (mario.rect.right - 384) * p2b
+        else:
+            self.offset = 0.0
         print(self.offset)
-        for e in scene.updateables:
-            if(type(e) != Updater and type(e) != Camera ):
-                e.body.position[0] -= self.offset
+        for e in scene.drawables:
+            if(type(e) != Updater and type(e) != Camera):
+                e.body.position[0] -= .1
+                e.rect.center = e.body.position[0] * b2p, height - e.body.position[1] * b2p
+                print(e.body.position[0])
+                print(e.rect.centerx)
 
 class Coin(egs.Game_objects.drawupdateable):
     def __init__(self, pos):
@@ -630,7 +635,7 @@ class Mario(egs.Game_objects.drawupdateable):
 
         self.body = world.CreateDynamicBody(position=pos, fixedRotation=True)
         shape=b2PolygonShape(box=(p2b*32, p2b*32))
-        fixDef = b2FixtureDef(shape=shape, friction=0.3, restitution=0, density=1)
+        fixDef = b2FixtureDef(shape=shape, friction=0.3, restitution=0, density=.8)
         box = self.body.CreateFixture(fixDef)
         self.dirty = 2
         self.image = self.mario_running[self.current_mario].convert_alpha()
@@ -704,10 +709,10 @@ class Mario(egs.Game_objects.drawupdateable):
         for event in egs.Engine.events:
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_a:
-                    self.body.ApplyForce(b2Vec2(-75, 0), self.body.position, True)
+                    self.body.ApplyForce(b2Vec2(-30, 0), self.body.position, True)
                     self.flipped = True
                 if event.key == pygame.K_d:
-                    self.body.ApplyForce(b2Vec2(75,0), self.body.position, True)
+                    self.body.ApplyForce(b2Vec2(30,0), self.body.position, True)
                     self.flipped = False
                 if event.key == pygame.K_w:
                     if collided:
@@ -872,7 +877,7 @@ class SuperMario(egs.Game_objects.drawupdateable):
         self.kill()
         self.body.position = (-10.0, -10.0)
 
-class QuestionBlock(egs.Game_objects.drawable):
+class QuestionBlock(egs.Game_objects.drawupdateable):
     destroyed = False
      # Sets the initial state of the Square class
     def __init__(self, pos, powerup = 'coin'):
@@ -976,9 +981,9 @@ background = Background()
 ground = Ground(5.12,.64,12.8, 1.28)
 question = QuestionBlock((2.56, 3.20))
 brick = Brick((3.20, 3.20))
-mario = SuperMario((2.24, 3.52))
+mario = Mario((2.24, 3.52))
 goomba = Goomba((4,3.52))
-flag = Flag((9.92,4.8))
+flag = Flag((90.92,4.8))
 koopa = Koopa((4.8,1.76))
 
 groundGroup = pygame.sprite.Group()
@@ -1003,7 +1008,6 @@ scene.drawables.add(flag)
 scene.drawables.add(brick)
 
 scene.updateables.append(Updater())
-scene.updateables.append(view)
 scene.updateables.append(background)
 scene.updateables.append(mario)
 scene.updateables.append(question)
@@ -1011,5 +1015,6 @@ scene.updateables.append(goomba)
 scene.updateables.append(koopa)
 scene.updateables.append(flag)
 scene.updateables.append(brick)
+scene.updateables.append(view)
 
 engine.start_game()

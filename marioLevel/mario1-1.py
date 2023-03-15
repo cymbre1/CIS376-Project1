@@ -61,7 +61,6 @@ class Brick(egs.Game_objects.drawupdateable):
         if collidedWithMario:
             for m in marioGroup:
                 if m.rect.collidepoint(self.rect.midbottom):
-                    print(self.coinCounter)
                     if self.coinCounter < 0 and not self.active:
                         print("POSITIVE*************")
                         self.coinCounter = 228
@@ -79,10 +78,17 @@ class Brick(egs.Game_objects.drawupdateable):
                             self.body.position = (-10,-10)
                             scene.drawables.add(stone)
                             scene.updateables.append(stone)
-        
                     elif self.contents == "star":
-                        return
-                    else:
+                        # star = Star((self.body.position.x, self.body.position.y + .64))
+                        # scene.drawables.add(star)
+                        # scene.updateables.append(star)
+                        stone = SolidStone(self.body.position, True)
+                        scene.drawables.add(stone)
+                        scene.updateables.append(stone)
+                        self.body.position = (-10, -10)
+                        self.kill()
+                        scene.updateables.remove(self)
+                    elif type(m) != Mario:
                         self.kill()
                         scene.updateables.remove(self)
                         self.body.position = (-10.0, -10.0)
@@ -1049,16 +1055,32 @@ class QuestionBlock(egs.Game_objects.drawupdateable):
         self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p
 
 class Pipe(egs.Game_objects.drawable):
-    color = (255,0,0)
 
-    # Should take position and pipe height
-    def __init__(self):
+    def __init__(self, xpos, h):
         super().__init__()
-        self.surf = pygame.Surface((35, 35))
 
-    # This function switches whether the square is black or colored
-    def update(self):
-        print("Update and stuff")
+        if os.name == 'nt':
+            filename = "image\\pipes.png"
+        else:
+            filename = 'image/pipes.png'
+        
+        piece_ss = SpriteSheet(filename)
+
+        self.dirty = 2
+        width_in_pixels = 128
+        height_in_pixels = h * 64
+
+        ypos = 1.28 + (height_in_pixels * p2b / 2)
+
+        pipe_rect = ((h-2)*132, 0, width_in_pixels + 4, height_in_pixels + 4)
+        pipe_image = piece_ss.image_at(pipe_rect)
+
+        self.body = world.CreateStaticBody(position = (xpos, ypos) , shapes = b2PolygonShape(box = (.64, (h*.64)/2)))
+
+        self.image = pipe_image.convert_alpha()
+        self.rect = self.image.get_rect()
+        self.rect.center = self.body.position.x * b2p, height - self.body.position.y * b2p
+                                        
 
 class SolidStone(egs.Game_objects.drawable):
      # Sets the initial state of the Square class
@@ -1164,6 +1186,17 @@ def createBricks():
         scene.drawables.add(e)
         scene.updateables.append(e)
 
+def createPipes():
+    pipes = []
+    pipes.append(Pipe(18.56, 2))
+    pipes.append(Pipe(24.96, 3))
+    pipes.append(Pipe(30.08, 4))
+    pipes.append(Pipe(37.12, 4))
+    pipes.append(Pipe(104.96, 2))
+    pipes.append(Pipe(115.20, 2))
+    for item in pipes:
+        groundGroup.add(item)
+        scene.drawables.add(item)
 
 width = 1024
 height = 832
@@ -1213,6 +1246,7 @@ scene.updateables.append(koopa)
 createGround()
 createQuestions()
 createBricks()
+createPipes()
 
 scene.updateables.append(view)
 

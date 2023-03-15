@@ -79,9 +79,9 @@ class Brick(egs.Game_objects.drawupdateable):
                             scene.drawables.add(stone)
                             scene.updateables.append(stone)
                     elif self.contents == "star":
-                        # star = Star((self.body.position.x, self.body.position.y + .64))
-                        # scene.drawables.add(star)
-                        # scene.updateables.append(star)
+                        star = Star((self.body.position.x, self.body.position.y + .64))
+                        scene.drawables.add(star)
+                        scene.updateables.append(star)
                         stone = SolidStone(self.body.position, True)
                         scene.drawables.add(stone)
                         scene.updateables.append(stone)

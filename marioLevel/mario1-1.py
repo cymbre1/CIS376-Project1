@@ -157,8 +157,8 @@ class FireBall(egs.Game_objects.drawupdateable):
         self.images.append(fire_image)
 
         self.body = world.CreateDynamicBody(position=pos, fixedRotation = True)
-        shape=b2PolygonShape(box=(p2b*32, p2b*32))
-        fixDef = b2FixtureDef(shape=shape, friction=0.1, restitution=0.5, density=.5)
+        shape=b2PolygonShape(box=(p2b*16, p2b*16))
+        fixDef = b2FixtureDef(shape=shape, friction=0.1, restitution=1, density=.8)
         box = self.body.CreateFixture(fixDef)
         self.rect = self.image.get_rect()
 
@@ -174,11 +174,17 @@ class FireBall(egs.Game_objects.drawupdateable):
             self.image_index = 0 if self.image_index == 3  else self.image_index + 1
 
         collidedWithEnemy = pygame.sprite.spritecollide(self, enemiesGroup, False)
-        if collidedWithEnemy or self.lifetime == 0:
+        if len(collidedWithEnemy) > 0:
             self.kill()
             self.body.position = (-10.0, -10.0)
             self.rect.center = -100 * b2p, height - -100 * b2p
+            collidedWithEnemy[0].set_dead()
             # TODO update the score
+
+        if self.lifetime == 0:
+            self.kill()
+            self.body.position = (-10.0, -10.0)
+            self.rect.center = -100 * b2p, height - -100 * b2p
 
         self.lifetime -= 1
         self.rect.center = self.body.position[0] * b2p , height - self.body.position[1] * b2p
@@ -317,6 +323,11 @@ class FireMario(egs.Game_objects.drawupdateable):
                 if event.key == pygame.K_w:
                     if collided:
                         self.body.ApplyLinearImpulse(b2Vec2(0,3), self.body.position, True)
+                if event.key == pygame.K_SPACE:
+                    fireball = FireBall((self.body.position.x + .55, self.body.position.y + .46))
+                    fireGroup.add(fireball)
+                    scene.drawables.add(fireball)
+                    scene.updateables.append(fireball)
         
         self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p
 
@@ -324,7 +335,7 @@ class FireMario(egs.Game_objects.drawupdateable):
         global mario
 
         self.dead = True
-        mario = SuperMario(self.body.position, 500)
+        mario = Mario(self.body.position, 500)
         scene.drawables.add(mario)
         scene.updateables.append(mario)
         marioGroup.add(mario)
@@ -440,17 +451,9 @@ class Goomba(egs.Game_objects.drawupdateable):
                     for m in marioGroup:
                         if self.rect.colliderect(m.rect):
                             if self.rect.top + 10 >= m.rect.bottom:                            
-                                self.dead = True
-                                self.counter = 0
-                                enemiesGroup.remove(self)
+                                self.set_dead()
                                 return
                             
-                collidedWithFireball = pygame.sprite.spritecollide(self, fireGroup, False)
-                if collidedWithFireball:
-                    self.dead = True
-                    self.counter = 0
-                    enemiesGroup.remove(self)
-
             else:
                 self.last_center = self.rect.center
                 self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p
@@ -459,6 +462,11 @@ class Goomba(egs.Game_objects.drawupdateable):
             self.kill()    
             self.body.position = (-10.0, -10.0)
       
+    def set_dead(self):
+        self.dead = True
+        self.counter = 0
+        enemiesGroup.remove(self)
+
 
     def collided_with_top(self, rect):
         return rect.collidepoint(self.rect.topleft) or rect.collidepoint(self.rect.topright) or rect.collidepoint(self.rect.midtop)
@@ -566,18 +574,21 @@ class Koopa(egs.Game_objects.drawupdateable):
             for e in enemiesGroup:
                 if self.rect.colliderect(e.rect):
                     if e.rect.bottom > self.rect.top:
-                        self.dead = True
-                        koopa = KoopaShell(self.body.position)
-                        scene.drawables.add(koopa)
-                        scene.updateables.append(koopa)
-                        enemiesGroup.add(koopa)
-                        enemiesGroup.remove(self)
-                        self.kill()
-                        self.body.position = (-10.0, -10.0)
+                        self.set_dead()
                         return
 
         self.rect = self.image.get_rect()
         self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p
+
+    def set_dead(self):
+        self.dead = True
+        koopa = KoopaShell(self.body.position)
+        scene.drawables.add(koopa)
+        scene.updateables.append(koopa)
+        enemiesGroup.add(koopa)
+        enemiesGroup.remove(self)
+        self.kill()
+        self.body.position = (-10.0, -10.0)
 
     def collided_with_top(self, rect):
         return rect.collidepoint(self.rect.topleft) or rect.collidepoint(self.rect.topright) or rect.collidepoint(self.rect.midtop)
@@ -654,6 +665,8 @@ class KoopaShell(egs.Game_objects.drawupdateable):
         self.rect = self.image.get_rect()
         self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p
 
+    def set_dead(self):
+        pass
 class Mario(egs.Game_objects.drawupdateable):
      # Sets the initial state of the Square class
     mario_running = []
@@ -1121,39 +1134,39 @@ view = Camera()
 background = Background()
 
 # brick = Brick((3.20, 3.20))
-mario = SuperMario((2.24, 3.52))
-fireball = FireBall((2.24, 4.52))
-goomba = Goomba((4,3.52))
+mario = FireMario((2.24, 3.52))
+# fireball = FireBall((2.24, 4.52))
+# goomba = Goomba((10.24,3.52))
 # flag = Flag((90.92,4.8))
-# koopa = Koopa((4.8,1.76))
+koopa = Koopa((10.24,1.76))
 
 groundGroup = pygame.sprite.Group()
 # groundGroup.add(brick)
 
 fireGroup = pygame.sprite.Group()
-fireGroup.add(fireball)
+# fireGroup.add(fireball)
 
 enemiesGroup = pygame.sprite.Group()
-enemiesGroup.add(goomba)
-# enemiesGroup.add(koopa)
+# enemiesGroup.add(goomba)
+enemiesGroup.add(koopa)
 
 marioGroup = pygame.sprite.Group()
 marioGroup.add(mario)
 
 scene.drawables.add(background)
 scene.drawables.add(mario)
-scene.drawables.add(fireball)
-scene.drawables.add(goomba)
-# scene.drawables.add(koopa)
+# scene.drawables.add(fireball)
+# scene.drawables.add(goomba)
+scene.drawables.add(koopa)
 # scene.drawables.add(flag)
 
 scene.updateables.append(Updater())
 
 scene.updateables.append(mario)
 
-scene.updateables.append(fireball)
+# scene.updateables.append(fireball)
 # scene.updateables.append(goomba)
-# scene.updateables.append(koopa)
+scene.updateables.append(koopa)
 # scene.updateables.append(flag)
 # scene.updateables.append(brick)
 

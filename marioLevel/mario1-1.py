@@ -1118,7 +1118,6 @@ view = Camera()
 background = Background()
 
 # brick = Brick((3.20, 3.20))
-<<<<<<< Updated upstream
 mario = SuperMario((2.24, 3.52))
 fireball = FireBall((2.24, 4.52))
 goomba = Goomba((4,3.52))

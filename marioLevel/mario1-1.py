@@ -270,6 +270,8 @@ class FireMario(egs.Game_objects.drawupdateable):
     collision = [False] * 9
     dead = False
     fire = False
+    star = False
+    star_count = -1
 
     def __init__(self, pos):
         super().__init__()
@@ -306,15 +308,23 @@ class FireMario(egs.Game_objects.drawupdateable):
         self.rect = self.image.get_rect()
 
     def update(self):
+        global mario
         if(self.dead):
             return
-
+        
+        if self.star:
+            self.star_count = 636
+            self.convert_star()
+            self.star = False
+        if self.star_count == 0:
+            self.convert_fromStar()
+        
         if not self.previous_bottom == self.rect.bottom:
-            bigger_img =self.mario_jump
+            image =self.mario_jump
         elif self.body.linearVelocity == (0,0):
-            bigger_img = self.mario_still
+            image = self.mario_still
         else:
-            bigger_img = self.mario_running[self.current_mario]
+            image = self.mario_running[self.current_mario]
             if self.counter == 10:
                 if self.current_mario == 3:
                     self.current_mario = 0
@@ -327,7 +337,7 @@ class FireMario(egs.Game_objects.drawupdateable):
         self.previous_center = self.rect.center
         self.previous_bottom = self.rect.bottom
 
-        self.image = bigger_img.convert_alpha()
+        self.image = image.convert_alpha()
         self.rect = self.image.get_rect()        
 
         if(self.flipped):
@@ -336,15 +346,20 @@ class FireMario(egs.Game_objects.drawupdateable):
         self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p
         collided = pygame.sprite.spritecollide(self, groundGroup, False)
         
-        # Deal with Collisions with Enemies
-        for e in enemiesGroup:
-            if self.rect.colliderect(e.rect):
-                if not self.rect.bottom  - 10 > e.rect.top and not type(e) == "<class '__main__.KoopaShell'>":
-                    self.die()
-                    return
-                elif not self.rect.bottom  - 10 > e.rect.top and type(e) == "<class '__main__.KoopaShell'>" and e.stationary:
-                    self.die()
-                    return
+        if self.star_count < 0:
+            # Deal with Collisions with Enemies
+            for e in enemiesGroup:
+                if self.rect.colliderect(e.rect):
+                    if not self.rect.bottom  - 10 > e.rect.top and not type(e) == "<class '__main__.KoopaShell'>":
+                        self.die()
+                        return
+                    elif not self.rect.bottom  - 10 > e.rect.top and type(e) == "<class '__main__.KoopaShell'>" and e.stationary:
+                        self.die()
+                        return
+        else:
+            enemiesCollided = pygame.sprite.spritecollide(self, enemiesGroup, False)
+            for e in enemiesCollided:
+                e.set_dead()
                 
         for event in egs.Engine.events:
             if event.type == pygame.KEYDOWN:
@@ -366,6 +381,7 @@ class FireMario(egs.Game_objects.drawupdateable):
                     scene.drawables.add(fireball)
                     scene.updateables.append(fireball)
         
+        self.star_count -= 1
         self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p
 
     def die(self):
@@ -379,6 +395,52 @@ class FireMario(egs.Game_objects.drawupdateable):
         self.kill()
         scene.updateables.remove(self)
         self.body.position = (-10.0, -10.0)
+
+    def convert_star(self):
+        if os.name == 'nt':
+            filename = "image\\starSuperMario.png"
+        else:
+            filename = 'image/starSuperMario.png'
+
+        piece_ss = SpriteSheet(filename)
+        self.mario_running.clear()
+        for i in range(3):
+            mario_rect = (i*68, 0, 68, 132)
+            mario_image = piece_ss.image_at(mario_rect)
+            self.mario_running.append(mario_image)
+
+        mario_rect = (204, 0, 68, 132)
+        mario_image = piece_ss.image_at(mario_rect)
+        self.mario_running.append(mario_image)
+
+        mario_rect = (0, 0, 68, 132)
+        self.mario_still = piece_ss.image_at(mario_rect)
+
+        mario_rect = (272, 0, 68, 132)
+        self.mario_jump = piece_ss.image_at(mario_rect)
+
+    def convert_fromStar(self):
+        if os.name == 'nt':
+            filename = "image\\fireMario.png"
+        else:
+            filename = 'image/fireMario.png'
+
+        piece_ss = SpriteSheet(filename)
+        self.mario_running.clear()
+        for i in range(3):
+            mario_rect = (i*68, 0, 68, 132)
+            mario_image = piece_ss.image_at(mario_rect)
+            self.mario_running.append(mario_image)
+
+        mario_rect = (204, 0, 68, 132)
+        mario_image = piece_ss.image_at(mario_rect)
+        self.mario_running.append(mario_image)
+
+        mario_rect = (0, 0, 68, 132)
+        self.mario_still = piece_ss.image_at(mario_rect)
+
+        mario_rect = (272, 0, 68, 132)
+        self.mario_jump = piece_ss.image_at(mario_rect)
 
 class Flag(egs.Game_objects.drawupdateable):
     flag_sprites = []
@@ -455,8 +517,8 @@ class Goomba(egs.Game_objects.drawupdateable):
             return
 
         if self.dead and self.counter < 30:
-            bigger_img = pygame.transform.scale(self.goomba_dying, (64, 64))
-            self.image = bigger_img.convert_alpha()
+            image = pygame.transform.scale(self.goomba_dying, (64, 64))
+            self.image = image.convert_alpha()
             self.rect = self.image.get_rect()
             self.counter += 1
             self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p
@@ -721,9 +783,10 @@ class Mario(egs.Game_objects.drawupdateable):
     mushroom = False
     star = False
     fire = False
+    star_count = -1
 
     def __init__(self, pos, immunity = 0):
-        super().__init__()
+        super().__init__()            
 
         self.immune = immunity
 
@@ -765,6 +828,13 @@ class Mario(egs.Game_objects.drawupdateable):
     def update(self):
         global mario
 
+        if self.star:
+            self.star_count = 636
+            self.convert_star()
+            self.star = False
+        if self.star_count < 0:
+            self.convert_fromStar()
+
         if self.dead and self.counter < 30:
             self.image = self.mario_dying.convert_alpha()
             self.rect = self.image.get_rect()
@@ -781,11 +851,11 @@ class Mario(egs.Game_objects.drawupdateable):
             return
         
         if not self.previous_bottom == self.rect.bottom:
-            bigger_img = self.mario_jump
+            image = self.mario_jump
         elif self.body.linearVelocity == (0,0):
-            bigger_img = self.mario_still
+            image = self.mario_still
         else:
-            bigger_img = self.mario_running[self.current_mario]
+            image = self.mario_running[self.current_mario]
             if self.counter == 10:
                 if self.current_mario == 3:
                     self.current_mario = 0
@@ -798,7 +868,7 @@ class Mario(egs.Game_objects.drawupdateable):
         self.previous_center = self.rect.center
         self.previous_bottom = self.rect.bottom
 
-        self.image = bigger_img.convert_alpha()
+        self.image = image.convert_alpha()
         self.rect = self.image.get_rect()        
 
         if(self.flipped):
@@ -807,18 +877,26 @@ class Mario(egs.Game_objects.drawupdateable):
         self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p
         collided = pygame.sprite.spritecollide(self, groundGroup, False)
 
-        if self.immune < 0:
-            # Deal with Collisions with Enemies
-            for e in enemiesGroup:
-                if self.rect.colliderect(e.rect):
-                    if self.rect.bottom - 10 >= e.rect.top:
-                        self.dead = True
-                        self.counter = 0
-                        return
+        if self.star_count < 0:
+            if self.immune < 0:
+                # Deal with Collisions with Enemies
+                for e in enemiesGroup:
+                    if self.rect.colliderect(e.rect):
+                        if self.rect.bottom - 10 >= e.rect.top:
+                            self.dead = True
+                            self.counter = 0
+                            return
+        else:
+            collidedEnemies = pygame.sprite.spritecollide(self, enemiesGroup, False)
+            for e in collidedEnemies:
+                e.set_dead()
                     
         if self.mushroom or self.fire:
             self.dead = True
             mario = SuperMario(self.body.position)
+            mario.star_count = self.star_count
+            if self.star_count > 0:
+                mario.convert_star()
             scene.drawables.add(mario)
             scene.updateables.append(mario)
             marioGroup.add(mario)
@@ -839,8 +917,55 @@ class Mario(egs.Game_objects.drawupdateable):
                     if collided:
                         self.body.ApplyLinearImpulse(b2Vec2(0,3), self.body.position, True)
         
+        self.star_count -= 1
         self.immune -= 1
         self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p
+
+    def convert_star(self):
+        if os.name == 'nt':
+            filename = "image\\starMario.png"
+        else:
+            filename = 'image/starMario.png'
+
+        piece_ss = SpriteSheet(filename)
+        self.mario_running.clear()
+        for i in range(3):
+            mario_rect = (i*68, 0, 68, 68)
+            mario_image = piece_ss.image_at(mario_rect)
+            self.mario_running.append(mario_image)
+
+        mario_rect = (204, 0, 68, 68)
+        mario_image = piece_ss.image_at(mario_rect)
+        self.mario_running.append(mario_image)
+
+        mario_rect = (0, 0, 68, 68)
+        self.mario_still = piece_ss.image_at(mario_rect)
+
+        mario_rect = (272, 0, 68, 68)
+        self.mario_jump = piece_ss.image_at(mario_rect)
+
+    def convert_fromStar(self):
+        if os.name == 'nt':
+            filename = "image\\marioSprites.png"
+        else:
+            filename = 'image/marioSprites.png'
+
+        piece_ss = SpriteSheet(filename)
+        self.mario_running.clear()
+        for i in range(3):
+            mario_rect = (i*68, 0, 68, 68)
+            mario_image = piece_ss.image_at(mario_rect)
+            self.mario_running.append(mario_image)
+
+        mario_rect = (204, 0, 68, 68)
+        mario_image = piece_ss.image_at(mario_rect)
+        self.mario_running.append(mario_image)
+
+        mario_rect = (0, 0, 68, 68)
+        self.mario_still = piece_ss.image_at(mario_rect)
+
+        mario_rect = (272, 0, 68, 68)
+        self.mario_jump = piece_ss.image_at(mario_rect)
 
 class Mushroom(egs.Game_objects.drawupdateable):
     def __init__(self, pos):
@@ -874,6 +999,41 @@ class Mushroom(egs.Game_objects.drawupdateable):
 
         self.rect.center = self.body.position[0] * b2p , height - self.body.position[1] * b2p
 
+class Star(egs.Game_objects.drawupdateable):
+    def __init__(self, pos):
+        super().__init__()
+
+        if os.name == 'nt':
+            filename = "image\\star.png"
+        else:
+            filename = "image/star.png"
+
+        piece_ss = SpriteSheet(filename)
+
+        self.dirty = 2
+
+        star_rect = (68, 0, 68, 68)
+        ground_image = piece_ss.image_at(star_rect)
+        self.image = ground_image.convert_alpha()
+        self.body = world.CreateStaticBody(position = pos, shapes = b2PolygonShape(box = (p2b*32, p2b*32)))
+        self.rect = self.image.get_rect()
+
+        self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p
+
+    def update(self):
+        global mario
+        collidedWithMario = pygame.sprite.spritecollide(self, marioGroup, False)
+        
+        if collidedWithMario:
+            self.kill()
+            scene.updateables.remove(self)
+            self.body.position = (-10.0, -10.0)
+            self.rect.center = -100 * b2p, height - -100 * b2p
+            mario.star = True
+            # TODO update the score
+
+        self.rect.center = self.body.position[0] * b2p , height - self.body.position[1] * b2p
+
 class SuperMario(egs.Game_objects.drawupdateable):
     # Sets the initial state of the Square class
     mario_running = []
@@ -885,7 +1045,8 @@ class SuperMario(egs.Game_objects.drawupdateable):
     collision = [False] * 9
     dead = False
     fire = False
-
+    star = False
+    star_count = 0
     def __init__(self, pos, immunity = 0):
         super().__init__()
 
@@ -926,13 +1087,22 @@ class SuperMario(egs.Game_objects.drawupdateable):
         global mario
         if(self.dead):
             return
+        
+        if self.star:
+            self.star_count = 636
+            self.convert_star()
+            self.star = False
+            # Trigger music
+
+        if self.star_count == 0:
+            self.convert_fromStar()
 
         if not self.previous_bottom == self.rect.bottom:
-            bigger_img =self.mario_jump
+            image =self.mario_jump
         elif self.body.linearVelocity == (0,0):
-            bigger_img = self.mario_still
+            image = self.mario_still
         else:
-            bigger_img = self.mario_running[self.current_mario]
+            image = self.mario_running[self.current_mario]
             if self.counter == 10:
                 if self.current_mario == 3:
                     self.current_mario = 0
@@ -945,7 +1115,7 @@ class SuperMario(egs.Game_objects.drawupdateable):
         self.previous_center = self.rect.center
         self.previous_bottom = self.rect.bottom
 
-        self.image = bigger_img.convert_alpha()
+        self.image = image.convert_alpha()
         self.rect = self.image.get_rect()        
 
         if(self.flipped):
@@ -954,20 +1124,30 @@ class SuperMario(egs.Game_objects.drawupdateable):
         self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p
         collided = pygame.sprite.spritecollide(self, groundGroup, False)
         
-        if self.immune < 0:
-        # Deal with Collisions with Enemies
-            for e in enemiesGroup:
-                if self.rect.colliderect(e.rect):
-                    if not self.rect.bottom  - 10 > e.rect.top and not type(e) == "<class '__main__.KoopaShell'>":
-                        self.die()
-                        return
-                    elif not self.rect.bottom  - 10 > e.rect.top and type(e) == "<class '__main__.KoopaShell'>" and e.stationary:
-                        self.die()
-                        return
-                
+        if self.star_count < 0:
+            if self.immune < 0:
+            # Deal with Collisions with Enemies
+                for e in enemiesGroup:
+                    if self.rect.colliderect(e.rect):
+                        if not self.rect.bottom  - 10 > e.rect.top and not type(e) == "<class '__main__.KoopaShell'>":
+                            self.die()
+                            return
+                        elif not self.rect.bottom  - 10 > e.rect.top and type(e) == "<class '__main__.KoopaShell'>" and e.stationary:
+                            self.die()
+                            return
+                    
+        else:
+            collidedEnemies = pygame.sprite.spritecollide(self, enemiesGroup, False)
+            if collidedEnemies:
+                for e in collidedEnemies:
+                    e.set_dead()
+
         if self.fire:
             self.dead = True
             mario = FireMario(self.body.position)
+            mario.star_count = self.star_count
+            if self.star_count > 0:
+                mario.convert_star()
             scene.drawables.add(mario)
             scene.updateables.append(mario)
             marioGroup.add(mario)
@@ -987,6 +1167,7 @@ class SuperMario(egs.Game_objects.drawupdateable):
                     if collided:
                         self.body.ApplyLinearImpulse(b2Vec2(0,3), self.body.position, True)
         
+        self.star_count -= 1
         self.immune -= 1
         self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p
 
@@ -1001,6 +1182,53 @@ class SuperMario(egs.Game_objects.drawupdateable):
         self.kill()
         scene.updateables.remove(self)
         self.body.position = (-10.0, -10.0)
+
+    def convert_star(self):
+        if os.name == 'nt':
+            filename = "image\\starSuperMario.png"
+        else:
+            filename = 'image/starSuperMario.png'
+
+        piece_ss = SpriteSheet(filename)
+        self.mario_running.clear()
+        for i in range(3):
+            mario_rect = (i*68, 0, 68, 132)
+            mario_image = piece_ss.image_at(mario_rect)
+            self.mario_running.append(mario_image)
+
+        mario_rect = (204, 0, 68, 132)
+        mario_image = piece_ss.image_at(mario_rect)
+        self.mario_running.append(mario_image)
+
+        mario_rect = (0, 0, 68, 132)
+        self.mario_still = piece_ss.image_at(mario_rect)
+
+        mario_rect = (272, 0, 68, 132)
+        self.mario_jump = piece_ss.image_at(mario_rect)
+
+    def convert_fromStar(self):
+        if os.name == 'nt':
+            filename = "image\\superMarioSprites.png"
+        else:
+            filename = 'image/superMarioSprites.png'
+
+        piece_ss = SpriteSheet(filename)
+        self.mario_running.clear()
+        for i in range(3):
+            mario_rect = (i*68, 0, 68, 132)
+            mario_image = piece_ss.image_at(mario_rect)
+            self.mario_running.append(mario_image)
+
+        mario_rect = (204, 0, 68, 132)
+        mario_image = piece_ss.image_at(mario_rect)
+        self.mario_running.append(mario_image)
+
+        mario_rect = (0, 0, 68, 132)
+        self.mario_still = piece_ss.image_at(mario_rect)
+
+        mario_rect = (272, 0, 68, 132)
+        self.mario_jump = piece_ss.image_at(mario_rect)
+        
 
 class QuestionBlock(egs.Game_objects.drawupdateable):
     destroyed = False
@@ -1333,6 +1561,7 @@ view = Camera()
 background = Background()
 
 mario = SuperMario((2.24, 3.52))
+star = Star((8, 1.76))
 # goomba = Goomba((4,3.52))
 # flag = Flag((90.92,4.8))
 koopa = Goomba((18,1.76))
@@ -1351,6 +1580,7 @@ marioGroup.add(mario)
 
 scene.drawables.add(background)
 scene.drawables.add(mario)
+scene.drawables.add(star)
 # scene.drawables.add(fireball)
 # scene.drawables.add(goomba)
 scene.drawables.add(koopa)
@@ -1359,6 +1589,7 @@ scene.drawables.add(koopa)
 scene.updateables.append(Updater())
 
 scene.updateables.append(mario)
+scene.updateables.append(star)
 
 # scene.updateables.append(fireball)
 # scene.updateables.append(goomba)

@@ -43,7 +43,8 @@ class Brick(egs.Game_objects.drawupdateable):
         self.dirty = 2
         
         self.contents = contents
-        self.coinCounter = -1
+        self.coinCounter = 288
+        self.active = False
 
         brick_rect = (0, 68, 68, 68)
         ground_image = piece_ss.image_at(brick_rect)
@@ -61,16 +62,17 @@ class Brick(egs.Game_objects.drawupdateable):
             for m in marioGroup:
                 if m.rect.collidepoint(self.rect.midbottom):
                     print(self.coinCounter)
-                    if self.coinCounter < 0:
+                    if self.coinCounter < 0 and not self.active:
                         print("POSITIVE*************")
                         self.coinCounter = 228
+                        self.active = True
                     if self.contents == "coin":
-                        if self.coinCounter > 0:
+                        if self.coinCounter > 0 and self.active:
                             coin = Coin((self.body.position.x, self.body.position.y +.64))
                             scene.drawables.add(coin)
                             scene.updateables.append(coin)
-                        elif self.coinCounter == 0:
-                            self.coinCounter == -1
+                        elif self.coinCounter < 0 and self.active:
+                            self.coinCounter == 230
                             self.kill()
                             scene.updateables.remove(self)
                             stone = SolidStone(self.body.position, True)
@@ -83,7 +85,8 @@ class Brick(egs.Game_objects.drawupdateable):
                     else:
                         self.kill()
                         self.body.position = (-10.0, -10.0)
-        self.coinCounter -= 1     
+        if self.contents == "coin":
+            self.coinCounter -= 1  
         self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p   
 
 class Camera(egs.Game_objects.updateable):
@@ -1160,9 +1163,8 @@ view = Camera()
 background = Background()
 
 # brick = Brick((3.20, 3.20))
-mario = FireMario((2.24, 3.52))
-# fireball = FireBall((2.24, 4.52))
-# goomba = Goomba((10.24,3.52))
+mario = Mario((2.24, 3.52))
+# goomba = Goomba((4,3.52))
 # flag = Flag((90.92,4.8))
 koopa = Koopa((10.24,1.76))
 

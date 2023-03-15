@@ -68,15 +68,18 @@ class Camera(egs.Game_objects.updateable):
         self.moveable_rect = pygame.Rect(0,0,384,height)
         self.last_rect = pygame.Rect(0,0, 384, height)
 
+        self.total_offset = 0.0
         self.previous_offset = 0.0
         self.offset = 0.0
     
     def update(self):
         self.previous_offset = self.offset
-        if mario.rect.right > 384:
+
+        if self.total_offset <= 124.80 and mario.rect.right > 384:
             self.offset= (mario.rect.right - 384) * p2b
         else:
             self.offset = 0.0
+        self.total_offset += self.offset
         for e in scene.drawables:
             e.body.position = (e.body.position[0] - self.offset, e.body.position[1])
             e.rect.center = e.body.position[0] * b2p, height - e.body.position[1] * b2p

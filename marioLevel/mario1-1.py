@@ -1199,6 +1199,127 @@ def createPipes():
         groundGroup.add(item)
         scene.drawables.add(item)
 
+def createSolids():
+    solids = []
+
+    solids.append(SolidStone((86.08, 1.60)))
+
+    solids.append(SolidStone((86.72, 1.60)))
+    solids.append(SolidStone((86.72, 2.24)))
+
+    solids.append(SolidStone((87.36, 1.60)))
+    solids.append(SolidStone((87.36, 2.24)))
+    solids.append(SolidStone((87.36, 2.88)))
+
+    solids.append(SolidStone((88.00, 1.60)))
+    solids.append(SolidStone((88.00, 2.24)))
+    solids.append(SolidStone((88.00, 2.88)))
+    solids.append(SolidStone((88.00, 3.52)))
+
+    solids.append(SolidStone((89.92, 1.60)))
+    solids.append(SolidStone((89.92, 2.24)))
+    solids.append(SolidStone((89.92, 2.88)))
+    solids.append(SolidStone((89.92, 3.52)))
+
+    solids.append(SolidStone((90.56, 1.60)))
+    solids.append(SolidStone((90.56, 2.24)))
+    solids.append(SolidStone((90.56, 2.88)))
+
+    solids.append(SolidStone((91.20, 1.60)))
+    solids.append(SolidStone((91.20, 2.24)))
+
+    solids.append(SolidStone((91.84, 1.60)))
+
+    solids.append(SolidStone((95.04, 1.60)))
+
+    solids.append(SolidStone((95.68, 1.60)))
+    solids.append(SolidStone((95.68, 2.24)))
+
+    solids.append(SolidStone((96.32, 1.60)))
+    solids.append(SolidStone((96.32, 2.24)))
+    solids.append(SolidStone((96.32, 2.88)))
+
+    solids.append(SolidStone((96.96, 1.60)))
+    solids.append(SolidStone((96.96, 2.24)))
+    solids.append(SolidStone((96.96, 2.88)))
+    solids.append(SolidStone((96.96, 3.52)))
+
+    solids.append(SolidStone((97.60, 1.60)))
+    solids.append(SolidStone((97.60, 2.24)))
+    solids.append(SolidStone((97.60, 2.88)))
+    solids.append(SolidStone((97.60, 3.52)))
+
+    solids.append(SolidStone((99.52, 1.60)))
+    solids.append(SolidStone((99.52, 2.24)))
+    solids.append(SolidStone((99.52, 2.88)))
+    solids.append(SolidStone((99.52, 3.52)))
+
+    solids.append(SolidStone((100.16, 1.60)))
+    solids.append(SolidStone((100.16, 2.24)))
+    solids.append(SolidStone((100.16, 2.88)))
+
+    solids.append(SolidStone((100.80, 1.60)))
+    solids.append(SolidStone((100.80, 2.24)))
+
+    solids.append(SolidStone((101.44, 1.60)))
+
+    solids.append(SolidStone((116.16, 1.60)))
+
+    solids.append(SolidStone((116.80, 1.60)))
+    solids.append(SolidStone((116.80, 2.24)))
+
+    solids.append(SolidStone((117.44, 1.60)))
+    solids.append(SolidStone((117.44, 2.24)))
+    solids.append(SolidStone((117.44, 2.88)))
+
+    solids.append(SolidStone((118.08, 1.60)))
+    solids.append(SolidStone((118.08, 2.24)))
+    solids.append(SolidStone((118.08, 2.88)))
+    solids.append(SolidStone((118.08, 3.52)))
+
+    solids.append(SolidStone((118.72, 1.60)))
+    solids.append(SolidStone((118.72, 2.24)))
+    solids.append(SolidStone((118.72, 2.88)))
+    solids.append(SolidStone((118.72, 3.52)))
+    solids.append(SolidStone((118.72, 4.16)))
+
+    solids.append(SolidStone((119.36, 1.60)))
+    solids.append(SolidStone((119.36, 2.24)))
+    solids.append(SolidStone((119.36, 2.88)))
+    solids.append(SolidStone((119.36, 3.52)))
+    solids.append(SolidStone((119.36, 4.16)))
+    solids.append(SolidStone((119.36, 4.80)))
+
+    solids.append(SolidStone((120.00, 1.60)))
+    solids.append(SolidStone((120.00, 2.24)))
+    solids.append(SolidStone((120.00, 2.88)))
+    solids.append(SolidStone((120.00, 3.52)))
+    solids.append(SolidStone((120.00, 4.16)))
+    solids.append(SolidStone((120.00, 4.80)))
+    solids.append(SolidStone((120.00, 5.44)))
+
+    solids.append(SolidStone((120.64, 1.60)))
+    solids.append(SolidStone((120.64, 2.24)))
+    solids.append(SolidStone((120.64, 2.88)))
+    solids.append(SolidStone((120.64, 3.52)))
+    solids.append(SolidStone((120.64, 4.16)))
+    solids.append(SolidStone((120.64, 4.80)))
+    solids.append(SolidStone((120.64, 5.44)))
+    solids.append(SolidStone((120.64, 6.08)))
+
+    solids.append(SolidStone((121.28, 1.60)))
+    solids.append(SolidStone((121.28, 2.24)))
+    solids.append(SolidStone((121.28, 2.88)))
+    solids.append(SolidStone((121.28, 3.52)))
+    solids.append(SolidStone((121.28, 4.16)))
+    solids.append(SolidStone((121.28, 4.80)))
+    solids.append(SolidStone((121.28, 5.44)))
+    solids.append(SolidStone((121.28, 6.08)))
+
+    for item in solids:
+        groundGroup.add(item)
+        scene.drawables.add(item)
+
 width = 1024
 height = 832
 coin_count = 0
@@ -1248,6 +1369,7 @@ createGround()
 createQuestions()
 createBricks()
 createPipes()
+createSolids()
 
 scene.updateables.append(view)
 

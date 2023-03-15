@@ -790,6 +790,7 @@ class SuperMario(egs.Game_objects.drawupdateable):
         self.rect = self.image.get_rect()
 
     def update(self):
+        global mario
         if(self.dead):
             return
 
@@ -869,7 +870,7 @@ class SuperMario(egs.Game_objects.drawupdateable):
 class QuestionBlock(egs.Game_objects.drawupdateable):
     destroyed = False
      # Sets the initial state of the Square class
-    def __init__(self, pos, powerup = 'coin'):
+    def __init__(self, pos, powerup = False):
         super().__init__()
 
         filename = "image/tileset.png"
@@ -898,8 +899,11 @@ class QuestionBlock(egs.Game_objects.drawupdateable):
             for m in marioGroup:
                 if m.rect.collidepoint(self.rect.midbottom):
                     self.kill()
-                    stone = SolidStone(self.body.position)
-                    powerup = FireFlower((self.body.position.x, self.body.position.y + .64))
+                    stone = SolidStone(self.body.position, True)
+                    if self.powerup:
+                        powerup = FireFlower((self.body.position.x, self.body.position.y + .64))
+                    else:
+                        powerup = Coin((self.body.position.x, self.body.position.y+.64))
                     self.body.position = (-10.0, -10.0)
                     groundGroup.add(stone)
                     scene.drawables.add(stone)
@@ -926,7 +930,7 @@ class Pipe(egs.Game_objects.drawable):
 
 class SolidStone(egs.Game_objects.drawable):
      # Sets the initial state of the Square class
-    def __init__(self, pos):
+    def __init__(self, pos, isUsed = False):
         super().__init__()
 
         filename = "image/tileset.png"
@@ -934,8 +938,10 @@ class SolidStone(egs.Game_objects.drawable):
         piece_ss = SpriteSheet(filename)
 
         self.dirty = 2
-
-        brick_rect = (68, 68, 68, 68)
+        if isUsed:
+            brick_rect = (68, 68, 68, 68)
+        else:
+            brick_rect = (0, 0, 68, 68)
         ground_image = piece_ss.image_at(brick_rect)
         self.image = ground_image.convert_alpha()
         self.body = world.CreateStaticBody(position = pos, shapes = b2PolygonShape(box = (p2b*32, p2b*32)))
@@ -973,7 +979,10 @@ ground3 = Ground(77.44, 40.96)
 ground4 = Ground(117.12, 35.84)
 
 
-# question = QuestionBlock((2.56, 3.20))
+# creating the question blocks
+question = QuestionBlock((2.56, 3.20), True)
+
+
 # brick = Brick((3.20, 3.20))
 mario = SuperMario((2.24, 3.52))
 # goomba = Goomba((4,3.52))
@@ -985,7 +994,7 @@ groundGroup.add(ground)
 groundGroup.add(ground2)
 groundGroup.add(ground3)
 groundGroup.add(ground4)
-# groundGroup.add(question)
+groundGroup.add(question)
 # groundGroup.add(brick)
 
 enemiesGroup = pygame.sprite.Group()
@@ -1000,7 +1009,7 @@ scene.drawables.add(ground)
 scene.drawables.add(ground2)
 scene.drawables.add(ground3)
 scene.drawables.add(ground4)
-# scene.drawables.add(question)
+scene.drawables.add(question)
 scene.drawables.add(mario)
 # scene.drawables.add(goomba)
 # scene.drawables.add(koopa)
@@ -1009,7 +1018,7 @@ scene.drawables.add(mario)
 
 scene.updateables.append(Updater())
 scene.updateables.append(mario)
-# scene.updateables.append(question)
+scene.updateables.append(question)
 # scene.updateables.append(goomba)
 # scene.updateables.append(koopa)
 # scene.updateables.append(flag)

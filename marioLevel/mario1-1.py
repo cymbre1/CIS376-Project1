@@ -84,6 +84,7 @@ class Brick(egs.Game_objects.drawupdateable):
                         return
                     else:
                         self.kill()
+                        scene.updateables.remove(self)
                         self.body.position = (-10.0, -10.0)
         if self.contents == "coin":
             self.coinCounter -= 1  
@@ -202,6 +203,7 @@ class FireBall(egs.Game_objects.drawupdateable):
         collidedWithEnemy = pygame.sprite.spritecollide(self, enemiesGroup, False)
         if len(collidedWithEnemy) > 0:
             self.kill()
+            scene.updateables.remove(self)
             self.body.position = (-10.0, -10.0)
             self.rect.center = -100 * b2p, height - -100 * b2p
             collidedWithEnemy[0].set_dead()
@@ -209,6 +211,7 @@ class FireBall(egs.Game_objects.drawupdateable):
 
         if self.lifetime == 0:
             self.kill()
+            scene.updateables.remove(self)
             self.body.position = (-10.0, -10.0)
             self.rect.center = -100 * b2p, height - -100 * b2p
 
@@ -244,6 +247,7 @@ class FireFlower(egs.Game_objects.drawupdateable):
         
         if collidedWithMario:
             self.kill()
+            scene.updateables.remove(self)
             self.body.position = (-10.0, -10.0)
             self.rect.center = -100 * b2p, height - -100 * b2p
             mario.fire = True
@@ -366,6 +370,7 @@ class FireMario(egs.Game_objects.drawupdateable):
         scene.updateables.append(mario)
         marioGroup.add(mario)
         self.kill()
+        scene.updateables.remove(self)
         self.body.position = (-10.0, -10.0)
 
 class Flag(egs.Game_objects.drawupdateable):
@@ -453,6 +458,7 @@ class Goomba(egs.Game_objects.drawupdateable):
         if self.dead and self.counter == 30:
             self.body.position = (-10.0, -10.0)
             self.kill()
+            scene.updateables.remove(self)
             return
         
         if self.dead:
@@ -485,7 +491,8 @@ class Goomba(egs.Game_objects.drawupdateable):
                 self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p
                 self.counter = self.counter + 1 
         else:
-            self.kill()    
+            self.kill()
+            scene.updateables.remove(self)    
             self.body.position = (-10.0, -10.0)
       
     def set_dead(self):
@@ -614,6 +621,7 @@ class Koopa(egs.Game_objects.drawupdateable):
         enemiesGroup.add(koopa)
         enemiesGroup.remove(self)
         self.kill()
+        scene.updateables.remove(self) 
         self.body.position = (-10.0, -10.0)
 
     def collided_with_top(self, rect):
@@ -669,6 +677,7 @@ class KoopaShell(egs.Game_objects.drawupdateable):
             scene.updateables.append(koopa)
             self.dead = True
             self.kill()
+            scene.updateables.remove(self) 
             self.body.position = (-10.0, -10.0)
             return
         
@@ -757,6 +766,7 @@ class Mario(egs.Game_objects.drawupdateable):
             return
         if self.dead and self.counter == 30:
             self.kill()
+            scene.updateables.remove(self)
             self.body.position = (-10.0, -10.0)
             return
         
@@ -806,6 +816,7 @@ class Mario(egs.Game_objects.drawupdateable):
             scene.updateables.append(mario)
             marioGroup.add(mario)
             self.kill()
+            scene.updateables.remove(self)
             self.body.position = (-10.0, -10.0)
             
 
@@ -848,6 +859,7 @@ class Mushroom(egs.Game_objects.drawupdateable):
 
         if collidedWithMario:
             self.kill()
+            scene.updateables.remove(self)
             self.body.position = (-10.0, -10.0)
             self.rect.center = -100 * b2p, height - -100 * b2p
             mario.mushroom = True
@@ -953,6 +965,7 @@ class SuperMario(egs.Game_objects.drawupdateable):
             scene.updateables.append(mario)
             marioGroup.add(mario)
             self.kill()
+            scene.updateables.remove(self)
             self.body.position = (-10.0, -10.0)
 
         for event in egs.Engine.events:
@@ -979,6 +992,7 @@ class SuperMario(egs.Game_objects.drawupdateable):
         scene.updateables.append(mario)
         marioGroup.add(mario)
         self.kill()
+        scene.updateables.remove(self)
         self.body.position = (-10.0, -10.0)
 
 class QuestionBlock(egs.Game_objects.drawupdateable):
@@ -1013,6 +1027,7 @@ class QuestionBlock(egs.Game_objects.drawupdateable):
             for m in marioGroup:
                 if m.rect.collidepoint(self.rect.midbottom):
                     self.kill()
+                    scene.updateables.remove(self)
                     stone = SolidStone(self.body.position, True)
                     if self.powerup:
                         if type(m) == SuperMario or type(m) == FireMario: 
@@ -1162,14 +1177,12 @@ view = Camera()
 
 background = Background()
 
-# brick = Brick((3.20, 3.20))
-mario = Mario((2.24, 3.52))
+mario = FireMario((2.24, 3.52))
 # goomba = Goomba((4,3.52))
 # flag = Flag((90.92,4.8))
 koopa = Koopa((10.24,1.76))
 
 groundGroup = pygame.sprite.Group()
-# groundGroup.add(brick)
 
 fireGroup = pygame.sprite.Group()
 # fireGroup.add(fireball)
@@ -1196,7 +1209,6 @@ scene.updateables.append(mario)
 # scene.updateables.append(goomba)
 scene.updateables.append(koopa)
 # scene.updateables.append(flag)
-# scene.updateables.append(brick)
 
 createGround()
 createQuestions()

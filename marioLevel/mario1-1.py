@@ -41,6 +41,9 @@ class Brick(egs.Game_objects.drawupdateable):
         piece_ss = SpriteSheet(filename)
 
         self.dirty = 2
+        
+        self.contents = contents
+        self.coinCounter = -1
 
         brick_rect = (0, 68, 68, 68)
         ground_image = piece_ss.image_at(brick_rect)
@@ -57,16 +60,35 @@ class Brick(egs.Game_objects.drawupdateable):
         if collidedWithMario:
             for m in marioGroup:
                 if m.rect.collidepoint(self.rect.midbottom):
-                    self.kill()
-                    self.body.position = (-10.0, -10.0)
+                    print(self.coinCounter)
+                    if self.coinCounter < 0:
+                        print("POSITIVE*************")
+                        self.coinCounter = 228
+                    if self.contents == "coin":
+                        if self.coinCounter > 0:
+                            coin = Coin((self.body.position.x, self.body.position.y +.64))
+                            scene.drawables.add(coin)
+                            scene.updateables.append(coin)
+                        elif self.coinCounter == 0:
+                            self.coinCounter == -1
+                            self.kill()
+                            scene.updateables.remove(self)
+                            stone = SolidStone(self.body.position, True)
+                            self.body.position = (-10,-10)
+                            scene.drawables.add(stone)
+                            scene.updateables.append(stone)
+        
+                    elif self.contents == "star":
+                        return
+                    else:
+                        self.kill()
+                        self.body.position = (-10.0, -10.0)
+        self.coinCounter -= 1     
         self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p   
 
 class Camera(egs.Game_objects.updateable):
     def __init__(self):
         super().__init__()
-
-        self.moveable_rect = pygame.Rect(0,0,384,height)
-        self.last_rect = pygame.Rect(0,0, 384, height)
 
         self.total_offset = 0.0
         self.previous_offset = 0.0
@@ -96,7 +118,7 @@ class Coin(egs.Game_objects.drawupdateable):
         piece_ss = SpriteSheet(filename)
 
         self.dirty = 2
-
+        self.time_counter = 15
         coin_rect = (134, 0, 68, 68)
         ground_image = piece_ss.image_at(coin_rect)
         self.image = ground_image.convert_alpha()
@@ -109,13 +131,14 @@ class Coin(egs.Game_objects.drawupdateable):
     # This function switches whether the square is black or colored
     def update(self):
         global coin_count
-        collidedWithMario = pygame.sprite.spritecollide(self, marioGroup, False)
 
-        if collidedWithMario:
-            self.kill()
-            self.body.position = (-10.0, -10.0)
-            self.rect.center = -100 * b2p, height - -100 * b2p
+        if self.time_counter == 15:
             coin_count += 1
+        elif self.time_counter == 0:
+            self.kill()
+            scene.updateables.remove(self)
+            self.body.position = (-10,-10)
+        self.time_counter -= 1
 
         self.rect.center = self.body.position[0] * b2p , height - self.body.position[1] * b2p
 
@@ -712,7 +735,7 @@ class Mario(egs.Game_objects.drawupdateable):
 
         self.body = world.CreateDynamicBody(position=pos, fixedRotation=True)
         shape=b2PolygonShape(box=(p2b*32, p2b*32))
-        fixDef = b2FixtureDef(shape=shape, friction=0.3, restitution=0, density=.8)
+        fixDef = b2FixtureDef(shape=shape, friction=0.3, restitution=0, density=1)
         box = self.body.CreateFixture(fixDef)
         self.dirty = 2
         self.image = self.mario_running[self.current_mario].convert_alpha()
@@ -989,7 +1012,10 @@ class QuestionBlock(egs.Game_objects.drawupdateable):
                     self.kill()
                     stone = SolidStone(self.body.position, True)
                     if self.powerup:
-                        powerup = FireFlower((self.body.position.x, self.body.position.y + .64))
+                        if type(m) == SuperMario or type(m) == FireMario: 
+                            powerup = FireFlower((self.body.position.x, self.body.position.y + .64))
+                        else:
+                            powerup = Mushroom((self.body.position.x, self.body.position.y + .64))
                     else:
                         powerup = Coin((self.body.position.x, self.body.position.y+.64))
                     self.body.position = (-10.0, -10.0)

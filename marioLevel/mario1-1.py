@@ -30,7 +30,7 @@ class Background(egs.Game_objects.drawable):
         
 class Brick(egs.Game_objects.drawupdateable):
     # Sets the initial state of the Square class
-    def __init__(self, pos):
+    def __init__(self, pos, contents = ""):
         super().__init__()
 
         if os.name == 'nt':
@@ -960,6 +960,79 @@ class Updater(egs.Game_objects.updateable):
         except:
             print("Oh no")
 
+
+def createGround():
+    grounds = []
+    grounds.append(Ground(22.08,44.16))
+    grounds.append(Ground(50.24,9.6))
+    grounds.append(Ground(77.44, 40.96))
+    grounds.append(Ground(117.12, 35.84))
+
+    for e in grounds:
+        groundGroup.add(e)
+        scene.drawables.add(e)
+
+def createQuestions():
+    questions = []
+
+    questions.append(QuestionBlock((10.56, 3.52)))
+    questions.append(QuestionBlock((13.76,3.52), True))
+    questions.append(QuestionBlock((15.04,3.52)))
+    questions.append(QuestionBlock((14.40,6.08)))
+    questions.append(QuestionBlock((50.24,3.52), True))
+    questions.append(QuestionBlock((60.48,6.08)))
+    questions.append(QuestionBlock((68.16,3.52)))
+    questions.append(QuestionBlock((70.08,6.08), True))
+    questions.append(QuestionBlock((70.08,3.52)))
+    questions.append(QuestionBlock((72,3.52)))
+    questions.append(QuestionBlock((82.88,6.08)))
+    questions.append(QuestionBlock((83.52,6.08)))
+    questions.append(QuestionBlock((109.12,3.52)))
+
+    for item in questions:
+        groundGroup.add(item)
+        scene.drawables.add(item)
+        scene.updateables.append(item)
+
+def createBricks():
+    bricks = []
+    bricks.append(Brick((13.12, 3.52)))    
+    bricks.append(Brick((14.40, 3.52)))
+    bricks.append(Brick((15.68, 3.52)))
+    bricks.append(Brick((49.60, 3.52)))
+    bricks.append(Brick((50.88, 3.52)))
+    bricks.append(Brick((51.52, 6.08)))
+    bricks.append(Brick((52.16, 6.08)))
+    bricks.append(Brick((52.80, 6.08)))
+    bricks.append(Brick((53.44, 6.08)))
+    bricks.append(Brick((54.08, 6.08)))
+    bricks.append(Brick((54.72, 6.08)))
+    bricks.append(Brick((55.36, 6.08)))
+    bricks.append(Brick((56, 6.08)))
+    bricks.append(Brick((58.56, 6.08)))
+    bricks.append(Brick((59.20, 6.08)))
+    bricks.append(Brick((59.84, 6.08)))
+    bricks.append(Brick((60.48, 3.52), "coin"))
+    bricks.append(Brick((64.32, 3.52)))
+    bricks.append(Brick((64.96, 3.52), "star"))
+    bricks.append(Brick((75.84, 3.52)))
+    bricks.append(Brick((77.76, 6.08)))
+    bricks.append(Brick((78.4, 6.08)))
+    bricks.append(Brick((79.04, 6.08)))
+    bricks.append(Brick((82.24, 6.08)))
+    bricks.append(Brick((82.88, 3.52)))
+    bricks.append(Brick((83.52, 3.52)))
+    bricks.append(Brick((84.16, 6.08)))
+    bricks.append(Brick((107.84, 3.52)))
+    bricks.append(Brick((108.48, 3.52)))
+    bricks.append(Brick((109.76, 3.52)))
+
+    for e in bricks:
+        groundGroup.add(e)
+        scene.drawables.add(e)
+        scene.updateables.append(e)
+
+
 width = 1024
 height = 832
 coin_count = 0
@@ -972,29 +1045,6 @@ view = Camera()
 
 background = Background()
 
-#creating the ground
-ground = Ground(22.08,44.16)
-ground2 = Ground(50.24,9.6)
-ground3 = Ground(77.44, 40.96)
-ground4 = Ground(117.12, 35.84)
-
-
-# creating the question blocks
-question = QuestionBlock((10.56, 3.52))
-question1 = QuestionBlock((13.76,3.52), True)
-question2 = QuestionBlock((15.04,3.52))
-question3 = QuestionBlock((14.40,6.08))
-question4 = QuestionBlock((50.24,3.52), True)
-question5 = QuestionBlock((60.48,6.08))
-question6 = QuestionBlock((68.16,3.52))
-question7 = QuestionBlock((70.08,6.08), True)
-question8 = QuestionBlock((70.08,3.52))
-question9 = QuestionBlock((72,3.52))
-question10 = QuestionBlock((82.88,6.08))
-question11 = QuestionBlock((83.52,6.08))
-question12 = QuestionBlock((109.12,3.52))
-
-
 # brick = Brick((3.20, 3.20))
 mario = SuperMario((2.24, 3.52))
 # goomba = Goomba((4,3.52))
@@ -1002,25 +1052,6 @@ mario = SuperMario((2.24, 3.52))
 # koopa = Koopa((4.8,1.76))
 
 groundGroup = pygame.sprite.Group()
-
-groundGroup.add(ground)
-groundGroup.add(ground2)
-groundGroup.add(ground3)
-groundGroup.add(ground4)
-
-groundGroup.add(question)
-groundGroup.add(question1)
-groundGroup.add(question2)
-groundGroup.add(question3)
-groundGroup.add(question4)
-groundGroup.add(question5)
-groundGroup.add(question6)
-groundGroup.add(question7)
-groundGroup.add(question8)
-groundGroup.add(question9)
-groundGroup.add(question10)
-groundGroup.add(question11)
-groundGroup.add(question12)
 # groundGroup.add(brick)
 
 enemiesGroup = pygame.sprite.Group()
@@ -1031,25 +1062,6 @@ marioGroup = pygame.sprite.Group()
 marioGroup.add(mario)
 
 scene.drawables.add(background)
-
-scene.drawables.add(ground)
-scene.drawables.add(ground2)
-scene.drawables.add(ground3)
-scene.drawables.add(ground4)
-
-scene.drawables.add(question)
-scene.drawables.add(question1)
-scene.drawables.add(question2)
-scene.drawables.add(question3)
-scene.drawables.add(question4)
-scene.drawables.add(question5)
-scene.drawables.add(question6)
-scene.drawables.add(question7)
-scene.drawables.add(question8)
-scene.drawables.add(question9)
-scene.drawables.add(question10)
-scene.drawables.add(question11)
-scene.drawables.add(question12)
 scene.drawables.add(mario)
 # scene.drawables.add(goomba)
 # scene.drawables.add(koopa)
@@ -1060,24 +1072,15 @@ scene.updateables.append(Updater())
 
 scene.updateables.append(mario)
 
-scene.updateables.append(question)
-scene.updateables.append(question1)
-scene.updateables.append(question2)
-scene.updateables.append(question3)
-scene.updateables.append(question4)
-scene.updateables.append(question5)
-scene.updateables.append(question6)
-scene.updateables.append(question7)
-scene.updateables.append(question8)
-scene.updateables.append(question9)
-scene.updateables.append(question10)
-scene.updateables.append(question11)
-scene.updateables.append(question12)
-
 # scene.updateables.append(goomba)
 # scene.updateables.append(koopa)
 # scene.updateables.append(flag)
 # scene.updateables.append(brick)
+
+createGround()
+createQuestions()
+createBricks()
+
 scene.updateables.append(view)
 
 engine.start_game()

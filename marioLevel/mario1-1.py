@@ -248,8 +248,6 @@ class FireFlower(egs.Game_objects.drawupdateable):
     def update(self):
         global mario
         collidedWithMario = pygame.sprite.spritecollide(self, marioGroup, False)
-
-        
         
         if collidedWithMario:
             self.kill()
@@ -360,7 +358,10 @@ class FireMario(egs.Game_objects.drawupdateable):
                     if collided:
                         self.body.ApplyLinearImpulse(b2Vec2(0,3), self.body.position, True)
                 if event.key == pygame.K_SPACE:
-                    fireball = FireBall((self.body.position.x + .55, self.body.position.y + .46))
+                    if self.flipped:
+                        fireball = FireBall((self.body.position.x - .55, self.body.position.y + .46), -1)
+                    else:
+                        fireball = FireBall((self.body.position.x + .55, self.body.position.y + .46))
                     fireGroup.add(fireball)
                     scene.drawables.add(fireball)
                     scene.updateables.append(fireball)
@@ -815,7 +816,7 @@ class Mario(egs.Game_objects.drawupdateable):
                         self.counter = 0
                         return
                     
-        if self.mushroom:
+        if self.mushroom or self.fire:
             self.dead = True
             mario = SuperMario(self.body.position)
             scene.drawables.add(mario)
@@ -1210,10 +1211,10 @@ view = Camera()
 
 background = Background()
 
-mario = FireMario((2.24, 3.52))
+mario = SuperMario((2.24, 3.52))
 # goomba = Goomba((4,3.52))
 # flag = Flag((90.92,4.8))
-koopa = Koopa((10.24,1.76))
+koopa = Goomba((18,1.76))
 
 groundGroup = pygame.sprite.Group()
 

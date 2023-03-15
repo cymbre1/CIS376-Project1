@@ -1118,6 +1118,7 @@ view = Camera()
 background = Background()
 
 # brick = Brick((3.20, 3.20))
+<<<<<<< Updated upstream
 mario = SuperMario((2.24, 3.52))
 fireball = FireBall((2.24, 4.52))
 goomba = Goomba((4,3.52))
@@ -1143,7 +1144,6 @@ scene.drawables.add(fireball)
 scene.drawables.add(goomba)
 # scene.drawables.add(koopa)
 # scene.drawables.add(flag)
-# scene.drawables.add(brick)
 
 scene.updateables.append(Updater())
 

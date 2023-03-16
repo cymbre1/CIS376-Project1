@@ -25,7 +25,7 @@ class Background(egs.Game_objects.drawable):
             filename = "image/background.png"
 
         self.dirty = 2
-        self.body = world.CreateStaticBody(position = (135.04/2, height*p2b/2), active = False, shapes = b2PolygonShape(box = (135.04/2, height*p2b/2))) # body should be 121.92 meters.  Use active = false
+        self.body = world.CreateStaticBody(position = (145.28/2, height*p2b/2), active = False, shapes = b2PolygonShape(box = (135.04/2, height*p2b/2))) # body should be 121.92 meters.  Use active = false
         self.image = pygame.image.load(filename)
         self.rect = self.image.get_rect()
         self.rect.center = self.body.position.x * b2p, height - self.body.position.y * b2p
@@ -64,7 +64,6 @@ class Brick(egs.Game_objects.drawupdateable):
             for m in marioGroup:
                 if m.rect.collidepoint(self.rect.midbottom):
                     if self.coinCounter < 0 and not self.active:
-                        print("POSITIVE*************")
                         self.coinCounter = 228
                         self.active = True
                     if self.contents == "coin":
@@ -104,21 +103,22 @@ class Camera(egs.Game_objects.updateable):
     def __init__(self):
         super().__init__()
 
+        self.levelFinished = False
         self.total_offset = 0.0
-        self.previous_offset = 0.0
         self.offset = 0.0
     
     def update(self):
-        self.previous_offset = self.offset
 
-        if self.total_offset <= 124.80 and mario.rect.right > 384:
+        if self.total_offset < 124.80 and mario.rect.right > 384:
             self.offset= (mario.rect.right - 384) * p2b
-        else:
+        elif not self.levelFinished:
             self.offset = 0.0
         self.total_offset += self.offset
         for e in scene.drawables:
             e.body.position = (e.body.position[0] - self.offset, e.body.position[1])
             e.rect.center = e.body.position[0] * b2p, height - e.body.position[1] * b2p
+            if type(e) == Castle:
+                e.door_rect.center = e.body.position.x * b2p, height - e.body.position.y * b2p + 97
 
 class Castle(egs.Game_objects.drawupdateable):
     def __init__(self, pos):
@@ -134,17 +134,22 @@ class Castle(egs.Game_objects.drawupdateable):
         castle_image = piece_ss.image_at(castle_rect)
 
         self.door_rect = pygame.Rect(0,0,64,129)
+
+        self.levelFinished = False
         
         self.body = world.CreateStaticBody(position = pos, active = False, shapes = b2PolygonShape(box = (3.24/2, 3.24/2)))
         self.image = castle_image
         self.rect = self.image.get_rect()
-        self.door_rect.center = self.body.position.x * b2p, height - self.body.position.y * b2p- 97
+        self.door_rect.center = self.body.position.x * b2p, height - self.body.position.y * b2p + 97
         self.rect.center = self.body.position.x * b2p, height - self.body.position.y * b2p
-        print(self.rect)
-        print(self.door_rect)
 
-    def update():
-        return
+    def update(self):
+        if not self.levelFinished and self.door_rect.colliderect(mario.rect):
+            view.levelFinished = True
+            self.levelFinished = True
+            view.offset = 10.24
+        elif self.levelFinished:
+            view.offset = 0.0
         #if mario collides within castle rectange jump to a "demo completed" screen
         
 class Coin(egs.Game_objects.drawupdateable):
@@ -525,12 +530,12 @@ class Flag(egs.Game_objects.drawupdateable):
                     self.index += 1
                 elif self.index == 8:
                     mario.body.position = (self.body.position[0] + 1.28, mario.body.position[1])
+                    mario.body.linearVelocity = (0,0)
             else:
                 self.counter += 1
  
         self.rect.center = self.body.position[0] * b2p , height - self.body.position[1] * b2p
-
-                    
+                  
 class Goomba(egs.Game_objects.drawupdateable):
     goomba_sprites = []
     counter = 0
@@ -1686,6 +1691,7 @@ scene.updateables.append(mario)
 # scene.updateables.append(goomba)
 scene.updateables.append(koopa)
 scene.updateables.append(flag)
+scene.updateables.append(castle)
 
 createGround()
 createQuestions()

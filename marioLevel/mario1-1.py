@@ -1554,7 +1554,11 @@ coin_count = 0
 engine = egs.Engine("Mario 1-1", width = width, height = height)
 
 mixer.init()
-mixer.music.load("image/theme.mp3")
+if os.name == 'nt':
+    filename = "sound\\theme.mp3"
+else:
+    filename = "sound/theme.mp3"
+mixer.music.load(filename)
 mixer.music.play()
 
 scene = egs.Scene("Scene 1")

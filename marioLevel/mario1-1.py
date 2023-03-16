@@ -384,10 +384,11 @@ class FireMario(egs.Game_objects.drawupdateable):
             # Deal with Collisions with Enemies
             for e in enemiesGroup:
                 if self.rect.colliderect(e.rect):
-                    if not self.rect.bottom  - 10 > e.rect.top and not type(e) == "<class '__main__.KoopaShell'>":
+                    if not self.rect.bottom <= e.rect.top + 5 and not type(e) == "<class '__main__.KoopaShell'>":
                         self.die()
+                        # e.set_dead()
                         return
-                    elif not self.rect.bottom  - 10 > e.rect.top and type(e) == "<class '__main__.KoopaShell'>" and e.stationary:
+                    elif not self.rect.bottom <= e.rect.top + 5 and type(e) == "<class '__main__.KoopaShell'>" and e.stationary:
                         self.die()
                         return
         else:
@@ -534,7 +535,7 @@ class Goomba(egs.Game_objects.drawupdateable):
     goomba_sprites = []
     counter = 0
     current_index = 0
-    force = -13
+    force = -15
     last_center = None
     dead = False
 
@@ -564,6 +565,10 @@ class Goomba(egs.Game_objects.drawupdateable):
 
     # This function switches whether the square is black or colored
     def update(self):
+        global mario
+        if self.body.position.x - 16 > mario.body.position.x:
+            self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p
+            return
         if not self.body:
             return
 
@@ -596,15 +601,20 @@ class Goomba(egs.Game_objects.drawupdateable):
 
                 groundCollided = pygame.sprite.spritecollide(self, groundGroup, False)
                 if groundCollided:
+                    if self.last_center == self.rect.center:
+                        self.force *= -1
                     self.body.ApplyForce(b2Vec2(self.force, 0), self.body.position, True)
 
                 collidedWithEnemy = pygame.sprite.spritecollide(self, marioGroup, False)
                 if collidedWithEnemy:
                     for m in marioGroup:
                         if self.rect.colliderect(m.rect):
-                            if self.rect.top + 10 >= m.rect.bottom:                            
+                            if self.rect.top >= m.rect.bottom:                            
                                 self.set_dead()
                                 return
+                        
+                self.last_center = self.rect.center
+                self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p
                             
             else:
                 self.last_center = self.rect.center
@@ -930,14 +940,25 @@ class Mario(egs.Game_objects.drawupdateable):
         collided = pygame.sprite.spritecollide(self, groundGroup, False)
 
         if self.star_count < 0:
-            if self.immune < 0:
                 # Deal with Collisions with Enemies
                 for e in enemiesGroup:
                     if self.rect.colliderect(e.rect):
-                        if self.rect.bottom - 10 >= e.rect.top:
-                            pygame.mixer.Sound.play(mariodie_sound)
-                            self.dead = True
-                            self.counter = 0
+                        if not e.rect.top - 2 >= self.rect.bottom >= e.rect.top + 2 and not type(e) == "<class '__main__.KoopaShell'>":
+                            if self.immune < 0:
+                                pygame.mixer.Sound.play(mariodie_sound)
+                                self.dead = True
+                                self.counter = 0
+                                return
+                            e.set_dead()
+                        elif not self.rect.bottom >= e.rect.top + 5 and type(e) == "<class '__main__.KoopaShell'>" and e.stationary:
+                            if self.immune < 0:
+                                pygame.mixer.Sound.play(mariodie_sound)
+                                self.dead = True
+                                self.counter = 0
+                                return
+                for e in enemiesGroup:
+                    if self.rect.colliderect(e.rect):
+                        if self.rect.bottom >= e.rect.top:
                             return
         else:
             collidedEnemies = pygame.sprite.spritecollide(self, enemiesGroup, False)
@@ -1187,16 +1208,15 @@ class SuperMario(egs.Game_objects.drawupdateable):
         collided = pygame.sprite.spritecollide(self, groundGroup, False)
         
         if self.star_count < 0:
-            if self.immune < 0:
             # Deal with Collisions with Enemies
-                for e in enemiesGroup:
-                    if self.rect.colliderect(e.rect):
-                        if not self.rect.bottom  - 10 > e.rect.top and not type(e) == "<class '__main__.KoopaShell'>":
-                            self.die()
-                            return
-                        elif not self.rect.bottom  - 10 > e.rect.top and type(e) == "<class '__main__.KoopaShell'>" and e.stationary:
-                            self.die()
-                            return
+            for e in enemiesGroup:
+                if self.rect.colliderect(e.rect):
+                    if not self.rect.bottom <= e.rect.top + 5 and not type(e) == "<class '__main__.KoopaShell'>":
+                        self.die()
+                        return
+                    elif not self.rect.bottom <= e.rect.top + 5 and type(e) == "<class '__main__.KoopaShell'>" and e.stationary:
+                        self.die()
+                        return
                     
         else:
             collidedEnemies = pygame.sprite.spritecollide(self, enemiesGroup, False)
@@ -1623,8 +1643,8 @@ def createEnemies():
     enemies.append(Goomba((25.92, 1.76)))
     enemies.append(Goomba((32.96, 1.76)))
     enemies.append(Goomba((34.24, 1.76)))
-    enemies.append(Goomba((51.52, 1.76))) # Should be higher
-    enemies.append(Goomba((52.8, 1.76))) # Should be higher
+    enemies.append(Goomba((51.52, 6.88))) # Should be higher
+    enemies.append(Goomba((52.8, 6.88))) # Should be higher
     enemies.append(Goomba((61.76, 1.76)))
     enemies.append(Goomba((63.04, 1.76)))
     enemies.append(Koopa((68.16, 1.76)))

@@ -91,7 +91,7 @@ class Brick(egs.Game_objects.drawupdateable):
                         self.kill()
                         scene.updateables.remove(self)
                     elif type(m) != Mario:
-                        pygame.mixer.Sound.play(brick_break_sound)
+                        # pygame.mixer.Sound.play(brick_break_sound)
                         self.kill()
                         scene.updateables.remove(self)
                         self.body.position = (-10.0, -10.0)
@@ -900,7 +900,7 @@ class Mario(egs.Game_objects.drawupdateable):
             self.star_count = 636
             self.convert_star()
             self.star = False
-        if self.star_count < 0:
+        if self.star_count == 0:
             self.convert_fromStar()
 
         if self.dead and self.counter < 30:

@@ -952,6 +952,7 @@ class Mario(egs.Game_objects.drawupdateable):
                         if not e.rect.top - 2 >= self.rect.bottom >= e.rect.top + 2 and not type(e) == "<class '__main__.KoopaShell'>":
                             if self.immune < 0:
                                 pygame.mixer.Sound.play(mariodie_sound)
+                                pygame.mixer.music.stop()
                                 self.dead = True
                                 self.counter = 0
                                 return
@@ -959,6 +960,7 @@ class Mario(egs.Game_objects.drawupdateable):
                         elif not self.rect.bottom >= e.rect.top + 5 and type(e) == "<class '__main__.KoopaShell'>" and e.stationary:
                             if self.immune < 0:
                                 pygame.mixer.Sound.play(mariodie_sound)
+                                pygame.mixer.music.stop()
                                 self.dead = True
                                 self.counter = 0
                                 return

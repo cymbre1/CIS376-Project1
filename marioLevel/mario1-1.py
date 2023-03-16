@@ -118,6 +118,33 @@ class Camera(egs.Game_objects.updateable):
             e.body.position = (e.body.position[0] - self.offset, e.body.position[1])
             e.rect.center = e.body.position[0] * b2p, height - e.body.position[1] * b2p
 
+class Castle(egs.Game_objects.drawupdateable):
+    def __init__(self, pos):
+        super().__init__()
+        if os.name == 'nt':
+            filename = "image\\castle.png"
+        else:
+            filename = "image/castle.png"
+        
+        piece_ss = SpriteSheet(filename)
+
+        castle_rect = (0,0,328,328)
+        castle_image = piece_ss.image_at(castle_rect)
+
+        self.door_rect = pygame.Rect(0,0,64,129)
+        
+        self.body = world.CreateStaticBody(position = pos, active = False, shapes = b2PolygonShape(box = (3.24/2, 3.24/2)))
+        self.image = castle_image
+        self.rect = self.image.get_rect()
+        self.door_rect.center = self.body.position.x * b2p, height - self.body.position.y * b2p- 97
+        self.rect.center = self.body.position.x * b2p, height - self.body.position.y * b2p
+        print(self.rect)
+        print(self.door_rect)
+
+    def update():
+        return
+        #if mario collides within castle rectange jump to a "demo completed" screen
+        
 class Coin(egs.Game_objects.drawupdateable):
     def __init__(self, pos):
         super().__init__()
@@ -179,15 +206,15 @@ class FireBall(egs.Game_objects.drawupdateable):
 
         self.images.append(fire_image)
 
-        fire_rect = (34, 0, 34, 34)
+        fire_rect = (36, 0, 34, 34)
         fire_image = piece_ss.image_at(fire_rect)
         self.images.append(fire_image)
 
-        fire_rect = (68, 0, 34, 34)
+        fire_rect = (72, 0, 34, 34)
         fire_image = piece_ss.image_at(fire_rect)
         self.images.append(fire_image)
 
-        fire_rect = (104, 0, 34, 34)
+        fire_rect = (108, 0, 34, 34)
         fire_image = piece_ss.image_at(fire_rect)
         self.images.append(fire_image)
 
@@ -452,7 +479,6 @@ class Flag(egs.Game_objects.drawupdateable):
     def __init__(self, pos):
         super().__init__()
 
-        # self.reached = True
         if os.name == 'nt':
             filename = "image\\flag.png"
         else:
@@ -471,15 +497,24 @@ class Flag(egs.Game_objects.drawupdateable):
     def update(self):
         self.image = self.flag_sprites[self.index].convert_alpha()
         self.rect = self.image.get_rect()
+        self.rect.center = self.body.position[0] * b2p , height - self.body.position[1] * b2p
 
-        if self.counter == 5:
-            self.counter = 0
-            if self.index < 8:
-                self.index += 1       
-        else:
-            self.counter += 1
 
-        self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p
+        collidedWithMario = pygame.sprite.spritecollide(self, marioGroup, False)
+        
+
+        if collidedWithMario:
+            if self.counter == 5:
+                self.counter = 0
+                if self.index < 8:
+                    self.index += 1
+                elif self.index == 8:
+                    mario.body.position = (self.body.position[0] + 1.28, mario.body.position[1])
+            else:
+                self.counter += 1
+ 
+        self.rect.center = self.body.position[0] * b2p , height - self.body.position[1] * b2p
+
                     
 class Goomba(egs.Game_objects.drawupdateable):
     goomba_sprites = []
@@ -1571,7 +1606,8 @@ background = Background()
 mario = SuperMario((2.24, 3.52))
 star = Star((8, 1.76))
 # goomba = Goomba((4,3.52))
-flag = Flag((129.28,4.8))
+flag = Flag((126.72,4.8))
+castle = Castle((130.88, 2.88))
 koopa = Goomba((18,1.76))
 
 groundGroup = pygame.sprite.Group()
@@ -1587,6 +1623,7 @@ marioGroup = pygame.sprite.Group()
 marioGroup.add(mario)
 
 scene.drawables.add(background)
+scene.drawables.add(castle)
 scene.drawables.add(mario)
 scene.drawables.add(star)
 # scene.drawables.add(fireball)
@@ -1594,8 +1631,9 @@ scene.drawables.add(star)
 scene.drawables.add(koopa)
 scene.drawables.add(flag)
 
-scene.updateables.append(Updater())
 
+scene.updateables.append(Updater())
+scene.updateables.append(flag)
 scene.updateables.append(mario)
 scene.updateables.append(star)
 

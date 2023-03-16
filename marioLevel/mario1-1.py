@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 import pygame
+from pygame.locals import *
+from pygame import mixer
 
 import os
 from Box2D import *
@@ -1310,7 +1312,6 @@ class Pipe(egs.Game_objects.drawable):
         self.rect = self.image.get_rect()
         self.rect.center = self.body.position.x * b2p, height - self.body.position.y * b2p
                                         
-
 class SolidStone(egs.Game_objects.drawable):
      # Sets the initial state of the Square class
     def __init__(self, pos, isUsed = False):
@@ -1331,7 +1332,6 @@ class SolidStone(egs.Game_objects.drawable):
         self.rect = self.image.get_rect()
 
         self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p
-
 class Updater(egs.Game_objects.updateable):
     def __init__(self):
         super().__init__()
@@ -1553,6 +1553,10 @@ height = 832
 coin_count = 0
 engine = egs.Engine("Mario 1-1", width = width, height = height)
 
+mixer.init()
+mixer.music.load("image/theme.mp3")
+mixer.music.play()
+
 scene = egs.Scene("Scene 1")
 egs.Engine.current_scene = scene
 
@@ -1563,7 +1567,7 @@ background = Background()
 mario = SuperMario((2.24, 3.52))
 star = Star((8, 1.76))
 # goomba = Goomba((4,3.52))
-# flag = Flag((90.92,4.8))
+flag = Flag((129.28,4.8))
 koopa = Goomba((18,1.76))
 
 groundGroup = pygame.sprite.Group()
@@ -1584,7 +1588,7 @@ scene.drawables.add(star)
 # scene.drawables.add(fireball)
 # scene.drawables.add(goomba)
 scene.drawables.add(koopa)
-# scene.drawables.add(flag)
+scene.drawables.add(flag)
 
 scene.updateables.append(Updater())
 
@@ -1594,7 +1598,7 @@ scene.updateables.append(star)
 # scene.updateables.append(fireball)
 # scene.updateables.append(goomba)
 scene.updateables.append(koopa)
-# scene.updateables.append(flag)
+scene.updateables.append(flag)
 
 createGround()
 createQuestions()

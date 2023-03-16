@@ -81,6 +81,7 @@ class Brick(egs.Game_objects.drawupdateable):
                             scene.drawables.add(stone)
                             scene.updateables.append(stone)
                     elif self.contents == "star":
+                        pygame.mixer.Sound.play(powerup_appears_sound)
                         star = Star((self.body.position.x, self.body.position.y + .64))
                         scene.drawables.add(star)
                         scene.updateables.append(star)
@@ -91,6 +92,7 @@ class Brick(egs.Game_objects.drawupdateable):
                         self.kill()
                         scene.updateables.remove(self)
                     elif type(m) != Mario:
+                        pygame.mixer.Sound.play(brick_break_sound)
                         self.kill()
                         scene.updateables.remove(self)
                         self.body.position = (-10.0, -10.0)
@@ -155,6 +157,8 @@ class Coin(egs.Game_objects.drawupdateable):
             filename = "image/tileset.png"
 
         piece_ss = SpriteSheet(filename)
+        pygame.mixer.Sound.play(coin_sound)
+
 
         self.dirty = 2
         self.time_counter = 15
@@ -279,6 +283,7 @@ class FireFlower(egs.Game_objects.drawupdateable):
         collidedWithMario = pygame.sprite.spritecollide(self, marioGroup, False)
         
         if collidedWithMario:
+            pygame.mixer.Sound.play(powerup_sound)
             self.kill()
             scene.updateables.remove(self)
             self.body.position = (-10.0, -10.0)
@@ -400,8 +405,10 @@ class FireMario(egs.Game_objects.drawupdateable):
                     self.flipped = False
                 if event.key == pygame.K_w:
                     if collided:
+                        pygame.mixer.Sound.play(jump_big)
                         self.body.ApplyLinearImpulse(b2Vec2(0,3), self.body.position, True)
                 if event.key == pygame.K_SPACE:
+                    pygame.mixer.Sound.play(fire_sound)
                     if self.flipped:
                         fireball = FireBall((self.body.position.x - .55, self.body.position.y + .46), -1)
                     else:
@@ -426,6 +433,10 @@ class FireMario(egs.Game_objects.drawupdateable):
         self.body.position = (-10.0, -10.0)
 
     def convert_star(self):
+        pygame.mixer.music.stop()
+        pygame.mixer.music.load(os.path.join(s, 'invincible.mp3'))
+        pygame.mixer.music.play()
+
         if os.name == 'nt':
             filename = "image\\starSuperMario.png"
         else:
@@ -449,6 +460,10 @@ class FireMario(egs.Game_objects.drawupdateable):
         self.mario_jump = piece_ss.image_at(mario_rect)
 
     def convert_fromStar(self):
+        pygame.mixer.music.stop()
+        pygame.mixer.music.load(os.path.join(s, 'theme.mp3'))
+        pygame.mixer.music.play()
+
         if os.name == 'nt':
             filename = "image\\fireMario.png"
         else:
@@ -808,6 +823,7 @@ class KoopaShell(egs.Game_objects.drawupdateable):
 
     def set_dead(self):
         pass
+
 class Mario(egs.Game_objects.drawupdateable):
      # Sets the initial state of the Square class
     mario_running = []
@@ -920,6 +936,7 @@ class Mario(egs.Game_objects.drawupdateable):
                 for e in enemiesGroup:
                     if self.rect.colliderect(e.rect):
                         if self.rect.bottom - 10 >= e.rect.top:
+                            pygame.mixer.Sound.play(mariodie_sound)
                             self.dead = True
                             self.counter = 0
                             return
@@ -952,6 +969,7 @@ class Mario(egs.Game_objects.drawupdateable):
                     self.flipped = False
                 if event.key == pygame.K_w:
                     if collided:
+                        pygame.mixer.Sound.play(jump_small)
                         self.body.ApplyLinearImpulse(b2Vec2(0,3), self.body.position, True)
         
         self.star_count -= 1
@@ -959,6 +977,10 @@ class Mario(egs.Game_objects.drawupdateable):
         self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p
 
     def convert_star(self):
+        pygame.mixer.music.stop()
+        pygame.mixer.music.load(os.path.join(s, 'invincible.mp3'))
+        pygame.mixer.music.play()
+
         if os.name == 'nt':
             filename = "image\\starMario.png"
         else:
@@ -982,6 +1004,10 @@ class Mario(egs.Game_objects.drawupdateable):
         self.mario_jump = piece_ss.image_at(mario_rect)
 
     def convert_fromStar(self):
+        pygame.mixer.music.stop()
+        pygame.mixer.music.load(os.path.join(s, 'theme.mp3'))
+        pygame.mixer.music.play()
+
         if os.name == 'nt':
             filename = "image\\marioSprites.png"
         else:
@@ -1027,6 +1053,7 @@ class Mushroom(egs.Game_objects.drawupdateable):
         collidedWithMario = pygame.sprite.spritecollide(self, marioGroup, False)
 
         if collidedWithMario:
+            pygame.mixer.Sound.play(powerup_sound)
             self.kill()
             scene.updateables.remove(self)
             self.body.position = (-10.0, -10.0)
@@ -1039,7 +1066,6 @@ class Mushroom(egs.Game_objects.drawupdateable):
 class Star(egs.Game_objects.drawupdateable):
     def __init__(self, pos):
         super().__init__()
-
         if os.name == 'nt':
             filename = "image\\star.png"
         else:
@@ -1202,6 +1228,7 @@ class SuperMario(egs.Game_objects.drawupdateable):
                     self.flipped = False
                 if event.key == pygame.K_w:
                     if collided:
+                        pygame.mixer.Sound.play(jump_big)
                         self.body.ApplyLinearImpulse(b2Vec2(0,3), self.body.position, True)
         
         self.star_count -= 1
@@ -1221,6 +1248,10 @@ class SuperMario(egs.Game_objects.drawupdateable):
         self.body.position = (-10.0, -10.0)
 
     def convert_star(self):
+        pygame.mixer.music.stop()
+        pygame.mixer.music.load(os.path.join(s, 'invincible.mp3'))
+        pygame.mixer.music.play()
+
         if os.name == 'nt':
             filename = "image\\starSuperMario.png"
         else:
@@ -1244,6 +1275,10 @@ class SuperMario(egs.Game_objects.drawupdateable):
         self.mario_jump = piece_ss.image_at(mario_rect)
 
     def convert_fromStar(self):
+        pygame.mixer.music.stop()
+        pygame.mixer.music.load(os.path.join(s, 'theme.mp3'))
+        pygame.mixer.music.play()
+
         if os.name == 'nt':
             filename = "image\\superMarioSprites.png"
         else:
@@ -1264,8 +1299,7 @@ class SuperMario(egs.Game_objects.drawupdateable):
         self.mario_still = piece_ss.image_at(mario_rect)
 
         mario_rect = (272, 0, 68, 132)
-        self.mario_jump = piece_ss.image_at(mario_rect)
-        
+        self.mario_jump = piece_ss.image_at(mario_rect)      
 
 class QuestionBlock(egs.Game_objects.drawupdateable):
     destroyed = False
@@ -1302,6 +1336,7 @@ class QuestionBlock(egs.Game_objects.drawupdateable):
                     scene.updateables.remove(self)
                     stone = SolidStone(self.body.position, True)
                     if self.powerup:
+                        pygame.mixer.Sound.play(powerup_appears_sound)
                         if type(m) == SuperMario or type(m) == FireMario: 
                             powerup = FireFlower((self.body.position.x, self.body.position.y + .64))
                         else:
@@ -1589,6 +1624,19 @@ coin_count = 0
 engine = egs.Engine("Mario 1-1", width = width, height = height)
 
 mixer.init()
+
+s = 'sound'
+
+jump_small = pygame.mixer.Sound(os.path.join(s, 'smb_jump-small.wav'))
+jump_big = pygame.mixer.Sound(os.path.join(s, 'smb_jump-super.wav'))
+flagpole = pygame.mixer.Sound(os.path.join(s, 'smb_flagpole.wav'))
+fire_sound = pygame.mixer.Sound(os.path.join(s, 'smb_fireball.wav'))
+mariodie_sound = pygame.mixer.Sound(os.path.join(s, 'smb_mariodie.wav'))
+coin_sound = pygame.mixer.Sound(os.path.join(s,'smb_coin.wav'))
+brick_break_sound = pygame.mixer.Sound(os.path.join(s, 'smb_breakblock.wav'))
+powerup_sound = pygame.mixer.Sound(os.path.join(s, 'smb_powerup.wav'))
+powerup_appears_sound = pygame.mixer.Sound(os.path.join(s, 'smb_powerup_appears.wav'))
+
 if os.name == 'nt':
     filename = "sound\\theme.mp3"
 else:
@@ -1604,7 +1652,7 @@ view = Camera()
 background = Background()
 
 mario = SuperMario((2.24, 3.52))
-star = Star((8, 1.76))
+# star = Star((8, 1.76))
 # goomba = Goomba((4,3.52))
 flag = Flag((126.72,4.8))
 castle = Castle((130.88, 2.88))
@@ -1613,7 +1661,6 @@ koopa = Goomba((18,1.76))
 groundGroup = pygame.sprite.Group()
 
 fireGroup = pygame.sprite.Group()
-# fireGroup.add(fireball)
 
 enemiesGroup = pygame.sprite.Group()
 # enemiesGroup.add(goomba)
@@ -1625,8 +1672,7 @@ marioGroup.add(mario)
 scene.drawables.add(background)
 scene.drawables.add(castle)
 scene.drawables.add(mario)
-scene.drawables.add(star)
-# scene.drawables.add(fireball)
+# scene.drawables.add(star)
 # scene.drawables.add(goomba)
 scene.drawables.add(koopa)
 scene.drawables.add(flag)
@@ -1635,9 +1681,8 @@ scene.drawables.add(flag)
 scene.updateables.append(Updater())
 scene.updateables.append(flag)
 scene.updateables.append(mario)
-scene.updateables.append(star)
+# scene.updateables.append(star)
 
-# scene.updateables.append(fireball)
 # scene.updateables.append(goomba)
 scene.updateables.append(koopa)
 scene.updateables.append(flag)

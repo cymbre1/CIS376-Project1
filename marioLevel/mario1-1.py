@@ -1623,6 +1623,31 @@ def createSolids():
         groundGroup.add(item)
         scene.drawables.add(item)
 
+def createEnemies():
+    enemies = []
+    enemies.append(Goomba((14.4, 1.76)))
+    enemies.append(Goomba((25.92, 1.76)))
+    enemies.append(Goomba((32.96, 1.76)))
+    enemies.append(Goomba((34.24, 1.76)))
+    enemies.append(Goomba((51.52, 1.76))) # Should be higher
+    enemies.append(Goomba((52.8, 1.76))) # Should be higher
+    enemies.append(Goomba((61.76, 1.76)))
+    enemies.append(Goomba((63.04, 1.76)))
+    enemies.append(Koopa((68.16, 1.76)))
+    enemies.append(Goomba((72.0, 1.76)))
+    enemies.append(Goomba((73.28, 1.76)))
+    enemies.append(Goomba((78.4, 1.76)))
+    enemies.append(Goomba((79.69, 1.76)))
+    enemies.append(Goomba((80.96, 1.76)))
+    enemies.append(Goomba((82.24, 1.76)))
+    enemies.append(Goomba((111.04, 1.76)))
+    enemies.append(Goomba((112.32, 1.76)))
+
+    for enemy in enemies:
+        enemiesGroup.add(enemy)
+        scene.drawables.add(enemy)
+        scene.updateables.append(enemy)
+
 width = 1024
 height = 832
 coin_count = 0
@@ -1661,7 +1686,7 @@ mario = SuperMario((2.24, 3.52))
 # goomba = Goomba((4,3.52))
 flag = Flag((126.72,4.8))
 castle = Castle((130.88, 2.88))
-koopa = Goomba((18,1.76))
+# koopa = Goomba((18,1.76))
 
 groundGroup = pygame.sprite.Group()
 
@@ -1669,7 +1694,7 @@ fireGroup = pygame.sprite.Group()
 
 enemiesGroup = pygame.sprite.Group()
 # enemiesGroup.add(goomba)
-enemiesGroup.add(koopa)
+# enemiesGroup.add(koopa)
 
 marioGroup = pygame.sprite.Group()
 marioGroup.add(mario)
@@ -1679,7 +1704,7 @@ scene.drawables.add(castle)
 scene.drawables.add(mario)
 # scene.drawables.add(star)
 # scene.drawables.add(goomba)
-scene.drawables.add(koopa)
+# scene.drawables.add(koopa)
 scene.drawables.add(flag)
 
 
@@ -1689,7 +1714,7 @@ scene.updateables.append(mario)
 # scene.updateables.append(star)
 
 # scene.updateables.append(goomba)
-scene.updateables.append(koopa)
+# scene.updateables.append(koopa)
 scene.updateables.append(flag)
 scene.updateables.append(castle)
 
@@ -1698,6 +1723,7 @@ createQuestions()
 createBricks()
 createPipes()
 createSolids()
+createEnemies()
 
 scene.updateables.append(view)
 

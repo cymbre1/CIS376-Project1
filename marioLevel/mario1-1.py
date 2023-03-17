@@ -563,7 +563,7 @@ class Goomba(egs.Game_objects.drawupdateable):
     goomba_sprites = []
     counter = 0
     current_index = 0
-    force = -15
+    force = -20
     last_center = None
     dead = False
 
@@ -618,34 +618,31 @@ class Goomba(egs.Game_objects.drawupdateable):
             self.rect.center = -100 * b2p, height - -100 * b2p
             return
 
-        if self.rect.right > -100:
-            if self.counter == 15:
-                self.current_index = self.current_index + 1
-                self.counter = 0
-                self.image = self.goomba_sprites[self.current_index % 2].convert_alpha()
-                self.rect = self.image.get_rect()
+        if self.body.position[0] <= 11.52:
+            if self.rect.right > -100:
+                if self.counter == 15:
+                    self.current_index = self.current_index + 1
+                    self.counter = 0
+                    self.image = self.goomba_sprites[self.current_index % 2].convert_alpha()
+                    self.rect = self.image.get_rect()
 
-                self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p
+                    self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p
 
-                groundCollided = pygame.sprite.spritecollide(self, groundGroup, False)
-                if groundCollided:
-                    if self.last_center == self.rect.center:
-                        self.linearForce = (0,0)
-                        self.force *= -1
-                    self.body.ApplyForce(b2Vec2(self.force, 0), self.body.position, True)
-
-                        
-                self.last_center = self.rect.center
-                self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p
-                            
+                    groundCollided = pygame.sprite.spritecollide(self, groundGroup, False)
+                    if groundCollided:
+                        if self.last_center == self.rect.center:
+                            self.linearForce = (0,0)
+                            self.force *= -1
+                        self.body.ApplyForce(b2Vec2(self.force, 0), self.body.position, True)                
+                else:
+                    self.counter = self.counter + 1 
             else:
-                self.last_center = self.rect.center
-                self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p
-                self.counter = self.counter + 1 
-        else:
-            self.kill()
-            scene.updateables.remove(self)    
-            self.body.position = (-10.0, -10.0)
+                self.kill()
+                scene.updateables.remove(self)    
+                self.body.position = (-10.0, -10.0)
+
+        self.last_center = self.rect.center
+        self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p
       
     def set_dead(self):
         self.body.active = False
@@ -730,28 +727,28 @@ class Koopa(egs.Game_objects.drawupdateable):
         if self.dead:
             self.rect.center = -100 * b2p, height - -100 * b2p
             return
-
-        if self.counter == 30:
-            self.image = self.koopa_walking[self.current_koopa].convert_alpha()
-            self.current_koopa = (self.current_koopa + 1) % 2
-            self.counter = 0
-            if self.flipped:
-                self.image = pygame.transform.flip(self.image, True, False)
-                self.body.ApplyForce(b2Vec2(45, 0), self.body.position, True)
-                if self.step_counter == 15:
-                    self.flipped = False
-                    self.step_counter = 0
+        if self.body.position[0] < 11.52:
+            if self.counter == 30:
+                self.image = self.koopa_walking[self.current_koopa].convert_alpha()
+                self.current_koopa = (self.current_koopa + 1) % 2
+                self.counter = 0
+                if self.flipped:
+                    self.image = pygame.transform.flip(self.image, True, False)
+                    self.body.ApplyForce(b2Vec2(45, 0), self.body.position, True)
+                    if self.step_counter == 15:
+                        self.flipped = False
+                        self.step_counter = 0
+                    else:
+                        self.step_counter = self.step_counter + 1
                 else:
-                    self.step_counter = self.step_counter + 1
+                    self.body.ApplyForce(b2Vec2(-45, 0), self.body.position, True)
+                    if self.step_counter == 15:
+                        self.flipped = True
+                        self.step_counter = 0
+                    else:
+                        self.step_counter = self.step_counter + 1
             else:
-                self.body.ApplyForce(b2Vec2(-45, 0), self.body.position, True)
-                if self.step_counter == 15:
-                    self.flipped = True
-                    self.step_counter = 0
-                else:
-                    self.step_counter = self.step_counter + 1
-        else:
-            self.counter = self.counter + 1
+                self.counter = self.counter + 1
 
         self.rect = self.image.get_rect()
         self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p
@@ -1754,7 +1751,7 @@ mario = SuperMario((2.24, 3.52))
 # goomba = Goomba((4,3.52))
 flag = Flag((126.72,4.8))
 castle = Castle((130.88, 2.88))
-koopa = Koopa((5,1.76))
+# koopa = Koopa((5,1.76))
 
 groundGroup = pygame.sprite.Group()
 
@@ -1762,7 +1759,7 @@ fireGroup = pygame.sprite.Group()
 
 enemiesGroup = pygame.sprite.Group()
 # enemiesGroup.add(goomba)
-enemiesGroup.add(koopa)
+# enemiesGroup.add(koopa)
 
 marioGroup = pygame.sprite.Group()
 marioGroup.add(mario)
@@ -1772,7 +1769,7 @@ scene.drawables.add(castle)
 scene.drawables.add(mario)
 # scene.drawables.add(star)
 # scene.drawables.add(goomba)
-scene.drawables.add(koopa)
+# scene.drawables.add(koopa)
 scene.drawables.add(flag)
 
 
@@ -1782,7 +1779,7 @@ scene.updateables.append(mario)
 # scene.updateables.append(star)
 
 # scene.updateables.append(goomba)
-scene.updateables.append(koopa)
+# scene.updateables.append(koopa)
 scene.updateables.append(castle)
 
 createGround()

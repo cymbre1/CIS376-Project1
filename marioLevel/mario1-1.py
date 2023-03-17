@@ -29,7 +29,7 @@ class Background(egs.Game_objects.drawable):
             filename = "image/background.png"
 
         self.dirty = 2
-        self.body = world.CreateStaticBody(position = (155.52/2, height*p2b/2), active = False, shapes = b2PolygonShape(box = (155.52/2, height*p2b/2))) # body should be 121.92 meters.  Use active = false
+        self.body = world.CreateStaticBody(position = (165.76/2, height*p2b/2), active = False, shapes = b2PolygonShape(box = (165.76/2, height*p2b/2))) # body should be 121.92 meters.  Use active = false
         self.image = pygame.image.load(filename)
         self.rect = self.image.get_rect()
         self.rect.center = self.body.position.x * b2p, height - self.body.position.y * b2p
@@ -386,6 +386,8 @@ class Camera(egs.Game_objects.updateable):
     def update(self):
         if not self.marioDead and self.total_offset < 124.80 and mario.rect.right > 384:
             self.offset= (mario.rect.right - 384) * p2b
+            if self.offset + self.total_offset > 124.80:
+                self.offset = 124.80 - self.total_offset
         elif not self.levelFinished and not self.marioDead:
             self.offset = 0.0
         elif self.marioDead:
@@ -434,7 +436,7 @@ class Castle(egs.Game_objects.drawupdateable):
             pygame.mixer.Sound.play(music.level_finished_sound)
             view.levelFinished = True
             self.levelFinished = True
-            view.offset = 135.04 - view.total_offset
+            view.offset = 155.52 - view.total_offset
         elif self.levelFinished:
             view.offset = 0.0
 

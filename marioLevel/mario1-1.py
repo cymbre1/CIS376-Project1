@@ -27,7 +27,7 @@ class Background(egs.Game_objects.drawable):
             filename = "image/background.png"
 
         self.dirty = 2
-        self.body = world.CreateStaticBody(position = (145.28/2, height*p2b/2), active = False, shapes = b2PolygonShape(box = (135.04/2, height*p2b/2))) # body should be 121.92 meters.  Use active = false
+        self.body = world.CreateStaticBody(position = (155.52/2, height*p2b/2), active = False, shapes = b2PolygonShape(box = (155.52/2, height*p2b/2))) # body should be 121.92 meters.  Use active = false
         self.image = pygame.image.load(filename)
         self.rect = self.image.get_rect()
         self.rect.center = self.body.position.x * b2p, height - self.body.position.y * b2p
@@ -48,9 +48,7 @@ class BaseMario(egs.Game_objects.drawable):
 
     def __init__(self, pos, immunity = 0, size=(68, 68), image_file='marioSprites.png'):
         super().__init__()  
-
-        if size == (68,68):
-            print("little mario")          
+      
 
         self.immune = immunity
 
@@ -288,6 +286,7 @@ class BaseMario(egs.Game_objects.drawable):
         scene.updateables.remove(self)
         self.body.position = (-10.0, -10.0)
 
+
  # A class that defines the interactable bricks.  Inherits from a drawable and updateable game object     
 class Brick(egs.Game_objects.drawupdateable):
     # Sets the initial state of the Brick class
@@ -374,16 +373,19 @@ class Camera(egs.Game_objects.updateable):
         super().__init__()
 
         self.levelFinished = False
+        self.marioDead = False
         self.total_offset = 0.0
         self.offset = 0.0
     
     # updates the camera object based on mario's position
     def update(self):
-
-        if self.total_offset < 124.80 and mario.rect.right > 384:
+        if not self.marioDead and self.total_offset < 124.80 and mario.rect.right > 384:
             self.offset= (mario.rect.right - 384) * p2b
-        elif not self.levelFinished:
+        elif not self.levelFinished and not self.marioDead:
             self.offset = 0.0
+        elif self.marioDead:
+            view.offset = 145.28 - view.total_offset
+            self.marioDead = False
         self.total_offset += self.offset
 
         # loops through all visible objects and updates b2 body position based on offset 
@@ -427,7 +429,7 @@ class Castle(egs.Game_objects.drawupdateable):
             pygame.mixer.Sound.play(music.level_finished_sound)
             view.levelFinished = True
             self.levelFinished = True
-            view.offset = 10.24
+            view.offset = 135.04 - view.total_offset
         elif self.levelFinished:
             view.offset = 0.0
 
@@ -984,6 +986,7 @@ class Mario(BaseMario):
             self.kill()
             scene.updateables.remove(self)
             self.body.position = (-10.0, -10.0)
+            view.marioDead = True
             return
         
         if self.dead:

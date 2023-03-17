@@ -79,6 +79,7 @@ class Brick(egs.Game_objects.drawupdateable):
                             self.body.position = (-10,-10)
                             scene.drawables.add(stone)
                             scene.updateables.append(stone)
+                            groundGroup.add(stone)
                     elif self.contents == "star":
                         pygame.mixer.Sound.play(powerup_appears_sound)
                         star = Star((self.body.position.x, self.body.position.y + .64))
@@ -87,6 +88,7 @@ class Brick(egs.Game_objects.drawupdateable):
                         stone = SolidStone(self.body.position, True)
                         scene.drawables.add(stone)
                         scene.updateables.append(stone)
+                        groundGroup.add(stone)
                         self.body.position = (-10, -10)
                         self.kill()
                         scene.updateables.remove(self)
@@ -232,13 +234,13 @@ class FireBall(egs.Game_objects.drawupdateable):
         fixDef = b2FixtureDef(shape=shape, friction=0.1, restitution=1, density=.8)
         box = self.body.CreateFixture(fixDef)
         self.rect = self.image.get_rect()
+        self.body.ApplyForce(b2Vec2(self.direction * 50, 0), self.body.position, True)
 
         self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p
 
     def update(self):
         global mario
         
-        self.body.ApplyForce(b2Vec2(self.direction, 0), self.body.position, True)
 
         if self.lifetime % 10 == 0:
             self.image = self.images[self.image_index].convert_alpha()
@@ -255,7 +257,8 @@ class FireBall(egs.Game_objects.drawupdateable):
 
         if self.lifetime == 0:
             self.kill()
-            scene.updateables.remove(self)
+            if scene.updateables.__contains__(self):
+                scene.updateables.remove(self)
             self.body.position = (-10.0, -10.0)
             self.rect.center = -100 * b2p, height - -100 * b2p
 
@@ -340,7 +343,7 @@ class FireMario(egs.Game_objects.drawupdateable):
 
         self.body = world.CreateDynamicBody(position=pos, fixedRotation = True)
         shape=b2PolygonShape(box=(p2b*32, p2b*64))
-        fixDef = b2FixtureDef(shape=shape, friction=0.3, restitution=0, density=.5)
+        fixDef = b2FixtureDef(shape=shape, friction=0.4, restitution=0, density=.6)
         box = self.body.CreateFixture(fixDef)
         self.dirty = 2
         self.image = self.mario_running[self.current_mario].convert_alpha()
@@ -425,15 +428,23 @@ class FireMario(egs.Game_objects.drawupdateable):
         for event in egs.Engine.events:
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_a:
-                    self.body.ApplyForce(b2Vec2(-75, 0), self.body.position, True)
+                    if collided:
+                        self.body.ApplyForce(b2Vec2(-75,0), self.body.position, True)
+                    else:
+                        self.body.ApplyForce(b2Vec2(-25, 0), self.body.position, True)
                     self.flipped = True
                 if event.key == pygame.K_d:
-                    self.body.ApplyForce(b2Vec2(75,0), self.body.position, True)
+                    if collided:
+                        self.body.ApplyForce(b2Vec2(75,0), self.body.position, True)
+                    else:
+                        self.body.ApplyForce(b2Vec2(25 , 0), self.body.position, True)
                     self.flipped = False
                 if event.key == pygame.K_w:
                     if collided:
-                        pygame.mixer.Sound.play(jump_big)
-                        self.body.ApplyLinearImpulse(b2Vec2(0,3), self.body.position, True)
+                        for c in collided:
+                            if c.rect.collidepoint(self.rect.midbottom):
+                                pygame.mixer.Sound.play(jump_big)
+                                self.body.ApplyLinearImpulse(b2Vec2(0,3.75), self.body.position, True)
                 if event.key == pygame.K_SPACE:
                     pygame.mixer.Sound.play(fire_sound)
                     if self.flipped:
@@ -1014,16 +1025,24 @@ class Mario(egs.Game_objects.drawupdateable):
 
         for event in egs.Engine.events:
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_a:
-                    self.body.ApplyForce(b2Vec2(-75, 0), self.body.position, True)
+                if event.key == pygame.K_a and collided:
+                    if collided:
+                        self.body.ApplyForce(b2Vec2(-75,0), self.body.position, True)
+                    else:
+                        self.body.ApplyForce(b2Vec2(-25, 0), self.body.position, True)                    
                     self.flipped = True
-                if event.key == pygame.K_d:
-                    self.body.ApplyForce(b2Vec2(75,0), self.body.position, True)
+                if event.key == pygame.K_d and collided:
+                    if collided:
+                        self.body.ApplyForce(b2Vec2(75,0), self.body.position, True)
+                    else:
+                        self.body.ApplyForce(b2Vec2(25, 0), self.body.position, True)
                     self.flipped = False
                 if event.key == pygame.K_w:
                     if collided:
-                        pygame.mixer.Sound.play(jump_small)
-                        self.body.ApplyLinearImpulse(b2Vec2(0,3), self.body.position, True)
+                        for c in collided:
+                            if c.rect.collidepoint(self.rect.midbottom):
+                                pygame.mixer.Sound.play(jump_small)
+                                self.body.ApplyLinearImpulse(b2Vec2(0,3.25), self.body.position, True)
         
         self.star_count -= 1
         self.immune -= 1
@@ -1191,7 +1210,7 @@ class SuperMario(egs.Game_objects.drawupdateable):
 
         self.body = world.CreateDynamicBody(position=pos, fixedRotation = True)
         shape=b2PolygonShape(box=(p2b*32, p2b*64))
-        fixDef = b2FixtureDef(shape=shape, friction=0.3, restitution=0, density=.5)
+        fixDef = b2FixtureDef(shape=shape, friction=0.4, restitution=0, density=.6)
         box = self.body.CreateFixture(fixDef)
         self.dirty = 2
         self.image = self.mario_running[self.current_mario].convert_alpha()
@@ -1291,15 +1310,23 @@ class SuperMario(egs.Game_objects.drawupdateable):
         for event in egs.Engine.events:
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_a:
-                    self.body.ApplyForce(b2Vec2(-75, 0), self.body.position, True)
+                    if collided:
+                        self.body.ApplyForce(b2Vec2(-75, 0), self.body.position, True)
+                    else:
+                        self.body.ApplyForce(b2Vec2(-25, 0), self.body.position, True)
                     self.flipped = True
                 if event.key == pygame.K_d:
-                    self.body.ApplyForce(b2Vec2(75,0), self.body.position, True)
+                    if collided:
+                        self.body.ApplyForce(b2Vec2(75,0), self.body.position, True)
+                    else:
+                        self.body.ApplyForce(b2Vec2(25, 0), self.body.position, True)
                     self.flipped = False
                 if event.key == pygame.K_w:
                     if collided:
-                        pygame.mixer.Sound.play(jump_big)
-                        self.body.ApplyLinearImpulse(b2Vec2(0,3), self.body.position, True)
+                        for c in collided:
+                            if c.rect.collidepoint(self.rect.midbottom):
+                                pygame.mixer.Sound.play(jump_big)
+                                self.body.ApplyLinearImpulse(b2Vec2(0,3.75), self.body.position, True)
         
         self.star_count -= 1
         self.immune -= 1

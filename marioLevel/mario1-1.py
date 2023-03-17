@@ -1294,6 +1294,7 @@ class Updater(egs.Game_objects.updateable):
         except:
             print("Oh no")
 
+# Creates all the ground that appears in the level
 def createGround():
     grounds = []
     grounds.append(Ground(22.08,44.16))
@@ -1305,6 +1306,7 @@ def createGround():
         groundGroup.add(e)
         scene.drawables.add(e)
 
+# creates all the question blocks that appear in the level.  Includes the invisible block
 def createQuestions():
     questions = []
 
@@ -1328,6 +1330,7 @@ def createQuestions():
         scene.drawables.add(item)
         scene.updateables.append(item)
 
+# Creates all the bricks in level
 def createBricks():
     bricks = []
     bricks.append(Brick((13.12, 3.52)))    
@@ -1366,6 +1369,7 @@ def createBricks():
         scene.drawables.add(e)
         scene.updateables.append(e)
 
+# creates all the pipes in the level
 def createPipes():
     pipes = []
     pipes.append(Pipe(18.56, 2))
@@ -1378,9 +1382,11 @@ def createPipes():
         groundGroup.add(item)
         scene.drawables.add(item)
 
+# creates all the solid stones in the level
 def createSolids():
     solids = []
 
+    # First Stairs
     solids.append(SolidStone((86.08, 1.60)))
 
     solids.append(SolidStone((86.72, 1.60)))
@@ -1400,6 +1406,7 @@ def createSolids():
     solids.append(SolidStone((89.92, 2.88)))
     solids.append(SolidStone((89.92, 3.52)))
 
+    # Second Stairs
     solids.append(SolidStone((90.56, 1.60)))
     solids.append(SolidStone((90.56, 2.24)))
     solids.append(SolidStone((90.56, 2.88)))
@@ -1409,6 +1416,7 @@ def createSolids():
 
     solids.append(SolidStone((91.84, 1.60)))
 
+    # Third Stairs
     solids.append(SolidStone((95.04, 1.60)))
 
     solids.append(SolidStone((95.68, 1.60)))
@@ -1428,6 +1436,7 @@ def createSolids():
     solids.append(SolidStone((97.60, 2.88)))
     solids.append(SolidStone((97.60, 3.52)))
 
+    # Fourth Stairs
     solids.append(SolidStone((99.52, 1.60)))
     solids.append(SolidStone((99.52, 2.24)))
     solids.append(SolidStone((99.52, 2.88)))
@@ -1442,6 +1451,7 @@ def createSolids():
 
     solids.append(SolidStone((101.44, 1.60)))
 
+    # Final Stairs
     solids.append(SolidStone((116.16, 1.60)))
 
     solids.append(SolidStone((116.80, 1.60)))
@@ -1499,14 +1509,15 @@ def createSolids():
         groundGroup.add(item)
         scene.drawables.add(item)
 
+# Creates all the enemies in the level
 def createEnemies():
     enemies = []
     enemies.append(Goomba((14.4, 1.76)))
     enemies.append(Goomba((25.92, 1.76)))
     enemies.append(Goomba((32.96, 1.76)))
     enemies.append(Goomba((34.24, 1.76)))
-    enemies.append(Goomba((51.52, 6.72))) # Should be higher
-    enemies.append(Goomba((52.8, 6.72))) # Should be higher
+    enemies.append(Goomba((51.52, 6.72)))
+    enemies.append(Goomba((52.8, 6.72))) 
     enemies.append(Goomba((61.76, 1.76)))
     enemies.append(Goomba((63.04, 1.76)))
     enemies.append(Koopa((68.16, 1.76)))
@@ -1524,6 +1535,7 @@ def createEnemies():
         scene.drawables.add(enemy)
         scene.updateables.append(enemy)
 
+# Creates all the items in the level except for mario and camera
 def create_level():
     background = Background()
 

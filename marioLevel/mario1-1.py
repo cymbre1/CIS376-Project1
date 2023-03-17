@@ -1800,7 +1800,7 @@ view = Camera()
 
 background = Background()
 
-mario = Mario((2.24, 3.52))
+mario = Mario((1.92, 1.6))
 flag = Flag((126.72,4.8))
 castle = Castle((130.88, 2.88))
 

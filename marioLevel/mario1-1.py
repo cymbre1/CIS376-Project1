@@ -32,8 +32,8 @@ class Background(egs.Game_objects.drawable):
         self.rect = self.image.get_rect()
         self.rect.center = self.body.position.x * b2p, height - self.body.position.y * b2p
 
+# This is a helper class that all marios will inheirit from
 class BaseMario(egs.Game_objects.drawable):
-    # Sets the initial state of the Square class
     mario_running = []
     flipped = False
     counter = 0
@@ -46,36 +46,13 @@ class BaseMario(egs.Game_objects.drawable):
     fire = False
     star_count = -1
 
+    # Initializes a mario, sets up the images, 
     def __init__(self, pos, immunity = 0, size=(68, 68), image_file='marioSprites.png'):
         super().__init__()  
-      
 
         self.immune = immunity
 
-        s = 'image'
-
-        filename = os.path.join(s, image_file)
-
-        self.mario_running.clear()
-
-        piece_ss = SpriteSheet(filename)
-        for i in range(3):
-            mario_rect = (i*68, 0, size[0], size[1])
-            mario_image = piece_ss.image_at(mario_rect)
-            self.mario_running.append(mario_image)
-
-        mario_rect = (204, 0, size[0], size[1])
-        mario_image = piece_ss.image_at(mario_rect)
-        self.mario_running.append(mario_image)
-
-        mario_rect = (0, 0, size[0], size[1])
-        self.mario_still = piece_ss.image_at(mario_rect)
-
-        mario_rect = (272, 0, size[0], size[1])
-        self.mario_jump = piece_ss.image_at(mario_rect)
-
-        mario_rect = (340, 0, size[0], size[1])
-        self.mario_dying = piece_ss.image_at(mario_rect)
+        self.load_images(size, image_file)
 
 
         self.body = world.CreateDynamicBody(position=pos, fixedRotation=True)
@@ -91,6 +68,8 @@ class BaseMario(egs.Game_objects.drawable):
         if(self.flipped):
             self.image = pygame.transform.flip(self.image, True, False)
         self.rect = self.image.get_rect()
+        self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p
+
 
     def update(self):
         global mario
@@ -99,45 +78,14 @@ class BaseMario(egs.Game_objects.drawable):
 
         if self.body.position[1] < 0:
             self.die()
-        
-        if not self.previous_bottom == self.rect.bottom:
-            image = self.mario_jump
-        elif self.body.linearVelocity == (0,0):
-            image = self.mario_still
-        else:
-            image = self.mario_running[self.current_mario]
-            if self.counter == 10:
-                if self.current_mario == 3:
-                    self.current_mario = 0
-                else:
-                    self.current_mario = self.current_mario + 1
-                self.counter = 0
-            else:
-                self.counter = self.counter + 1
-        
-        self.previous_center = self.rect.center
-        self.previous_bottom = self.rect.bottom
 
-        self.image = image.convert_alpha()
-        self.rect = self.image.get_rect()        
-
-        if(self.flipped):
-            self.image = pygame.transform.flip(self.image, True, False)
+        self.update_animation()
 
         self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p
 
         self.check_enemy_collision()
                     
-        if self.mushroom or self.fire:
-            self.dead = True
-            if self.rect.height == 68:
-                mario = SuperMario(self.body.position)
-            elif self.fire:
-                mario = FireMario(self.body.position)
-            mario.star_count = self.star_count
-            if self.star_count > 0:
-                mario.convert_star() 
-            self.replace_mario(mario)           
+        self.handle_powerup()          
 
         collided = pygame.sprite.spritecollide(self, groundGroup, False)
 
@@ -176,60 +124,24 @@ class BaseMario(egs.Game_objects.drawable):
 
     def convert_star(self, size=(68, 68)):
         pygame.mixer.music.stop()
-        pygame.mixer.music.load(os.path.join(s, 'invincible.mp3'))
+        pygame.mixer.music.load(os.path.join('sound', 'invincible.mp3'))
         pygame.mixer.music.play()
 
-        if size[1] == 68:
-            filename = os.path.join('image', 'starMario.png')
-        else:
-            filename = os.path.join('image', 'starSuperMario.png')
-
-
-        piece_ss = SpriteSheet(filename)
-        self.mario_running.clear()
-        for i in range(3):
-            mario_rect = (i*68, 0, size[0], size[1])
-            mario_image = piece_ss.image_at(mario_rect)
-            self.mario_running.append(mario_image)
-
-        mario_rect = (204, 0, size[0], size[1])
-        mario_image = piece_ss.image_at(mario_rect)
-        self.mario_running.append(mario_image)
-
-        mario_rect = (0, 0, size[0], size[1])
-        self.mario_still = piece_ss.image_at(mario_rect)
-
-        mario_rect = (272, 0, size[0], size[1])
-        self.mario_jump = piece_ss.image_at(mario_rect)
+        self.load_images(size, 'starMario.png' if size[1] == 68 else 'starSuperMario.png')
 
     def convert_fromStar(self, size=(68,68), fire=False):
         pygame.mixer.music.stop()
-        pygame.mixer.music.load(os.path.join(s, 'theme.mp3'))
+        pygame.mixer.music.load(os.path.join('sound', 'theme.mp3'))
         pygame.mixer.music.play()
 
         if size[1] == 68:
-            filename = os.path.join('image', 'marioSprites.png')
+            filename = 'marioSprites.png'
         elif fire: 
-            filename = os.path.join('image', 'fireMario.png')
+            filename = 'fireMario.png'
         else:
-            filename = os.path.join('image', 'superMarioSprites.png')
+            filename = 'superMarioSprites.png'
 
-        piece_ss = SpriteSheet(filename)
-        self.mario_running.clear()
-        for i in range(3):
-            mario_rect = (i*68, 0, size[0], size[1])
-            mario_image = piece_ss.image_at(mario_rect)
-            self.mario_running.append(mario_image)
-
-        mario_rect = (204, 0, size[0], size[1])
-        mario_image = piece_ss.image_at(mario_rect)
-        self.mario_running.append(mario_image)
-
-        mario_rect = (0, 0, size[0], size[1])
-        self.mario_still = piece_ss.image_at(mario_rect)
-
-        mario_rect = (272, 0, size[0], size[1])
-        self.mario_jump = piece_ss.image_at(mario_rect)
+        self.load_images(size, filename)
 
     def check_enemy_collision(self):
         if self.star_count < 0:                
@@ -286,6 +198,71 @@ class BaseMario(egs.Game_objects.drawable):
         scene.updateables.remove(self)
         self.body.position = (-10.0, -10.0)
 
+    def load_images(self, size, image_file):
+        s = 'image'
+
+        filename = os.path.join(s, image_file)
+
+        self.mario_running.clear()
+
+        piece_ss = SpriteSheet(filename)
+        for i in range(3):
+            mario_rect = (i*68, 0, size[0], size[1])
+            mario_image = piece_ss.image_at(mario_rect)
+            self.mario_running.append(mario_image)
+
+        mario_rect = (204, 0, size[0], size[1])
+        mario_image = piece_ss.image_at(mario_rect)
+        self.mario_running.append(mario_image)
+
+        mario_rect = (0, 0, size[0], size[1])
+        self.mario_still = piece_ss.image_at(mario_rect)
+
+        mario_rect = (272, 0, size[0], size[1])
+        self.mario_jump = piece_ss.image_at(mario_rect)
+
+        mario_rect = (340, 0, size[0], size[1])
+        self.mario_dying = piece_ss.image_at(mario_rect)
+
+    def update_animation(self):
+        if not self.previous_bottom == self.rect.bottom:
+            image = self.mario_jump
+        elif self.body.linearVelocity == (0,0):
+            image = self.mario_still
+        else:
+            image = self.mario_running[self.current_mario]
+            if self.counter == 10:
+                if self.current_mario == 3:
+                    self.current_mario = 0
+                else:
+                    self.current_mario = self.current_mario + 1
+                self.counter = 0
+            else:
+                self.counter = self.counter + 1
+        
+        self.previous_center = self.rect.center
+        self.previous_bottom = self.rect.bottom
+
+        self.image = image.convert_alpha()
+        self.rect = self.image.get_rect()    
+
+        if(self.flipped):
+            self.image = pygame.transform.flip(self.image, True, False)
+
+
+    def handle_powerup(self):
+        global mario
+
+        if self.mushroom or self.fire:
+            self.dead = True
+            if self.rect.height == 68:
+                mario = SuperMario(self.body.position)
+            elif self.fire:
+                mario = FireMario(self.body.position)
+            mario.star_count = self.star_count
+            if self.star_count > 0:
+                mario.convert_star() 
+            self.replace_mario(mario) 
 
  # A class that defines the interactable bricks.  Inherits from a drawable and updateable game object     
 class Brick(egs.Game_objects.drawupdateable):

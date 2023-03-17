@@ -276,6 +276,13 @@ class BaseMario(egs.Game_objects.drawable):
                     self.flipped = True
                 if event.key == pygame.K_d:
                     if collided:
+                        for c in collided:
+                            if type(c) == Pipe:
+                                if c.underground:
+                                    view.loaded = False
+                                    view.offset = c.teleport_point[0] - view.total_offset
+                                    self.body.linearVelocity = (0,0)
+                                    self.body.position = (c.teleport_point[0] + .32- view.total_offset, c.teleport_point[1])
                         self.body.ApplyForce(b2Vec2(75,0), self.body.position, True)
                     else:
                         self.body.ApplyForce(b2Vec2(35, 0), self.body.position, True)
@@ -293,14 +300,11 @@ class BaseMario(egs.Game_objects.drawable):
                     if collided:
                         for c in collided:
                             if type(c) == Pipe:
-                                if c.underground and self.rect.right > c.rect.left:
-                                    view.pipe = False
-                                    view.loaded = False
-                                    view.offset = c.teleport_point[0] - view.total_offset
-                                elif self.rect.bottom > c.rect.top:
-                                    print("collided")
+                                if c.active and self.rect.bottom + 2 > c.rect.top - 2:
                                     view.pipe = True
                                     view.loaded = False
+                                    self.body.linearVelocity = (0,0)
+                                    self.body.position = (135.68 - view.total_offset, c.teleport_point[1])
                                     view.offset = c.teleport_point[0] - view.total_offset
 
                 if event.key == pygame.K_SPACE:
@@ -407,14 +411,14 @@ class Camera(egs.Game_objects.updateable):
             if not self.pipe:
                 if self.total_offset < 124.80 and mario.rect.right > 384:
                     self.offset= (mario.rect.right - 384) * p2b
-                    if self.offset + self.total_offset > 124.80:
-                        self.offset = 124.80 - self.total_offset
                 elif not self.levelFinished:
                     self.offset = 0.0
             elif self.loaded:
                 self.offset = 0.0
             else:
                 self.loaded = True
+                if self.offset < 0:
+                    self.pipe = False
         else:
             view.offset = 145.28 - view.total_offset
             self.marioDead = False
@@ -790,7 +794,7 @@ class Goomba(egs.Game_objects.drawupdateable):
             return
 
         if self.body.position[0] <= 11.52:
-            if self.rect.right > -100:
+            if self.rect.right > -2432:
                 if self.counter == 15:
                     self.current_index = self.current_index + 1
                     self.counter = 0
@@ -1294,7 +1298,7 @@ class Pipe(egs.Game_objects.drawable):
     # Params
     # int xpos is the horizontal position of the pipe, every pipe is on the ground 
     # int h is how tall the pipe will be
-    def __init__(self, xpos, h, active = False, underground = False, teleport = 0.0):
+    def __init__(self, xpos, h, active = False, underground = False, teleport = (0.0, 0.0)):
         super().__init__()
 
         filename = os.path.join('image', 'pipes.png')
@@ -1449,11 +1453,11 @@ def createPipes():
     pipes.append(Pipe(18.56, 2))
     pipes.append(Pipe(24.96, 3))
     pipes.append(Pipe(30.08, 4))
-    pipes.append(Pipe(37.12, 4, True, teleport = (135.04, 6)))
+    pipes.append(Pipe(37.12, 4, True, teleport = (135.04, 7.68)))
     pipes.append(Pipe(104.96, 2))
     pipes.append(Pipe(115.20, 2))
     pipes.append(WallPipe((144.96, 4.8)))
-    pipes.append(Pipe(144, 2, True, True, (104.96, 6)))
+    pipes.append(Pipe(144, 2, True, True, (104.32, 3.2)))
     for item in pipes:
         groundGroup.add(item)
         scene.drawables.add(item)

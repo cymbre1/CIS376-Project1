@@ -294,9 +294,14 @@ class BaseMario(egs.Game_objects.drawable):
                         for c in collided:
                             if type(c) == Pipe:
                                 if c.underground and self.rect.right > c.rect.left:
-                                    view.offset = 0.0
+                                    view.pipe = False
+                                    view.loaded = False
+                                    view.offset = c.teleport_point[0] - view.total_offset
                                 elif self.rect.bottom > c.rect.top:
-                                    view.offset = 0.0
+                                    print("collided")
+                                    view.pipe = True
+                                    view.loaded = False
+                                    view.offset = c.teleport_point[0] - view.total_offset
 
                 if event.key == pygame.K_SPACE:
                     self.shoot_fire()
@@ -388,18 +393,26 @@ class Camera(egs.Game_objects.updateable):
 
         self.levelFinished = False
         self.marioDead = False
+        self.pipe = False
+        self.loaded = False
         self.total_offset = 0.0
         self.offset = 0.0
     
     # updates the camera object based on mario's position
     def update(self):
-        if not self.marioDead and self.total_offset < 124.80 and mario.rect.right > 384:
-            self.offset= (mario.rect.right - 384) * p2b
-            if self.offset + self.total_offset > 124.80:
-                self.offset = 124.80 - self.total_offset
-        elif not self.levelFinished and not self.marioDead:
-            self.offset = 0.0
-        elif self.marioDead:
+        if not self.marioDead:
+            if not self.pipe:
+                if self.total_offset < 124.80 and mario.rect.right > 384:
+                    self.offset= (mario.rect.right - 384) * p2b
+                    if self.offset + self.total_offset > 124.80:
+                        self.offset = 124.80 - self.total_offset
+                elif not self.levelFinished:
+                    self.offset = 0.0
+            elif self.loaded:
+                self.offset = 0.0
+            else:
+                self.loaded = True
+        else:
             view.offset = 145.28 - view.total_offset
             self.marioDead = False
         self.total_offset += self.offset
@@ -1422,7 +1435,7 @@ def createPipes():
     pipes.append(Pipe(18.56, 2))
     pipes.append(Pipe(24.96, 3))
     pipes.append(Pipe(30.08, 4))
-    pipes.append(Pipe(37.12, 4))
+    pipes.append(Pipe(37.12, 4, True, teleport = (135.04, 6)))
     pipes.append(Pipe(104.96, 2))
     pipes.append(Pipe(115.20, 2))
     for item in pipes:

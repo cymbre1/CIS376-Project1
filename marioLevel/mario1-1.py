@@ -404,10 +404,10 @@ class FireMario(egs.Game_objects.drawupdateable):
                                 e.body.ApplyLinearImpulse(b2Vec2(koopa_force,0), e.body.position, True)
                             else:
                                 e.body.ApplyLinearImpulse(b2Vec2(0 - koopa_force, 0), e.body.position, True)
-                            if self.rect.bottom < e.rect.centery:
+                            if self.rect.bottom > e.rect.centery:
                                 self.body.ApplyLinearImpulse(b2Vec2(0, 4), self.body.position, True)
                         else:
-                            if self.rect.bottom < e.rect.centery:
+                            if self.rect.bottom > e.rect.centery:
                                 if self.immune <= 0:
                                     self.die()
                             else:
@@ -619,7 +619,7 @@ class Goomba(egs.Game_objects.drawupdateable):
             return
 
         if self.rect.right > -100:
-            if self.counter == 10:
+            if self.counter == 15:
                 self.current_index = self.current_index + 1
                 self.counter = 0
                 self.image = self.goomba_sprites[self.current_index % 2].convert_alpha()
@@ -634,16 +634,6 @@ class Goomba(egs.Game_objects.drawupdateable):
                         self.force *= -1
                     self.body.ApplyForce(b2Vec2(self.force, 0), self.body.position, True)
 
-                # collidedWithEnemy = pygame.sprite.spritecollide(self, marioGroup, False)
-                # if collidedWithEnemy:
-                #     for m in marioGroup:
-                #         if self.rect.colliderect(m.rect):
-                #             print("collided rect")
-                #             print (self.rect.top)
-                #             print(m.rect.bottom)
-                #             if self.rect.top >= m.rect.bottom:                            
-                #                 self.set_dead()
-                #                 return
                         
                 self.last_center = self.rect.center
                 self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p
@@ -747,14 +737,14 @@ class Koopa(egs.Game_objects.drawupdateable):
             self.counter = 0
             if self.flipped:
                 self.image = pygame.transform.flip(self.image, True, False)
-                self.body.ApplyForce(b2Vec2(5, 0), self.body.position, True)
+                self.body.ApplyForce(b2Vec2(45, 0), self.body.position, True)
                 if self.step_counter == 15:
                     self.flipped = False
                     self.step_counter = 0
                 else:
                     self.step_counter = self.step_counter + 1
             else:
-                self.body.ApplyForce(b2Vec2(-5, 0), self.body.position, True)
+                self.body.ApplyForce(b2Vec2(-45, 0), self.body.position, True)
                 if self.step_counter == 15:
                     self.flipped = True
                     self.step_counter = 0
@@ -762,15 +752,6 @@ class Koopa(egs.Game_objects.drawupdateable):
                     self.step_counter = self.step_counter + 1
         else:
             self.counter = self.counter + 1
-
-        
-        # collidedWithEnemy = pygame.sprite.spritecollide(self, marioGroup, False)
-        # if(collidedWithEnemy):
-        #     for e in enemiesGroup:
-        #         if self.rect.colliderect(e.rect):
-        #             if e.rect.bottom > self.rect.top:
-        #                 self.set_dead()
-        #                 return
 
         self.rect = self.image.get_rect()
         self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p
@@ -812,7 +793,7 @@ class KoopaShell(egs.Game_objects.drawupdateable):
 
         self.body = world.CreateDynamicBody(position=pos, fixedRotation = True)
         shape=b2PolygonShape(box=(p2b*32, p2b*32))
-        fixDef = b2FixtureDef(shape=shape, friction=0.05, restitution= 0, density=1)
+        fixDef = b2FixtureDef(shape=shape, friction=0.03, restitution= 0, density=1)
         box = self.body.CreateFixture(fixDef)
         self.dirty = 2
 
@@ -1279,10 +1260,10 @@ class SuperMario(egs.Game_objects.drawupdateable):
                                     e.body.ApplyLinearImpulse(b2Vec2(koopa_force,0), e.body.position, True)
                                 else:
                                     e.body.ApplyLinearImpulse(b2Vec2(0 - koopa_force, 0), e.body.position, True)
-                                if self.rect.bottom < e.rect.centery:
+                                if self.rect.bottom > e.rect.centery:
                                     self.body.ApplyLinearImpulse(b2Vec2(0, 4), self.body.position, True)
                             else:
-                                if self.rect.bottom < e.rect.centery:
+                                if self.rect.bottom > e.rect.centery:
                                     if self.immune <= 0:
                                         self.die()
                                 else:
@@ -1768,7 +1749,7 @@ view = Camera()
 
 background = Background()
 
-mario = FireMario((2.24, 3.52))
+mario = SuperMario((2.24, 3.52))
 # star = Star((8, 1.76))
 # goomba = Goomba((4,3.52))
 flag = Flag((126.72,4.8))

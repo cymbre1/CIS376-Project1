@@ -1408,7 +1408,7 @@ class SuperMario(egs.Game_objects.drawupdateable):
 class QuestionBlock(egs.Game_objects.drawupdateable):
     destroyed = False
      # Sets the initial state of the Square class
-    def __init__(self, pos, powerup = False):
+    def __init__(self, pos, powerup = False, invisible = False):
         super().__init__()
 
         filename = "image/tileset.png"
@@ -1418,11 +1418,16 @@ class QuestionBlock(egs.Game_objects.drawupdateable):
 
         self.dirty = 2
 
-        brick_rect = (68, 0, 68, 68)
-        ground_image = piece_ss.image_at(brick_rect)
-        self.image = ground_image.convert_alpha()
+        if not invisible:
+            brick_rect = (68, 0, 68, 68)
+            ground_image = piece_ss.image_at(brick_rect)
+            self.image = ground_image.convert_alpha()
+            self.rect = self.image.get_rect()
+        else:
+            self.image = pygame.Surface((64, 64), pygame.SRCALPHA)
+            self.rect = pygame.Rect(pos[0], pos[1], 64, 64)
+
         self.body = world.CreateStaticBody(position = pos, shapes = b2PolygonShape(box = (p2b*32, p2b*32)))
-        self.rect = self.image.get_rect()
 
         self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p
 
@@ -1544,6 +1549,7 @@ def createQuestions():
     questions.append(QuestionBlock((82.88,6.08)))
     questions.append(QuestionBlock((83.52,6.08)))
     questions.append(QuestionBlock((109.12,3.52)))
+    questions.append(QuestionBlock((41.28, 3.52), True, True))
 
     for item in questions:
         groundGroup.add(item)

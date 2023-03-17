@@ -554,14 +554,14 @@ class Goomba(egs.Game_objects.drawupdateable):
 
         piece_ss = SpriteSheet(filename)
         for i in range (2):
-            goomba_rect = (i*68, 0, 68, 68)
+            goomba_rect = (i*68, 0, 70, 70)
             goomba_image = piece_ss.image_at(goomba_rect)
             self.goomba_sprites.append(goomba_image)
 
         goomba_rect = (136, 0, 68, 68)
         self.goomba_dying = piece_ss.image_at(goomba_rect)
 
-        self.body = world.CreateDynamicBody(position= pos, )
+        self.body = world.CreateDynamicBody(position= pos, fixedRotation = True)
         shape = b2PolygonShape(box = (p2b* 32,p2b*32))
         fixDef = b2FixtureDef(shape=shape, friction = 0.3, restitution=0, density = 1)
         box = self.body.CreateFixture(fixDef)
@@ -608,16 +608,20 @@ class Goomba(egs.Game_objects.drawupdateable):
                 groundCollided = pygame.sprite.spritecollide(self, groundGroup, False)
                 if groundCollided:
                     if self.last_center == self.rect.center:
+                        self.linearForce = (0,0)
                         self.force *= -1
                     self.body.ApplyForce(b2Vec2(self.force, 0), self.body.position, True)
 
-                collidedWithEnemy = pygame.sprite.spritecollide(self, marioGroup, False)
-                if collidedWithEnemy:
-                    for m in marioGroup:
-                        if self.rect.colliderect(m.rect):
-                            if self.rect.top >= m.rect.bottom:                            
-                                self.set_dead()
-                                return
+                # collidedWithEnemy = pygame.sprite.spritecollide(self, marioGroup, False)
+                # if collidedWithEnemy:
+                #     for m in marioGroup:
+                #         if self.rect.colliderect(m.rect):
+                #             print("collided rect")
+                #             print (self.rect.top)
+                #             print(m.rect.bottom)
+                #             if self.rect.top >= m.rect.bottom:                            
+                #                 self.set_dead()
+                #                 return
                         
                 self.last_center = self.rect.center
                 self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p
@@ -635,7 +639,6 @@ class Goomba(egs.Game_objects.drawupdateable):
         self.dead = True
         self.counter = 0
         enemiesGroup.remove(self)
-
 
     def collided_with_top(self, rect):
         return rect.collidepoint(self.rect.topleft) or rect.collidepoint(self.rect.topright) or rect.collidepoint(self.rect.midtop)
@@ -786,7 +789,7 @@ class KoopaShell(egs.Game_objects.drawupdateable):
 
         self.body = world.CreateDynamicBody(position=pos, fixedRotation = True)
         shape=b2PolygonShape(box=(p2b*32, p2b*32))
-        fixDef = b2FixtureDef(shape=shape, friction=0.05, restitution=0, density=1)
+        fixDef = b2FixtureDef(shape=shape, friction=0.05, restitution= 0, density=1)
         box = self.body.CreateFixture(fixDef)
         self.dirty = 2
 
@@ -803,6 +806,8 @@ class KoopaShell(egs.Game_objects.drawupdateable):
         
         if self.previous_pos == self.rect.center:
             self.stationary = True
+        else:
+            self.stationary = False
         
         self.previous_pos = self.rect.center
 
@@ -822,15 +827,15 @@ class KoopaShell(egs.Game_objects.drawupdateable):
             self.rect = self.image.get_rect()
             self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p 
 
-            collidedWithEnemy = pygame.sprite.spritecollide(self, marioGroup, False)
-            if(collidedWithEnemy):
-                for e in enemiesGroup:
-                    if e.rect.collidepoint(self.rect.topright):
-                        self.body.ApplyForce(b2Vec2(10, 0), self.body.position, True)
-                        self.counter = 0
-                    elif e.rect.collidepoint(self.rect.topleft):
-                        self.body.ApplyForce(b2Vec2(-10, 0), self.body.position, True)
-                        self.counter = 0
+            # collidedWithEnemy = pygame.sprite.spritecollide(self, marioGroup, False)
+            # if(collidedWithEnemy):
+            #     for e in enemiesGroup:
+            #         if e.rect.collidepoint(self.rect.topright):
+            #             self.body.ApplyForce(b2Vec2(10, 0), self.body.position, True)
+            #             self.counter = 0
+            #         elif e.rect.collidepoint(self.rect.topleft):
+            #             self.body.ApplyForce(b2Vec2(-10, 0), self.body.position, True)
+            #             self.counter = 0
                         
         self.counter += 1
         self.rect = self.image.get_rect()
@@ -945,29 +950,44 @@ class Mario(egs.Game_objects.drawupdateable):
         self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p
         collided = pygame.sprite.spritecollide(self, groundGroup, False)
 
-        if self.star_count < 0:
-                # Deal with Collisions with Enemies
+        if self.star_count < 0:                
                 for e in enemiesGroup:
                     if self.rect.colliderect(e.rect):
-                        if not e.rect.top - 2 >= self.rect.bottom >= e.rect.top + 2 and not type(e) == "<class '__main__.KoopaShell'>":
-                            if self.immune < 0:
-                                pygame.mixer.Sound.play(mariodie_sound)
-                                pygame.mixer.music.stop()
-                                self.dead = True
-                                self.counter = 0
-                                return
-                            e.set_dead()
-                        elif not self.rect.bottom >= e.rect.top + 5 and type(e) == "<class '__main__.KoopaShell'>" and e.stationary:
-                            if self.immune < 0:
-                                pygame.mixer.Sound.play(mariodie_sound)
-                                pygame.mixer.music.stop()
-                                self.dead = True
-                                self.counter = 0
-                                return
-                for e in enemiesGroup:
-                    if self.rect.colliderect(e.rect):
-                        if self.rect.bottom >= e.rect.top:
-                            return
+                        if type(e) != KoopaShell:
+                            if self.rect.bottom > e.rect.centery:
+                                if self.immune <= 0:
+                                    print(self.immune)
+                                    pygame.mixer.Sound.play(mariodie_sound)
+                                    pygame.mixer.music.stop()
+                                    self.dead = True
+                                    self.counter = 0
+                            elif self.rect.centerx + 10 > e.rect.left or self.rect.centerx - 10 < e.rect.right:
+                                e.set_dead()
+                                self.body.ApplyLinearImpulse(b2Vec2(0, 4), self.body.position, True)
+                        else:
+                            koopa_force = 1.75
+                            if e.stationary:
+                                if self.rect.centerx < e.rect.centerx:
+                                    e.body.ApplyLinearImpulse(b2Vec2(koopa_force,0), e.body.position, True)
+                                else:
+                                    e.body.ApplyLinearImpulse(b2Vec2(0 - koopa_force, 0), e.body.position, True)
+                                if self.rect.bottom < e.rect.centery:
+                                    self.body.ApplyLinearImpulse(b2Vec2(0, 4), self.body.position, True)
+                            else:
+                                if self.rect.bottom > e.rect.centery:
+                                    if self.immune <= 0:
+                                        print(self.immune)
+                                        pygame.mixer.Sound.play(mariodie_sound)
+                                        pygame.mixer.music.stop()
+                                        self.dead = True
+                                        self.counter = 0
+                                else:
+                                    if self.rect.centerx < e.rect.centerx:
+                                        e.body.linearVelocity = (0,0)
+                                        e.body.ApplyLinearImpulse(b2Vec2(koopa_force,0), e.body.position, True)
+                                    else:
+                                        e.body.linearVelocity = (0,0)
+                                        e.body.ApplyLinearImpulse(b2Vec2(0 - koopa_force, 0), e.body.position, True)
         else:
             collidedEnemies = pygame.sprite.spritecollide(self, enemiesGroup, False)
             for e in collidedEnemies:
@@ -1703,12 +1723,12 @@ view = Camera()
 
 background = Background()
 
-mario = SuperMario((2.24, 3.52))
+mario = Mario((2.24, 3.52), 120)
 # star = Star((8, 1.76))
 # goomba = Goomba((4,3.52))
 flag = Flag((126.72,4.8))
 castle = Castle((130.88, 2.88))
-# koopa = Goomba((18,1.76))
+# koopa = Koopa((5,1.76))
 
 groundGroup = pygame.sprite.Group()
 
@@ -1737,7 +1757,6 @@ scene.updateables.append(mario)
 
 # scene.updateables.append(goomba)
 # scene.updateables.append(koopa)
-scene.updateables.append(flag)
 scene.updateables.append(castle)
 
 createGround()

@@ -93,7 +93,7 @@ class Brick(egs.Game_objects.drawupdateable):
                         self.kill()
                         scene.updateables.remove(self)
                     elif type(m) != Mario:
-                        # pygame.mixer.Sound.play(brick_break_sound)
+                        pygame.mixer.Sound.play(brick_break_sound)
                         self.kill()
                         scene.updateables.remove(self)
                         self.body.position = (-10.0, -10.0)
@@ -252,6 +252,7 @@ class FireBall(egs.Game_objects.drawupdateable):
             scene.updateables.remove(self)
             self.body.position = (-10.0, -10.0)
             self.rect.center = -100 * b2p, height - -100 * b2p
+            pygame.mixer.Sound.play(kick_sound)
             collidedWithEnemy[0].set_dead()
             # TODO update the score
 
@@ -399,6 +400,7 @@ class FireMario(egs.Game_objects.drawupdateable):
                                 self.die()
                         elif self.rect.centerx + 10 > e.rect.left or self.rect.centerx - 10 < e.rect.right:
                             e.set_dead()
+                            pygame.mixer.Sound.play(stomp_sound)
                             self.body.ApplyLinearImpulse(b2Vec2(0, 4), self.body.position, True)
                     else:
                         koopa_force = 1.75
@@ -423,6 +425,7 @@ class FireMario(egs.Game_objects.drawupdateable):
         else:
             collidedEnemies = pygame.sprite.spritecollide(self, enemiesGroup, False)
             for e in collidedEnemies:
+                pygame.mixer.Sound.play(kick_sound)
                 e.set_dead()
                 
         for event in egs.Engine.events:
@@ -979,6 +982,7 @@ class Mario(egs.Game_objects.drawupdateable):
                                     self.dead = True
                                     self.counter = 0
                             elif self.rect.centerx + 10 > e.rect.left or self.rect.centerx - 10 < e.rect.right:
+                                pygame.mixer.Sound.play(stomp_sound)
                                 e.set_dead()
                                 self.body.ApplyLinearImpulse(b2Vec2(0, 4), self.body.position, True)
                         else:
@@ -1007,6 +1011,7 @@ class Mario(egs.Game_objects.drawupdateable):
         else:
             collidedEnemies = pygame.sprite.spritecollide(self, enemiesGroup, False)
             for e in collidedEnemies:
+                pygame.mixer.Sound.play(kick_sound)
                 e.set_dead()
                     
         if self.mushroom or self.fire:
@@ -1029,13 +1034,13 @@ class Mario(egs.Game_objects.drawupdateable):
                     if collided:
                         self.body.ApplyForce(b2Vec2(-75,0), self.body.position, True)
                     else:
-                        self.body.ApplyForce(b2Vec2(-25, 0), self.body.position, True)                    
+                        self.body.ApplyForce(b2Vec2(-35, 0), self.body.position, True)                    
                     self.flipped = True
                 if event.key == pygame.K_d:
                     if collided:
                         self.body.ApplyForce(b2Vec2(75,0), self.body.position, True)
                     else:
-                        self.body.ApplyForce(b2Vec2(25, 0), self.body.position, True)
+                        self.body.ApplyForce(b2Vec2(35, 0), self.body.position, True)
                     self.flipped = False
                 if event.key == pygame.K_w:
                     if collided:
@@ -1267,6 +1272,7 @@ class SuperMario(egs.Game_objects.drawupdateable):
                                 if self.immune <= 0:
                                     self.die()
                             elif self.rect.centerx + 10 > e.rect.left or self.rect.centerx - 10 < e.rect.right:
+                                pygame.mixer.Sound.play(stomp_sound)
                                 e.set_dead()
                                 self.body.ApplyLinearImpulse(b2Vec2(0, 4), self.body.position, True)
                         else:
@@ -1292,6 +1298,7 @@ class SuperMario(egs.Game_objects.drawupdateable):
         else:
             collidedEnemies = pygame.sprite.spritecollide(self, enemiesGroup, False)
             for e in collidedEnemies:
+                pygame.mixer.Sound.play(kick_sound)
                 e.set_dead()
 
         if self.fire:
@@ -1509,7 +1516,6 @@ class Updater(egs.Game_objects.updateable):
             world.ClearForces()
         except:
             print("Oh no")
-
 
 def createGround():
     grounds = []
@@ -1758,6 +1764,8 @@ coin_sound = pygame.mixer.Sound(os.path.join(s,'smb_coin.wav'))
 brick_break_sound = pygame.mixer.Sound(os.path.join(s, 'smb_breakblock.wav'))
 powerup_sound = pygame.mixer.Sound(os.path.join(s, 'smb_powerup.wav'))
 powerup_appears_sound = pygame.mixer.Sound(os.path.join(s, 'smb_powerup_appears.wav'))
+stomp_sound = pygame.mixer.Sound(os.path.join(s, 'smb_stomp.wav'))
+kick_sound = pygame.mixer.Sound(os.path.join(s, 'smb_kick.wav'))
 
 if os.name == 'nt':
     filename = "sound\\theme.mp3"
@@ -1774,19 +1782,14 @@ view = Camera()
 background = Background()
 
 mario = Mario((2.24, 3.52))
-# star = Star((8, 1.76))
-# goomba = Goomba((4,3.52))
 flag = Flag((126.72,4.8))
 castle = Castle((130.88, 2.88))
-# koopa = Koopa((5,1.76))
 
 groundGroup = pygame.sprite.Group()
 
 fireGroup = pygame.sprite.Group()
 
 enemiesGroup = pygame.sprite.Group()
-# enemiesGroup.add(goomba)
-# enemiesGroup.add(koopa)
 
 marioGroup = pygame.sprite.Group()
 marioGroup.add(mario)
@@ -1794,19 +1797,12 @@ marioGroup.add(mario)
 scene.drawables.add(background)
 scene.drawables.add(castle)
 scene.drawables.add(mario)
-# scene.drawables.add(star)
-# scene.drawables.add(goomba)
-# scene.drawables.add(koopa)
 scene.drawables.add(flag)
 
 
 scene.updateables.append(Updater())
 scene.updateables.append(flag)
 scene.updateables.append(mario)
-# scene.updateables.append(star)
-
-# scene.updateables.append(goomba)
-# scene.updateables.append(koopa)
 scene.updateables.append(castle)
 
 createGround()

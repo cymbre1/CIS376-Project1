@@ -1090,6 +1090,29 @@ class Star(egs.Game_objects.drawupdateable):
 
         self.rect.center = self.body.position[0] * b2p , height - self.body.position[1] * b2p
 
+# This class creates a solid stone block, the ones that are in the stairs or a QuestionBlock after it is used
+class SolidStone(egs.Game_objects.drawable):
+    # This function will set the image for the SolidStone block based on whether it is a used QuestionBlock or a stairs block
+    def __init__(self, pos, isUsed = False):
+        super().__init__()
+
+        filename = "image/tileset.png"
+
+        piece_ss = SpriteSheet(filename)
+
+        self.dirty = 2
+        if isUsed:
+            brick_rect = (68, 68, 68, 68)
+        else:
+            brick_rect = (0, 0, 68, 68)
+        ground_image = piece_ss.image_at(brick_rect)
+        self.image = ground_image.convert_alpha()
+        self.body = world.CreateStaticBody(position = pos, shapes = b2PolygonShape(box = (p2b*32, p2b*32)))
+        self.rect = self.image.get_rect()
+
+        self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p
+
+# This class creates a super mario
 class SuperMario(BaseMario):
     # Sets the initial state of the Square class
     def __init__(self, pos, immunity = 0):
@@ -1118,9 +1141,15 @@ class SuperMario(BaseMario):
     def shoot_fire(self):
         return
 
+# This class updates the QuestionBlock
 class QuestionBlock(egs.Game_objects.drawupdateable):
     destroyed = False
-     # Sets the initial state of the Square class
+    
+    # Sets up the question block physics and image
+    # Params
+    # int tuple pos, the position of the block
+    # boolean powerup, whether or not there is a powerup in the QuestionBlock
+    # boolean invisible, whether or not the block is invisible
     def __init__(self, pos, powerup = False, invisible = False):
         super().__init__()
 
@@ -1144,7 +1173,7 @@ class QuestionBlock(egs.Game_objects.drawupdateable):
 
         self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p
 
-    # This function switches whether the square is black or colored
+    # This function checks to see if Mario has destroyed it, or releases a powerup or coin if it contains one
     def update(self):
         if self.destroyed:
             return
@@ -1177,16 +1206,16 @@ class QuestionBlock(egs.Game_objects.drawupdateable):
 
         self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p
 
+# This class creates a new pipe
 class Pipe(egs.Game_objects.drawable):
-
+    # This class initializes the pipe
+    # Params
+    # int xpos is the horizontal position of the pipe, every pipe is on the ground 
+    # int h is how tall the pipe will be
     def __init__(self, xpos, h):
         super().__init__()
 
-        if os.name == 'nt':
-            filename = "image\\pipes.png"
-        else:
-            filename = 'image/pipes.png'
-        
+        filename = os.path.join('image', 'pipes.png')
         piece_ss = SpriteSheet(filename)
 
         self.dirty = 2
@@ -1203,28 +1232,8 @@ class Pipe(egs.Game_objects.drawable):
         self.image = pipe_image.convert_alpha()
         self.rect = self.image.get_rect()
         self.rect.center = self.body.position.x * b2p, height - self.body.position.y * b2p
-                                        
-class SolidStone(egs.Game_objects.drawable):
-     # Sets the initial state of the Square class
-    def __init__(self, pos, isUsed = False):
-        super().__init__()
 
-        filename = "image/tileset.png"
-
-        piece_ss = SpriteSheet(filename)
-
-        self.dirty = 2
-        if isUsed:
-            brick_rect = (68, 68, 68, 68)
-        else:
-            brick_rect = (0, 0, 68, 68)
-        ground_image = piece_ss.image_at(brick_rect)
-        self.image = ground_image.convert_alpha()
-        self.body = world.CreateStaticBody(position = pos, shapes = b2PolygonShape(box = (p2b*32, p2b*32)))
-        self.rect = self.image.get_rect()
-
-        self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p
-
+# This class updates Box2d
 class Updater(egs.Game_objects.updateable):
     def __init__(self):
         super().__init__()

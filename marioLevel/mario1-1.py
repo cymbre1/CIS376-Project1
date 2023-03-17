@@ -32,6 +32,262 @@ class Background(egs.Game_objects.drawable):
         self.rect = self.image.get_rect()
         self.rect.center = self.body.position.x * b2p, height - self.body.position.y * b2p
 
+class BaseMario(egs.Game_objects.drawable):
+    # Sets the initial state of the Square class
+    mario_running = []
+    flipped = False
+    counter = 0
+    current_mario = 0
+    previous_center = ()
+    previous_bottom = ()
+    dead = False
+    mushroom = False
+    star = False
+    fire = False
+    star_count = -1
+
+    def __init__(self, pos, immunity = 0, size=(68, 68), image_file='marioSprites.png'):
+        super().__init__()  
+
+        if size == (68,68):
+            print("little mario")          
+
+        self.immune = immunity
+
+        s = 'image'
+
+        filename = os.path.join(s, image_file)
+
+        self.mario_running.clear()
+
+        piece_ss = SpriteSheet(filename)
+        for i in range(3):
+            mario_rect = (i*68, 0, size[0], size[1])
+            mario_image = piece_ss.image_at(mario_rect)
+            self.mario_running.append(mario_image)
+
+        mario_rect = (204, 0, size[0], size[1])
+        mario_image = piece_ss.image_at(mario_rect)
+        self.mario_running.append(mario_image)
+
+        mario_rect = (0, 0, size[0], size[1])
+        self.mario_still = piece_ss.image_at(mario_rect)
+
+        mario_rect = (272, 0, size[0], size[1])
+        self.mario_jump = piece_ss.image_at(mario_rect)
+
+        mario_rect = (340, 0, size[0], size[1])
+        self.mario_dying = piece_ss.image_at(mario_rect)
+
+
+        self.body = world.CreateDynamicBody(position=pos, fixedRotation=True)
+        shape=b2PolygonShape(box=(p2b*((size[0]/2) - 2), p2b*((size[1]/2) - 2)))
+        if size[1] == 68:
+            fixDef = b2FixtureDef(shape=shape, friction=0.3, restitution=0, density=1)
+        else:
+            fixDef = b2FixtureDef(shape=shape, friction=0.4, restitution=0, density=.6)
+
+        box = self.body.CreateFixture(fixDef)
+        self.dirty = 2
+        self.image = self.mario_running[self.current_mario].convert_alpha()
+        if(self.flipped):
+            self.image = pygame.transform.flip(self.image, True, False)
+        self.rect = self.image.get_rect()
+
+    def update(self):
+        global mario
+
+        self.check_star()
+
+        if self.body.position[1] < 0:
+            self.die()
+        
+        if not self.previous_bottom == self.rect.bottom:
+            image = self.mario_jump
+        elif self.body.linearVelocity == (0,0):
+            image = self.mario_still
+        else:
+            image = self.mario_running[self.current_mario]
+            if self.counter == 10:
+                if self.current_mario == 3:
+                    self.current_mario = 0
+                else:
+                    self.current_mario = self.current_mario + 1
+                self.counter = 0
+            else:
+                self.counter = self.counter + 1
+        
+        self.previous_center = self.rect.center
+        self.previous_bottom = self.rect.bottom
+
+        self.image = image.convert_alpha()
+        self.rect = self.image.get_rect()        
+
+        if(self.flipped):
+            self.image = pygame.transform.flip(self.image, True, False)
+
+        self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p
+
+        self.check_enemy_collision()
+                    
+        if self.mushroom or self.fire:
+            self.dead = True
+            if self.rect.height == 68:
+                mario = SuperMario(self.body.position)
+            elif self.fire:
+                mario = FireMario(self.body.position)
+            mario.star_count = self.star_count
+            if self.star_count > 0:
+                mario.convert_star() 
+            self.replace_mario(mario)           
+
+        collided = pygame.sprite.spritecollide(self, groundGroup, False)
+
+        for event in egs.Engine.events:
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_a:
+                    if collided:
+                        self.body.ApplyForce(b2Vec2(-75,0), self.body.position, True)
+                    else:
+                        self.body.ApplyForce(b2Vec2(-35, 0), self.body.position, True)                    
+                    self.flipped = True
+                if event.key == pygame.K_d:
+                    if collided:
+                        self.body.ApplyForce(b2Vec2(75,0), self.body.position, True)
+                    else:
+                        self.body.ApplyForce(b2Vec2(35, 0), self.body.position, True)
+                    self.flipped = False
+                if event.key == pygame.K_w:
+                    if collided:
+                        for c in collided:
+                            if c.rect.collidepoint(self.rect.midbottom):
+                                pygame.mixer.Sound.play(music.jump_small if self.rect.height == 68 else music.jump_big)
+                                if self.rect.height == 68:
+                                    self.body.ApplyLinearImpulse(b2Vec2(0,3.25), self.body.position, True)
+                                else:
+                                    self.body.ApplyLinearImpulse(b2Vec2(0,3.75), self.body.position, True)
+                if event.key == pygame.K_SPACE:
+                    self.shoot_fire()
+        
+        if self.rect.left <= 0:
+            self.body.linearVelocity =(.1, self.body.linearVelocity[1])
+        
+        self.star_count -= 1
+        self.immune -= 1
+        self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p
+
+    def convert_star(self, size=(68, 68)):
+        pygame.mixer.music.stop()
+        pygame.mixer.music.load(os.path.join(s, 'invincible.mp3'))
+        pygame.mixer.music.play()
+
+        if size[1] == 68:
+            filename = os.path.join('image', 'starMario.png')
+        else:
+            filename = os.path.join('image', 'starSuperMario.png')
+
+
+        piece_ss = SpriteSheet(filename)
+        self.mario_running.clear()
+        for i in range(3):
+            mario_rect = (i*68, 0, size[0], size[1])
+            mario_image = piece_ss.image_at(mario_rect)
+            self.mario_running.append(mario_image)
+
+        mario_rect = (204, 0, size[0], size[1])
+        mario_image = piece_ss.image_at(mario_rect)
+        self.mario_running.append(mario_image)
+
+        mario_rect = (0, 0, size[0], size[1])
+        self.mario_still = piece_ss.image_at(mario_rect)
+
+        mario_rect = (272, 0, size[0], size[1])
+        self.mario_jump = piece_ss.image_at(mario_rect)
+
+    def convert_fromStar(self, size=(68,68), fire=False):
+        pygame.mixer.music.stop()
+        pygame.mixer.music.load(os.path.join(s, 'theme.mp3'))
+        pygame.mixer.music.play()
+
+        if size[1] == 68:
+            filename = os.path.join('image', 'marioSprites.png')
+        elif fire: 
+            filename = os.path.join('image', 'fireMario.png')
+        else:
+            filename = os.path.join('image', 'superMarioSprites.png')
+
+        piece_ss = SpriteSheet(filename)
+        self.mario_running.clear()
+        for i in range(3):
+            mario_rect = (i*68, 0, size[0], size[1])
+            mario_image = piece_ss.image_at(mario_rect)
+            self.mario_running.append(mario_image)
+
+        mario_rect = (204, 0, size[0], size[1])
+        mario_image = piece_ss.image_at(mario_rect)
+        self.mario_running.append(mario_image)
+
+        mario_rect = (0, 0, size[0], size[1])
+        self.mario_still = piece_ss.image_at(mario_rect)
+
+        mario_rect = (272, 0, size[0], size[1])
+        self.mario_jump = piece_ss.image_at(mario_rect)
+
+    def check_enemy_collision(self):
+        if self.star_count < 0:                
+            for e in enemiesGroup:
+                if self.rect.colliderect(e.rect):
+                    if type(e) != KoopaShell:
+                        if self.rect.bottom > e.rect.centery:
+                            if self.immune <= 0:
+                                self.die()
+                        elif self.rect.centerx + 10 > e.rect.left or self.rect.centerx - 10 < e.rect.right:
+                            pygame.mixer.Sound.play(music.stomp_sound)
+                            e.set_dead()
+                            self.body.ApplyLinearImpulse(b2Vec2(0, 4), self.body.position, True)
+                    else:
+                        koopa_force = 1.75
+                        if e.stationary:
+                            if self.rect.centerx < e.rect.centerx:
+                                e.body.ApplyLinearImpulse(b2Vec2(koopa_force,0), e.body.position, True)
+                            else:
+                                e.body.ApplyLinearImpulse(b2Vec2(0 - koopa_force, 0), e.body.position, True)
+                            if self.rect.bottom < e.rect.centery:
+                                self.body.ApplyLinearImpulse(b2Vec2(0, 4), self.body.position, True)
+                        else:
+                            if self.rect.bottom > e.rect.centery:
+                                if self.immune <= 0:
+                                    self.die()
+                            else:
+                                if self.rect.centerx < e.rect.centerx:
+                                    e.body.linearVelocity = (0,0)
+                                    e.body.ApplyLinearImpulse(b2Vec2(koopa_force,0), e.body.position, True)
+                                else:
+                                    e.body.linearVelocity = (0,0)
+                                    e.body.ApplyLinearImpulse(b2Vec2(0 - koopa_force, 0), e.body.position, True)
+        else:
+            collidedEnemies = pygame.sprite.spritecollide(self, enemiesGroup, False)
+            for e in collidedEnemies:
+                pygame.mixer.Sound.play(music.kick_sound)
+                e.set_dead()
+
+    def check_star(self):
+        if self.star:
+            self.star_count = 636
+            self.convert_star()
+            self.star = False
+        if self.star_count == 0:
+            self.convert_fromStar()
+
+    def replace_mario(self, mario):
+        self.dead = True
+        scene.drawables.add(mario)
+        scene.updateables.append(mario)
+        marioGroup.add(mario)
+        self.kill()
+        scene.updateables.remove(self)
+        self.body.position = (-10.0, -10.0)
+
  # A class that defines the interactable bricks.  Inherits from a drawable and updateable game object     
 class Brick(egs.Game_objects.drawupdateable):
     # Sets the initial state of the Brick class
@@ -338,232 +594,40 @@ class FireFlower(egs.Game_objects.drawupdateable):
 
         self.rect.center = self.body.position[0] * b2p , height - self.body.position[1] * b2p
 
-class FireMario(egs.Game_objects.drawupdateable):
+class FireMario(BaseMario):
     # Sets the initial state of the Square class
-    mario_running = []
-    flipped = False
-    counter = 0
-    current_mario = 0
-    previous_center = ()
-    previous_bottom = ()
-    collision = [False] * 9
-    dead = False
-    fire = False
-    star = False
-    star_count = -1
-
     def __init__(self, pos, immunity = 0):
-        super().__init__()
-
-        if os.name == 'nt':
-            filename = "image\\fireMario.png"
-        else:
-            filename = 'image/fireMario.png'
-
-        piece_ss = SpriteSheet(filename)
-        for i in range(3):
-            mario_rect = (i*68, 0, 68, 132)
-            mario_image = piece_ss.image_at(mario_rect)
-            self.mario_running.append(mario_image)
-
-        mario_rect = (204, 0, 68, 132)
-        mario_image = piece_ss.image_at(mario_rect)
-        self.mario_running.append(mario_image)
-
-        mario_rect = (0, 0, 68, 132)
-        self.mario_still = piece_ss.image_at(mario_rect)
-
-        mario_rect = (272, 0, 68, 132)
-        self.mario_jump = piece_ss.image_at(mario_rect)
-
-        self.immune = immunity
-
-        self.body = world.CreateDynamicBody(position=pos, fixedRotation = True)
-        shape=b2PolygonShape(box=(p2b*32, p2b*64))
-        fixDef = b2FixtureDef(shape=shape, friction=0.4, restitution=0, density=.6)
-        box = self.body.CreateFixture(fixDef)
-        self.dirty = 2
-        self.image = self.mario_running[self.current_mario].convert_alpha()
-        if(self.flipped):
-            pygame.transform.flip(self.image, True, False)
-        self.rect = self.image.get_rect()
+        super().__init__(pos, immunity, size=(68,132),image_file='fireMario.png')
 
     def update(self):
         global mario
         if(self.dead):
             return
         
-        if self.star:
-            self.star_count = 636
-            self.convert_star()
-            self.star = False
-        if self.star_count == 0:
-            self.convert_fromStar()
+        super().update()
         
-        if not self.previous_bottom == self.rect.bottom:
-            image =self.mario_jump
-        elif self.body.linearVelocity == (0,0):
-            image = self.mario_still
-        else:
-            image = self.mario_running[self.current_mario]
-            if self.counter == 10:
-                if self.current_mario == 3:
-                    self.current_mario = 0
-                else:
-                    self.current_mario = self.current_mario + 1
-                self.counter = 0
-            else:
-                self.counter = self.counter + 1
-        
-        self.previous_center = self.rect.center
-        self.previous_bottom = self.rect.bottom
-
-        self.image = image.convert_alpha()
-        self.rect = self.image.get_rect()        
-
-        if(self.flipped):
-            self.image = pygame.transform.flip(self.image, True, False)
-
-        self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p
-        collided = pygame.sprite.spritecollide(self, groundGroup, False)
-        
-        if self.star_count < 0:                
-            for e in enemiesGroup:
-                if self.rect.colliderect(e.rect):
-                    if type(e) != KoopaShell:
-                        if self.rect.bottom > e.rect.centery:
-                            if self.immune <= 0:
-                                self.die()
-                        elif self.rect.centerx + 10 > e.rect.left or self.rect.centerx - 10 < e.rect.right:
-                            e.set_dead()
-                            pygame.mixer.Sound.play(stomp_sound)
-                            self.body.ApplyLinearImpulse(b2Vec2(0, 4), self.body.position, True)
-                    else:
-                        koopa_force = 1.75
-                        if e.stationary:
-                            if self.rect.centerx < e.rect.centerx:
-                                e.body.ApplyLinearImpulse(b2Vec2(koopa_force,0), e.body.position, True)
-                            else:
-                                e.body.ApplyLinearImpulse(b2Vec2(0 - koopa_force, 0), e.body.position, True)
-                            if self.rect.bottom > e.rect.centery:
-                                self.body.ApplyLinearImpulse(b2Vec2(0, 4), self.body.position, True)
-                        else:
-                            if self.rect.bottom > e.rect.centery:
-                                if self.immune <= 0:
-                                    self.die()
-                            else:
-                                if self.rect.centerx < e.rect.centerx:
-                                    e.body.linearVelocity = (0,0)
-                                    e.body.ApplyLinearImpulse(b2Vec2(koopa_force,0), e.body.position, True)
-                                else:
-                                    e.body.linearVelocity = (0,0)
-                                    e.body.ApplyLinearImpulse(b2Vec2(0 - koopa_force, 0), e.body.position, True)
-        else:
-            collidedEnemies = pygame.sprite.spritecollide(self, enemiesGroup, False)
-            for e in collidedEnemies:
-                pygame.mixer.Sound.play(kick_sound)
-                e.set_dead()
-                
-        for event in egs.Engine.events:
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_a:
-                    if collided:
-                        self.body.ApplyForce(b2Vec2(-75,0), self.body.position, True)
-                    else:
-                        self.body.ApplyForce(b2Vec2(-25, 0), self.body.position, True)
-                    self.flipped = True
-                if event.key == pygame.K_d:
-                    if collided:
-                        self.body.ApplyForce(b2Vec2(75,0), self.body.position, True)
-                    else:
-                        self.body.ApplyForce(b2Vec2(25 , 0), self.body.position, True)
-                    self.flipped = False
-                if event.key == pygame.K_w:
-                    if collided:
-                        for c in collided:
-                            if c.rect.collidepoint(self.rect.midbottom):
-                                pygame.mixer.Sound.play(jump_big)
-                                self.body.ApplyLinearImpulse(b2Vec2(0,3.75), self.body.position, True)
-                if event.key == pygame.K_SPACE:
-                    pygame.mixer.Sound.play(fire_sound)
-                    if self.flipped:
-                        fireball = FireBall((self.body.position.x - .55, self.body.position.y + .46), -1)
-                    else:
-                        fireball = FireBall((self.body.position.x + .55, self.body.position.y + .46))
-                    fireGroup.add(fireball)
-                    scene.drawables.add(fireball)
-                    scene.updateables.append(fireball)
-        if self.rect.left <= 0:
-            self.body.linearVelocity =(.1, self.body.linearVelocity[1])
-        self.immune -= 1
-        self.star_count -= 1
-        self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p
-
     def die(self):
         global mario
 
         self.dead = True
         mario = Mario(self.body.position, 500)
-        scene.drawables.add(mario)
-        scene.updateables.append(mario)
-        marioGroup.add(mario)
-        self.kill()
-        scene.updateables.remove(self)
-        self.body.position = (-10.0, -10.0)
+        self.replace_mario(mario)
+
+    def shoot_fire(self):
+        pygame.mixer.Sound.play(music.fire_sound)
+        if self.flipped:
+            fireball = FireBall((self.body.position.x - .55, self.body.position.y + .46), -1)
+        else:
+            fireball = FireBall((self.body.position.x + .55, self.body.position.y + .46))
+        fireGroup.add(fireball)
+        scene.drawables.add(fireball)
+        scene.updateables.append(fireball)
 
     def convert_star(self):
-        pygame.mixer.music.stop()
-        pygame.mixer.music.load(os.path.join(s, 'invincible.mp3'))
-        pygame.mixer.music.play()
-
-        if os.name == 'nt':
-            filename = "image\\starSuperMario.png"
-        else:
-            filename = 'image/starSuperMario.png'
-
-        piece_ss = SpriteSheet(filename)
-        self.mario_running.clear()
-        for i in range(3):
-            mario_rect = (i*68, 0, 68, 132)
-            mario_image = piece_ss.image_at(mario_rect)
-            self.mario_running.append(mario_image)
-
-        mario_rect = (204, 0, 68, 132)
-        mario_image = piece_ss.image_at(mario_rect)
-        self.mario_running.append(mario_image)
-
-        mario_rect = (0, 0, 68, 132)
-        self.mario_still = piece_ss.image_at(mario_rect)
-
-        mario_rect = (272, 0, 68, 132)
-        self.mario_jump = piece_ss.image_at(mario_rect)
+        super().convert_star((self.rect.width, self.rect.height))
 
     def convert_fromStar(self):
-        pygame.mixer.music.stop()
-        pygame.mixer.music.load(os.path.join(s, 'theme.mp3'))
-        pygame.mixer.music.play()
-
-        if os.name == 'nt':
-            filename = "image\\fireMario.png"
-        else:
-            filename = 'image/fireMario.png'
-
-        piece_ss = SpriteSheet(filename)
-        self.mario_running.clear()
-        for i in range(3):
-            mario_rect = (i*68, 0, 68, 132)
-            mario_image = piece_ss.image_at(mario_rect)
-            self.mario_running.append(mario_image)
-
-        mario_rect = (204, 0, 68, 132)
-        mario_image = piece_ss.image_at(mario_rect)
-        self.mario_running.append(mario_image)
-
-        mario_rect = (0, 0, 68, 132)
-        self.mario_still = piece_ss.image_at(mario_rect)
-
-        mario_rect = (272, 0, 68, 132)
-        self.mario_jump = piece_ss.image_at(mario_rect)
+        super().convert_fromStar((self.rect.width, self.rect.height), True)
 
 class Flag(egs.Game_objects.drawupdateable):
     flag_sprites = []
@@ -905,70 +969,11 @@ class KoopaShell(egs.Game_objects.drawupdateable):
     def set_dead(self):
         pass
 
-class Mario(egs.Game_objects.drawupdateable):
-     # Sets the initial state of the Square class
-    mario_running = []
-    flipped = False
-    counter = 0
-    current_mario = 0
-    previous_center = ()
-    previous_bottom = ()
-    dead = False
-    mushroom = False
-    star = False
-    fire = False
-    star_count = -1
-
+class Mario(BaseMario):
     def __init__(self, pos, immunity = 0):
-        super().__init__()            
-
-        self.immune = immunity
-
-        if os.name == 'nt':
-            filename = "image\\marioSprites.png"
-        else:
-            filename = 'image/marioSprites.png'
-
-        piece_ss = SpriteSheet(filename)
-        for i in range(3):
-            mario_rect = (i*68, 0, 68, 68)
-            mario_image = piece_ss.image_at(mario_rect)
-            self.mario_running.append(mario_image)
-
-        mario_rect = (204, 0, 68, 68)
-        mario_image = piece_ss.image_at(mario_rect)
-        self.mario_running.append(mario_image)
-
-        mario_rect = (0, 0, 68, 68)
-        self.mario_still = piece_ss.image_at(mario_rect)
-
-        mario_rect = (272, 0, 68, 68)
-        self.mario_jump = piece_ss.image_at(mario_rect)
-
-        mario_rect = (340, 0, 68, 68)
-        self.mario_dying = piece_ss.image_at(mario_rect)
-
-
-        self.body = world.CreateDynamicBody(position=pos, fixedRotation=True)
-        shape=b2PolygonShape(box=(p2b*32, p2b*32))
-        fixDef = b2FixtureDef(shape=shape, friction=0.3, restitution=0, density=1)
-        box = self.body.CreateFixture(fixDef)
-        self.dirty = 2
-        self.image = self.mario_running[self.current_mario].convert_alpha()
-        if(self.flipped):
-            self.image = pygame.transform.flip(self.image, True, False)
-        self.rect = self.image.get_rect()
+        super().__init__(pos, immunity)
 
     def update(self):
-        global mario
-
-        if self.star:
-            self.star_count = 636
-            self.convert_star()
-            self.star = False
-        if self.star_count == 0:
-            self.convert_fromStar()
-
         if self.dead and self.counter < 30:
             self.image = self.mario_dying.convert_alpha()
             self.rect = self.image.get_rect()
@@ -983,172 +988,17 @@ class Mario(egs.Game_objects.drawupdateable):
         
         if self.dead:
             return
-        
-        if not self.previous_bottom == self.rect.bottom:
-            image = self.mario_jump
-        elif self.body.linearVelocity == (0,0):
-            image = self.mario_still
-        else:
-            image = self.mario_running[self.current_mario]
-            if self.counter == 10:
-                if self.current_mario == 3:
-                    self.current_mario = 0
-                else:
-                    self.current_mario = self.current_mario + 1
-                self.counter = 0
-            else:
-                self.counter = self.counter + 1
-        
-        self.previous_center = self.rect.center
-        self.previous_bottom = self.rect.bottom
 
-        self.image = image.convert_alpha()
-        self.rect = self.image.get_rect()        
+        super().update()
 
-        if(self.flipped):
-            self.image = pygame.transform.flip(self.image, True, False)
-
-        self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p
-        collided = pygame.sprite.spritecollide(self, groundGroup, False)
-
-        if self.star_count < 0:                
-                for e in enemiesGroup:
-                    if self.rect.colliderect(e.rect):
-                        if type(e) != KoopaShell:
-                            if self.rect.bottom > e.rect.centery:
-                                if self.immune <= 0:
-                                    pygame.mixer.Sound.play(mariodie_sound)
-                                    pygame.mixer.music.stop()
-                                    self.dead = True
-                                    self.counter = 0
-                            elif self.rect.centerx + 10 > e.rect.left or self.rect.centerx - 10 < e.rect.right:
-                                pygame.mixer.Sound.play(stomp_sound)
-                                e.set_dead()
-                                self.body.ApplyLinearImpulse(b2Vec2(0, 4), self.body.position, True)
-                        else:
-                            koopa_force = 1.75
-                            if e.stationary:
-                                if self.rect.centerx < e.rect.centerx:
-                                    e.body.ApplyLinearImpulse(b2Vec2(koopa_force,0), e.body.position, True)
-                                else:
-                                    e.body.ApplyLinearImpulse(b2Vec2(0 - koopa_force, 0), e.body.position, True)
-                                if self.rect.bottom < e.rect.centery:
-                                    self.body.ApplyLinearImpulse(b2Vec2(0, 4), self.body.position, True)
-                            else:
-                                if self.rect.bottom > e.rect.centery:
-                                    if self.immune <= 0:
-                                        pygame.mixer.Sound.play(mariodie_sound)
-                                        pygame.mixer.music.stop()
-                                        self.dead = True
-                                        self.counter = 0
-                                else:
-                                    if self.rect.centerx < e.rect.centerx:
-                                        e.body.linearVelocity = (0,0)
-                                        e.body.ApplyLinearImpulse(b2Vec2(koopa_force,0), e.body.position, True)
-                                    else:
-                                        e.body.linearVelocity = (0,0)
-                                        e.body.ApplyLinearImpulse(b2Vec2(0 - koopa_force, 0), e.body.position, True)
-        else:
-            collidedEnemies = pygame.sprite.spritecollide(self, enemiesGroup, False)
-            for e in collidedEnemies:
-                pygame.mixer.Sound.play(kick_sound)
-                e.set_dead()
-                    
-        if self.mushroom or self.fire:
-            self.dead = True
-            mario = SuperMario(self.body.position)
-            mario.star_count = self.star_count
-            if self.star_count > 0:
-                mario.convert_star()
-            scene.drawables.add(mario)
-            scene.updateables.append(mario)
-            marioGroup.add(mario)
-            self.kill()
-            scene.updateables.remove(self)
-            self.body.position = (-10.0, -10.0)
-            
-
-        for event in egs.Engine.events:
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_a:
-                    if collided:
-                        self.body.ApplyForce(b2Vec2(-75,0), self.body.position, True)
-                    else:
-                        self.body.ApplyForce(b2Vec2(-35, 0), self.body.position, True)                    
-                    self.flipped = True
-                if event.key == pygame.K_d:
-                    if collided:
-                        self.body.ApplyForce(b2Vec2(75,0), self.body.position, True)
-                    else:
-                        self.body.ApplyForce(b2Vec2(35, 0), self.body.position, True)
-                    self.flipped = False
-                if event.key == pygame.K_w:
-                    if collided:
-                        for c in collided:
-                            if c.rect.collidepoint(self.rect.midbottom):
-                                pygame.mixer.Sound.play(jump_small)
-                                self.body.ApplyLinearImpulse(b2Vec2(0,3.25), self.body.position, True)
-        
-        if self.rect.left <= 0:
-            self.body.linearVelocity =(.1, self.body.linearVelocity[1])
-        
-        self.star_count -= 1
-        self.immune -= 1
-        self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p
-
-    def convert_star(self):
+    def die(self):
+        pygame.mixer.Sound.play(music.mariodie_sound)
         pygame.mixer.music.stop()
-        pygame.mixer.music.load(os.path.join(s, 'invincible.mp3'))
-        pygame.mixer.music.play()
-
-        if os.name == 'nt':
-            filename = "image\\starMario.png"
-        else:
-            filename = 'image/starMario.png'
-
-        piece_ss = SpriteSheet(filename)
-        self.mario_running.clear()
-        for i in range(3):
-            mario_rect = (i*68, 0, 68, 68)
-            mario_image = piece_ss.image_at(mario_rect)
-            self.mario_running.append(mario_image)
-
-        mario_rect = (204, 0, 68, 68)
-        mario_image = piece_ss.image_at(mario_rect)
-        self.mario_running.append(mario_image)
-
-        mario_rect = (0, 0, 68, 68)
-        self.mario_still = piece_ss.image_at(mario_rect)
-
-        mario_rect = (272, 0, 68, 68)
-        self.mario_jump = piece_ss.image_at(mario_rect)
-
-    def convert_fromStar(self):
-        pygame.mixer.music.stop()
-        pygame.mixer.music.load(os.path.join(s, 'theme.mp3'))
-        pygame.mixer.music.play()
-
-        if os.name == 'nt':
-            filename = "image\\marioSprites.png"
-        else:
-            filename = 'image/marioSprites.png'
-
-        piece_ss = SpriteSheet(filename)
-        self.mario_running.clear()
-        for i in range(3):
-            mario_rect = (i*68, 0, 68, 68)
-            mario_image = piece_ss.image_at(mario_rect)
-            self.mario_running.append(mario_image)
-
-        mario_rect = (204, 0, 68, 68)
-        mario_image = piece_ss.image_at(mario_rect)
-        self.mario_running.append(mario_image)
-
-        mario_rect = (0, 0, 68, 68)
-        self.mario_still = piece_ss.image_at(mario_rect)
-
-        mario_rect = (272, 0, 68, 68)
-        self.mario_jump = piece_ss.image_at(mario_rect)
+        self.dead = True
+        self.counter = 0
+    
+    def shoot_fire(self):
+        return
 
 class Mushroom(egs.Game_objects.drawupdateable):
     def __init__(self, pos):
@@ -1243,239 +1093,33 @@ class Star(egs.Game_objects.drawupdateable):
 
         self.rect.center = self.body.position[0] * b2p , height - self.body.position[1] * b2p
 
-class SuperMario(egs.Game_objects.drawupdateable):
+class SuperMario(BaseMario):
     # Sets the initial state of the Square class
-    mario_running = []
-    flipped = False
-    counter = 0
-    current_mario = 0
-    previous_center = ()
-    previous_bottom = ()
-    collision = [False] * 9
-    dead = False
-    fire = False
-    star = False
-    star_count = 0
     def __init__(self, pos, immunity = 0):
-        super().__init__()
-
-        self.immune = immunity
-
-        if os.name == 'nt':
-            filename = "image\\superMarioSprites.png"
-        else:
-            filename = 'image/superMarioSprites.png'
-
-        piece_ss = SpriteSheet(filename)
-        for i in range(3):
-            mario_rect = (i*68, 0, 68, 132)
-            mario_image = piece_ss.image_at(mario_rect)
-            self.mario_running.append(mario_image)
-
-        mario_rect = (204, 0, 68, 132)
-        mario_image = piece_ss.image_at(mario_rect)
-        self.mario_running.append(mario_image)
-
-        mario_rect = (0, 0, 68, 132)
-        self.mario_still = piece_ss.image_at(mario_rect)
-
-        mario_rect = (272, 0, 68, 132)
-        self.mario_jump = piece_ss.image_at(mario_rect)
-
-        self.body = world.CreateDynamicBody(position=pos, fixedRotation = True)
-        shape=b2PolygonShape(box=(p2b*32, p2b*64))
-        fixDef = b2FixtureDef(shape=shape, friction=0.4, restitution=0, density=.6)
-        box = self.body.CreateFixture(fixDef)
-        self.dirty = 2
-        self.image = self.mario_running[self.current_mario].convert_alpha()
-        if(self.flipped):
-            pygame.transform.flip(self.image, True, False)
-        self.rect = self.image.get_rect()
+        super().__init__(pos, immunity, size=(68,132), image_file='superMarioSprites.png')
 
     def update(self):
         global mario
         if(self.dead):
             return
-        
-        if self.star:
-            self.star_count = 636
-            self.convert_star()
-            self.star = False
-            # Trigger music
 
-        if self.star_count == 0:
-            self.convert_fromStar()
-
-        if not self.previous_bottom == self.rect.bottom:
-            image =self.mario_jump
-        elif self.body.linearVelocity == (0,0):
-            image = self.mario_still
-        else:
-            image = self.mario_running[self.current_mario]
-            if self.counter == 10:
-                if self.current_mario == 3:
-                    self.current_mario = 0
-                else:
-                    self.current_mario = self.current_mario + 1
-                self.counter = 0
-            else:
-                self.counter = self.counter + 1
-        
-        self.previous_center = self.rect.center
-        self.previous_bottom = self.rect.bottom
-
-        self.image = image.convert_alpha()
-        self.rect = self.image.get_rect()        
-
-        if(self.flipped):
-            self.image = pygame.transform.flip(self.image, True, False)
-
-        self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p
-        collided = pygame.sprite.spritecollide(self, groundGroup, False)
-        
-        if self.star_count < 0:                
-                for e in enemiesGroup:
-                    if self.rect.colliderect(e.rect):
-                        if type(e) != KoopaShell:
-                            if self.rect.bottom > e.rect.centery:
-                                if self.immune <= 0:
-                                    self.die()
-                            elif self.rect.centerx + 10 > e.rect.left or self.rect.centerx - 10 < e.rect.right:
-                                pygame.mixer.Sound.play(stomp_sound)
-                                e.set_dead()
-                                self.body.ApplyLinearImpulse(b2Vec2(0, 4), self.body.position, True)
-                        else:
-                            koopa_force = 1.75
-                            if e.stationary:
-                                if self.rect.centerx < e.rect.centerx:
-                                    e.body.ApplyLinearImpulse(b2Vec2(koopa_force,0), e.body.position, True)
-                                else:
-                                    e.body.ApplyLinearImpulse(b2Vec2(0 - koopa_force, 0), e.body.position, True)
-                                if self.rect.bottom > e.rect.centery:
-                                    self.body.ApplyLinearImpulse(b2Vec2(0, 4), self.body.position, True)
-                            else:
-                                if self.rect.bottom > e.rect.centery:
-                                    if self.immune <= 0:
-                                        self.die()
-                                else:
-                                    if self.rect.centerx < e.rect.centerx:
-                                        e.body.linearVelocity = (0,0)
-                                        e.body.ApplyLinearImpulse(b2Vec2(koopa_force,0), e.body.position, True)
-                                    else:
-                                        e.body.linearVelocity = (0,0)
-                                        e.body.ApplyLinearImpulse(b2Vec2(0 - koopa_force, 0), e.body.position, True)
-        else:
-            collidedEnemies = pygame.sprite.spritecollide(self, enemiesGroup, False)
-            for e in collidedEnemies:
-                pygame.mixer.Sound.play(kick_sound)
-                e.set_dead()
-
-        if self.fire:
-            self.dead = True
-            mario = FireMario(self.body.position, self.immune)
-            mario.star_count = self.star_count
-            if self.star_count > 0:
-                mario.convert_star()
-            scene.drawables.add(mario)
-            scene.updateables.append(mario)
-            marioGroup.add(mario)
-            self.kill()
-            scene.updateables.remove(self)
-            self.body.position = (-10.0, -10.0)
-
-        for event in egs.Engine.events:
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_a:
-                    if collided:
-                        self.body.ApplyForce(b2Vec2(-75, 0), self.body.position, True)
-                    else:
-                        self.body.ApplyForce(b2Vec2(-25, 0), self.body.position, True)
-                    self.flipped = True
-                if event.key == pygame.K_d:
-                    if collided:
-                        self.body.ApplyForce(b2Vec2(75,0), self.body.position, True)
-                    else:
-                        self.body.ApplyForce(b2Vec2(25, 0), self.body.position, True)
-                    self.flipped = False
-                if event.key == pygame.K_w:
-                    if collided:
-                        for c in collided:
-                            if c.rect.collidepoint(self.rect.midbottom):
-                                pygame.mixer.Sound.play(jump_big)
-                                self.body.ApplyLinearImpulse(b2Vec2(0,3.75), self.body.position, True)
-        
-        if self.rect.left <= 0:
-            self.body.linearVelocity =(.1, self.body.linearVelocity[1])
-
-        self.star_count -= 1
-        self.immune -= 1
-        self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p
+        super().update()
 
     def die(self):
         global mario
 
         self.dead = True
         mario = Mario(self.body.position, 500)
-        scene.drawables.add(mario)
-        scene.updateables.append(mario)
-        marioGroup.add(mario)
-        self.kill()
-        scene.updateables.remove(self)
-        self.body.position = (-10.0, -10.0)
+        self.replace_mario(mario)
 
     def convert_star(self):
-        pygame.mixer.music.stop()
-        pygame.mixer.music.load(os.path.join(s, 'invincible.mp3'))
-        pygame.mixer.music.play()
-
-        if os.name == 'nt':
-            filename = "image\\starSuperMario.png"
-        else:
-            filename = 'image/starSuperMario.png'
-
-        piece_ss = SpriteSheet(filename)
-        self.mario_running.clear()
-        for i in range(3):
-            mario_rect = (i*68, 0, 68, 132)
-            mario_image = piece_ss.image_at(mario_rect)
-            self.mario_running.append(mario_image)
-
-        mario_rect = (204, 0, 68, 132)
-        mario_image = piece_ss.image_at(mario_rect)
-        self.mario_running.append(mario_image)
-
-        mario_rect = (0, 0, 68, 132)
-        self.mario_still = piece_ss.image_at(mario_rect)
-
-        mario_rect = (272, 0, 68, 132)
-        self.mario_jump = piece_ss.image_at(mario_rect)
+        super().convert_star((self.rect.width, self.rect.height))
 
     def convert_fromStar(self):
-        pygame.mixer.music.stop()
-        pygame.mixer.music.load(os.path.join(s, 'theme.mp3'))
-        pygame.mixer.music.play()
+        super().convert_fromStar((self.rect.width, self.rect.height))
 
-        if os.name == 'nt':
-            filename = "image\\superMarioSprites.png"
-        else:
-            filename = 'image/superMarioSprites.png'
-
-        piece_ss = SpriteSheet(filename)
-        self.mario_running.clear()
-        for i in range(3):
-            mario_rect = (i*68, 0, 68, 132)
-            mario_image = piece_ss.image_at(mario_rect)
-            self.mario_running.append(mario_image)
-
-        mario_rect = (204, 0, 68, 132)
-        mario_image = piece_ss.image_at(mario_rect)
-        self.mario_running.append(mario_image)
-
-        mario_rect = (0, 0, 68, 132)
-        self.mario_still = piece_ss.image_at(mario_rect)
-
-        mario_rect = (272, 0, 68, 132)
-        self.mario_jump = piece_ss.image_at(mario_rect)      
+    def shoot_fire(self):
+        return
 
 class QuestionBlock(egs.Game_objects.drawupdateable):
     destroyed = False
@@ -1851,14 +1495,6 @@ width = 1024
 height = 832
 coin_count = 0
 engine = egs.Engine("Mario 1-1", width = width, height = height)
-
-s = 'sound'
-
-jump_small = pygame.mixer.Sound(os.path.join(s, 'smb_jump-small.wav'))
-jump_big = pygame.mixer.Sound(os.path.join(s, 'smb_jump-super.wav'))
-mariodie_sound = pygame.mixer.Sound(os.path.join(s, 'smb_mariodie.wav'))
-stomp_sound = pygame.mixer.Sound(os.path.join(s, 'smb_stomp.wav'))
-kick_sound = pygame.mixer.Sound(os.path.join(s, 'smb_kick.wav'))
 
 scene = egs.Scene("Scene 1")
 egs.Engine.current_scene = scene

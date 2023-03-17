@@ -3,6 +3,8 @@ By Kit Bazner and Cymbre Spoehr
 
 In order to run this game, please make sure that you have Box2d and pygame installed
 
+Run the ```mario1-1.py``` file in order to start the game as in ```python marioLevel/mario1-1.py```
+
 # Resources
 Code in spriteSheet.py taken from [https://ehmatthes.github.io/pcc_2e/beyond_pcc/pygame_sprite_sheets/](https://ehmatthes.github.io/pcc_2e/beyond_pcc/pygame_sprite_sheets/)
 

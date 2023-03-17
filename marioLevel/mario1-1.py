@@ -1025,13 +1025,13 @@ class Mario(egs.Game_objects.drawupdateable):
 
         for event in egs.Engine.events:
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_a and collided:
+                if event.key == pygame.K_a:
                     if collided:
                         self.body.ApplyForce(b2Vec2(-75,0), self.body.position, True)
                     else:
                         self.body.ApplyForce(b2Vec2(-25, 0), self.body.position, True)                    
                     self.flipped = True
-                if event.key == pygame.K_d and collided:
+                if event.key == pygame.K_d:
                     if collided:
                         self.body.ApplyForce(b2Vec2(75,0), self.body.position, True)
                     else:
@@ -1773,7 +1773,7 @@ view = Camera()
 
 background = Background()
 
-mario = SuperMario((2.24, 3.52))
+mario = Mario((2.24, 3.52))
 # star = Star((8, 1.76))
 # goomba = Goomba((4,3.52))
 flag = Flag((126.72,4.8))

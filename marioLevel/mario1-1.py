@@ -147,6 +147,8 @@ class Castle(egs.Game_objects.drawupdateable):
 
     def update(self):
         if not self.levelFinished and self.door_rect.colliderect(mario.rect):
+            pygame.mixer.music.stop()
+            pygame.mixer.Sound.play(level_finished_sound)
             view.levelFinished = True
             self.levelFinished = True
             view.offset = 10.24
@@ -533,6 +535,7 @@ class Flag(egs.Game_objects.drawupdateable):
     flag_sprites = []
     index = 0
     counter = 0
+    sound_played = False
     # Sets the initial state of the Square class
     def __init__(self, pos):
         super().__init__()
@@ -560,6 +563,9 @@ class Flag(egs.Game_objects.drawupdateable):
 
         collidedWithMario = pygame.sprite.spritecollide(self, marioGroup, False)
         
+        if collidedWithMario and not self.sound_played:
+            pygame.mixer.Sound.play(flagpole)
+            self.sound_played = True
 
         if collidedWithMario:
             if self.counter == 5:
@@ -1778,6 +1784,7 @@ powerup_sound = pygame.mixer.Sound(os.path.join(s, 'smb_powerup.wav'))
 powerup_appears_sound = pygame.mixer.Sound(os.path.join(s, 'smb_powerup_appears.wav'))
 stomp_sound = pygame.mixer.Sound(os.path.join(s, 'smb_stomp.wav'))
 kick_sound = pygame.mixer.Sound(os.path.join(s, 'smb_kick.wav'))
+level_finished_sound = pygame.mixer.Sound(os.path.join(s, 'smb_stage_clear.wav'))
 
 if os.name == 'nt':
     filename = "sound\\theme.mp3"

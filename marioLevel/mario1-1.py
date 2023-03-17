@@ -457,7 +457,8 @@ class FireMario(egs.Game_objects.drawupdateable):
                     fireGroup.add(fireball)
                     scene.drawables.add(fireball)
                     scene.updateables.append(fireball)
-        
+        if self.rect.left <= 0:
+            self.body.linearVelocity =(.1, self.body.linearVelocity[1])
         self.immune -= 1
         self.star_count -= 1
         self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p
@@ -644,9 +645,10 @@ class Goomba(egs.Game_objects.drawupdateable):
 
                     groundCollided = pygame.sprite.spritecollide(self, groundGroup, False)
                     if groundCollided:
-                        if self.last_center == self.rect.center:
-                            self.linearForce = (0,0)
-                            self.force *= -1
+                        for e in groundCollided:
+                            if (e.rect.left + 2 > self.rect.right -2 or e.rect.right -2 < self.rect.left+2):
+                                self.linearVelocity = (0,0)
+                                self.force *= -1
                         self.body.ApplyForce(b2Vec2(self.force, 0), self.body.position, True)                
                 else:
                     self.counter = self.counter + 1 
@@ -852,10 +854,8 @@ class KoopaShell(egs.Game_objects.drawupdateable):
         if collidedWithGround:
             for e in collidedWithGround:
                 if e.rect.right - 2 < self.rect.left + 2:
-                    print("collided")
                     self.body.ApplyLinearImpulse(b2Vec2(1.75, 0), self.body.position, True)
                 elif e.rect.left + 2 > self.rect.right - 2:
-                    print("collided")
                     self.body.ApplyLinearImpulse(b2Vec2(-1.75, 0), self.body.position, True)
 
         self.counter += 1
@@ -1048,6 +1048,9 @@ class Mario(egs.Game_objects.drawupdateable):
                             if c.rect.collidepoint(self.rect.midbottom):
                                 pygame.mixer.Sound.play(jump_small)
                                 self.body.ApplyLinearImpulse(b2Vec2(0,3.25), self.body.position, True)
+        
+        if self.rect.left <= 0:
+            self.body.linearVelocity =(.1, self.body.linearVelocity[1])
         
         self.star_count -= 1
         self.immune -= 1
@@ -1335,6 +1338,9 @@ class SuperMario(egs.Game_objects.drawupdateable):
                                 pygame.mixer.Sound.play(jump_big)
                                 self.body.ApplyLinearImpulse(b2Vec2(0,3.75), self.body.position, True)
         
+        if self.rect.left <= 0:
+            self.body.linearVelocity =(.1, self.body.linearVelocity[1])
+
         self.star_count -= 1
         self.immune -= 1
         self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p
@@ -1733,8 +1739,8 @@ def createEnemies():
     enemies.append(Goomba((25.92, 1.76)))
     enemies.append(Goomba((32.96, 1.76)))
     enemies.append(Goomba((34.24, 1.76)))
-    enemies.append(Goomba((51.52, 6.88))) # Should be higher
-    enemies.append(Goomba((52.8, 6.88))) # Should be higher
+    enemies.append(Goomba((51.52, 6.72))) # Should be higher
+    enemies.append(Goomba((52.8, 6.72))) # Should be higher
     enemies.append(Goomba((61.76, 1.76)))
     enemies.append(Goomba((63.04, 1.76)))
     enemies.append(Koopa((68.16, 1.76)))

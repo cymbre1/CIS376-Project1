@@ -81,7 +81,7 @@ class Brick(egs.Game_objects.drawupdateable):
                             scene.updateables.append(stone)
                             groundGroup.add(stone)
                     elif self.contents == "star":
-                        pygame.mixer.Sound.play(powerup_appears_sound)
+                        pygame.mixer.Sound.play(music.powerup_appears_sound)
                         star = Star((self.body.position.x, self.body.position.y + .64))
                         scene.drawables.add(star)
                         scene.updateables.append(star)
@@ -93,7 +93,7 @@ class Brick(egs.Game_objects.drawupdateable):
                         self.kill()
                         scene.updateables.remove(self)
                     elif type(m) != Mario:
-                        pygame.mixer.Sound.play(brick_break_sound)
+                        pygame.mixer.Sound.play(music.brick_break_sound)
                         self.kill()
                         scene.updateables.remove(self)
                         self.body.position = (-10.0, -10.0)
@@ -148,7 +148,7 @@ class Castle(egs.Game_objects.drawupdateable):
     def update(self):
         if not self.levelFinished and self.door_rect.colliderect(mario.rect):
             pygame.mixer.music.stop()
-            pygame.mixer.Sound.play(level_finished_sound)
+            pygame.mixer.Sound.play(music.level_finished_sound)
             view.levelFinished = True
             self.levelFinished = True
             view.offset = 10.24
@@ -166,7 +166,7 @@ class Coin(egs.Game_objects.drawupdateable):
             filename = "image/tileset.png"
 
         piece_ss = SpriteSheet(filename)
-        pygame.mixer.Sound.play(coin_sound)
+        pygame.mixer.Sound.play(music.coin_sound)
 
 
         self.dirty = 2
@@ -254,7 +254,7 @@ class FireBall(egs.Game_objects.drawupdateable):
             scene.updateables.remove(self)
             self.body.position = (-10.0, -10.0)
             self.rect.center = -100 * b2p, height - -100 * b2p
-            pygame.mixer.Sound.play(kick_sound)
+            pygame.mixer.Sound.play(music.kick_sound)
             collidedWithEnemy[0].set_dead()
             # TODO update the score
 
@@ -294,7 +294,7 @@ class FireFlower(egs.Game_objects.drawupdateable):
         collidedWithMario = pygame.sprite.spritecollide(self, marioGroup, False)
         
         if collidedWithMario:
-            pygame.mixer.Sound.play(powerup_sound)
+            pygame.mixer.Sound.play(music.powerup_sound)
             self.kill()
             scene.updateables.remove(self)
             self.body.position = (-10.0, -10.0)
@@ -564,7 +564,7 @@ class Flag(egs.Game_objects.drawupdateable):
         collidedWithMario = pygame.sprite.spritecollide(self, marioGroup, False)
         
         if collidedWithMario and not self.sound_played:
-            pygame.mixer.Sound.play(flagpole)
+            pygame.mixer.Sound.play(music.flagpole)
             self.sound_played = True
 
         if collidedWithMario:
@@ -1139,7 +1139,7 @@ class Mushroom(egs.Game_objects.drawupdateable):
         collidedWithMario = pygame.sprite.spritecollide(self, marioGroup, False)
 
         if collidedWithMario:
-            pygame.mixer.Sound.play(powerup_sound)
+            pygame.mixer.Sound.play(music.powerup_sound)
             self.kill()
             scene.updateables.remove(self)
             self.body.position = (-10.0, -10.0)
@@ -1148,6 +1148,32 @@ class Mushroom(egs.Game_objects.drawupdateable):
             # TODO update the score
 
         self.rect.center = self.body.position[0] * b2p , height - self.body.position[1] * b2p
+
+class Music():
+    def __init__(self):
+        mixer.init()
+
+        s = 'sound'
+
+        self.jump_small = pygame.mixer.Sound(os.path.join(s, 'smb_jump-small.wav'))
+        self.jump_big = pygame.mixer.Sound(os.path.join(s, 'smb_jump-super.wav'))
+        self.flagpole = pygame.mixer.Sound(os.path.join(s, 'smb_flagpole.wav'))
+        self.fire_sound = pygame.mixer.Sound(os.path.join(s, 'smb_fireball.wav'))
+        self.mariodie_sound = pygame.mixer.Sound(os.path.join(s, 'smb_mariodie.wav'))
+        self.coin_sound = pygame.mixer.Sound(os.path.join(s,'smb_coin.wav'))
+        self.brick_break_sound = pygame.mixer.Sound(os.path.join(s, 'smb_breakblock.wav'))
+        self.powerup_sound = pygame.mixer.Sound(os.path.join(s, 'smb_powerup.wav'))
+        self.powerup_appears_sound = pygame.mixer.Sound(os.path.join(s, 'smb_powerup_appears.wav'))
+        self.stomp_sound = pygame.mixer.Sound(os.path.join(s, 'smb_stomp.wav'))
+        self.kick_sound = pygame.mixer.Sound(os.path.join(s, 'smb_kick.wav'))
+        self.level_finished_sound = pygame.mixer.Sound(os.path.join(s, 'smb_stage_clear.wav'))
+
+        if os.name == 'nt':
+            filename = "sound\\theme.mp3"
+        else:
+            filename = "sound/theme.mp3"
+        mixer.music.load(filename)
+        mixer.music.play()
 
 class Star(egs.Game_objects.drawupdateable):
     def __init__(self, pos):
@@ -1457,7 +1483,7 @@ class QuestionBlock(egs.Game_objects.drawupdateable):
                     scene.updateables.remove(self)
                     stone = SolidStone(self.body.position, True)
                     if self.powerup:
-                        pygame.mixer.Sound.play(powerup_appears_sound)
+                        pygame.mixer.Sound.play(music.powerup_appears_sound)
                         if type(m) == SuperMario or type(m) == FireMario: 
                             powerup = FireFlower((self.body.position.x, self.body.position.y + .64))
                         else:
@@ -1523,6 +1549,7 @@ class SolidStone(egs.Game_objects.drawable):
         self.rect = self.image.get_rect()
 
         self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p
+
 class Updater(egs.Game_objects.updateable):
     def __init__(self):
         super().__init__()
@@ -1764,72 +1791,58 @@ def createEnemies():
         scene.drawables.add(enemy)
         scene.updateables.append(enemy)
 
+def create_level():
+    background = Background()
+
+    flag = Flag((126.72,4.8))
+    castle = Castle((130.88, 2.88))
+
+    scene.drawables.add(background)
+    scene.drawables.add(castle)
+    scene.drawables.add(flag)
+
+
+    scene.updateables.append(Updater())
+    scene.updateables.append(flag)
+    scene.updateables.append(castle)
+
+    createGround()
+    createQuestions()
+    createBricks()
+    createPipes()
+    createSolids()
+    createEnemies()
+
 width = 1024
 height = 832
 coin_count = 0
 engine = egs.Engine("Mario 1-1", width = width, height = height)
 
-mixer.init()
-
 s = 'sound'
 
 jump_small = pygame.mixer.Sound(os.path.join(s, 'smb_jump-small.wav'))
 jump_big = pygame.mixer.Sound(os.path.join(s, 'smb_jump-super.wav'))
-flagpole = pygame.mixer.Sound(os.path.join(s, 'smb_flagpole.wav'))
-fire_sound = pygame.mixer.Sound(os.path.join(s, 'smb_fireball.wav'))
 mariodie_sound = pygame.mixer.Sound(os.path.join(s, 'smb_mariodie.wav'))
-coin_sound = pygame.mixer.Sound(os.path.join(s,'smb_coin.wav'))
-brick_break_sound = pygame.mixer.Sound(os.path.join(s, 'smb_breakblock.wav'))
-powerup_sound = pygame.mixer.Sound(os.path.join(s, 'smb_powerup.wav'))
-powerup_appears_sound = pygame.mixer.Sound(os.path.join(s, 'smb_powerup_appears.wav'))
 stomp_sound = pygame.mixer.Sound(os.path.join(s, 'smb_stomp.wav'))
 kick_sound = pygame.mixer.Sound(os.path.join(s, 'smb_kick.wav'))
-level_finished_sound = pygame.mixer.Sound(os.path.join(s, 'smb_stage_clear.wav'))
-
-if os.name == 'nt':
-    filename = "sound\\theme.mp3"
-else:
-    filename = "sound/theme.mp3"
-mixer.music.load(filename)
-mixer.music.play()
 
 scene = egs.Scene("Scene 1")
 egs.Engine.current_scene = scene
 
+music = Music()
 view = Camera()
 
-background = Background()
+groundGroup = pygame.sprite.Group()
+fireGroup = pygame.sprite.Group()
+enemiesGroup = pygame.sprite.Group()
+marioGroup = pygame.sprite.Group()
 
 mario = Mario((1.92, 1.6))
-flag = Flag((126.72,4.8))
-castle = Castle((130.88, 2.88))
+create_level()
 
-groundGroup = pygame.sprite.Group()
-
-fireGroup = pygame.sprite.Group()
-
-enemiesGroup = pygame.sprite.Group()
-
-marioGroup = pygame.sprite.Group()
 marioGroup.add(mario)
-
-scene.drawables.add(background)
-scene.drawables.add(castle)
 scene.drawables.add(mario)
-scene.drawables.add(flag)
-
-
-scene.updateables.append(Updater())
-scene.updateables.append(flag)
 scene.updateables.append(mario)
-scene.updateables.append(castle)
-
-createGround()
-createQuestions()
-createBricks()
-createPipes()
-createSolids()
-createEnemies()
 
 scene.updateables.append(view)
 

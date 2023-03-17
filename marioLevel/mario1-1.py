@@ -1106,6 +1106,27 @@ class Star(egs.Game_objects.drawupdateable):
 
         self.rect.center = self.body.position[0] * b2p , height - self.body.position[1] * b2p
 
+class SolidStone(egs.Game_objects.drawable):
+     # Sets the initial state of the Square class
+    def __init__(self, pos, isUsed = False):
+        super().__init__()
+
+        filename = "image/tileset.png"
+
+        piece_ss = SpriteSheet(filename)
+
+        self.dirty = 2
+        if isUsed:
+            brick_rect = (68, 68, 68, 68)
+        else:
+            brick_rect = (0, 0, 68, 68)
+        ground_image = piece_ss.image_at(brick_rect)
+        self.image = ground_image.convert_alpha()
+        self.body = world.CreateStaticBody(position = pos, shapes = b2PolygonShape(box = (p2b*32, p2b*32)))
+        self.rect = self.image.get_rect()
+
+        self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p
+
 # This class creates a super mario
 class SuperMario(BaseMario):
     # Sets up a new mario with the correct size and sprite sheet
@@ -1224,27 +1245,6 @@ class Pipe(egs.Game_objects.drawable):
         self.image = pipe_image.convert_alpha()
         self.rect = self.image.get_rect()
         self.rect.center = self.body.position.x * b2p, height - self.body.position.y * b2p
-                                        
-class SolidStone(egs.Game_objects.drawable):
-     # Sets the initial state of the Square class
-    def __init__(self, pos, isUsed = False):
-        super().__init__()
-
-        filename = "image/tileset.png"
-
-        piece_ss = SpriteSheet(filename)
-
-        self.dirty = 2
-        if isUsed:
-            brick_rect = (68, 68, 68, 68)
-        else:
-            brick_rect = (0, 0, 68, 68)
-        ground_image = piece_ss.image_at(brick_rect)
-        self.image = ground_image.convert_alpha()
-        self.body = world.CreateStaticBody(position = pos, shapes = b2PolygonShape(box = (p2b*32, p2b*32)))
-        self.rect = self.image.get_rect()
-
-        self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p
 
 class Updater(egs.Game_objects.updateable):
     def __init__(self):

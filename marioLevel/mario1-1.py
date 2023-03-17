@@ -289,6 +289,15 @@ class BaseMario(egs.Game_objects.drawable):
                                     self.body.ApplyLinearImpulse(b2Vec2(0,3.25), self.body.position, True)
                                 else:
                                     self.body.ApplyLinearImpulse(b2Vec2(0,3.75), self.body.position, True)
+                if event.key == pygame.K_s:
+                    if collided:
+                        for c in collided:
+                            if type(c) == Pipe:
+                                if c.underground and self.rect.right > c.rect.left:
+                                    view.offset = 0.0
+                                elif self.rect.bottom > c.rect.top:
+                                    view.offset = 0.0
+
                 if event.key == pygame.K_SPACE:
                     self.shoot_fire()
  
@@ -1263,7 +1272,7 @@ class Pipe(egs.Game_objects.drawable):
     # Params
     # int xpos is the horizontal position of the pipe, every pipe is on the ground 
     # int h is how tall the pipe will be
-    def __init__(self, xpos, h):
+    def __init__(self, xpos, h, active = False, underground = False, teleport = 0.0):
         super().__init__()
 
         filename = os.path.join('image', 'pipes.png')
@@ -1273,9 +1282,17 @@ class Pipe(egs.Game_objects.drawable):
         width_in_pixels = 128
         height_in_pixels = h * 64
 
+        self.active = active
+        self.underground = underground
+        self.teleport_point = teleport
+        
+        if self.underground:
+            pipe_rect = (396, 0, width_in_pixels + 4, height_in_pixels + 4)
+        else:
+            pipe_rect = ((h-2)*132, 0, width_in_pixels + 4, height_in_pixels + 4)
+
         ypos = 1.28 + (height_in_pixels * p2b / 2)
 
-        pipe_rect = ((h-2)*132, 0, width_in_pixels + 4, height_in_pixels + 4)
         pipe_image = piece_ss.image_at(pipe_rect)
 
         self.body = world.CreateStaticBody(position = (xpos, ypos) , shapes = b2PolygonShape(box = (.64, (h*.64)/2)))
@@ -1283,6 +1300,16 @@ class Pipe(egs.Game_objects.drawable):
         self.image = pipe_image.convert_alpha()
         self.rect = self.image.get_rect()
         self.rect.center = self.body.position.x * b2p, height - self.body.position.y * b2p
+
+    # def update(self):
+    #     if self.active:
+    #         collided = pygame.sprite.spritecollide(self, marioGroup, False)
+
+    #         if collided:
+    #             for e in collided:
+    #                 if self.underground and 
+    #                 elif :
+
 
 # This class updates Box2d
 class Updater(egs.Game_objects.updateable):
@@ -1295,6 +1322,24 @@ class Updater(egs.Game_objects.updateable):
             world.ClearForces()
         except:
             print("Oh no")
+
+class WallPipe(egs.Game_objects.drawable):
+    def __init__(self, pos):
+        super().__init__()
+
+        filename = os.path.join('image', 'underPipe.png')
+        piece_ss = SpriteSheet(filename)
+
+        self.dirty = 2
+        
+        pipe_rect = (0, 0, 68, 708)
+        pipe_image = piece_ss.image_at(pipe_rect)
+
+        self.body = world.CreateStaticBody(position = pos, shapes = b2PolygonShape(box = (.32,3.52)))
+
+        self.image = pipe_image.convert_alpha()
+        self.rect = self.image.get_rect()
+        self.rect.center = self.body.position.x * b2p, height - self.body.position.y * b2p
 
 # Creates all the ground that appears in the level
 def createGround():

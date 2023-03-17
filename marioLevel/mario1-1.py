@@ -312,13 +312,13 @@ class Brick(egs.Game_objects.drawupdateable):
     # Parameters:
     # Tuple pos is the starting position of the brick of the level in meters
     # String contents is the name of what the brick contains
-    def __init__(self, pos, contents = ""):
+    def __init__(self, pos, contents = "", underground = False):
         super().__init__()
 
-        if os.name == 'nt':
-            filename = "image\\tileset.png"
+        if underground:
+            filename = os.path.join("image", "underTileset.png")
         else:
-            filename = "image/tileset.png"
+            filename = os.path.join("image", "tileset.png")
 
         piece_ss = SpriteSheet(filename)
 
@@ -327,8 +327,11 @@ class Brick(egs.Game_objects.drawupdateable):
         self.contents = contents
         self.coinCounter = 288
         self.active = False
-
-        brick_rect = (0, 68, 68, 68)
+        self.underground = underground
+        if self.underground:
+            brick_rect =(0, 0, 68, 68) 
+        else:
+            brick_rect = (0, 68, 68, 68)
         ground_image = piece_ss.image_at(brick_rect)
         self.image = ground_image.convert_alpha()
         self.body = world.CreateStaticBody(position = pos, shapes = b2PolygonShape(box = (p2b*32, p2b*32)))
@@ -468,13 +471,13 @@ class Coin(egs.Game_objects.drawupdateable):
     # Creates the coin in the world
     # Parameters:
     # Tuple pos is the position of the center of the coin in meters
-    def __init__(self, pos):
+    def __init__(self, pos, underground = False):
         super().__init__()
 
-        if os.name == 'nt':
-            filename = "image\\tileset.png"
+        if underground:
+            filename = os.path.join("image", "underTileset.png")
         else:
-            filename = "image/tileset.png"
+            filename = os.path.join("image", "tileset.png")
 
         piece_ss = SpriteSheet(filename)
         pygame.mixer.Sound.play(music.coin_sound)
@@ -482,7 +485,11 @@ class Coin(egs.Game_objects.drawupdateable):
 
         self.dirty = 2
         self.time_counter = 15
-        coin_rect = (134, 0, 68, 68)
+        self.underground = underground
+        if self.underground:
+            coin_rect(68, 0, 68, 68)
+        else:
+            coin_rect = (134, 0, 68, 68)
         ground_image = piece_ss.image_at(coin_rect)
         self.image = ground_image.convert_alpha()
         self.body = world.CreateStaticBody(position = pos, shapes = b2PolygonShape(box = (p2b*32, p2b*32)))
@@ -494,14 +501,16 @@ class Coin(egs.Game_objects.drawupdateable):
     # This function adds to the coin count and makes the coin dissapear after the time counter is finished
     def update(self):
         global coin_count
-
-        if self.time_counter == 15:
+        if self.underground:
             coin_count += 1
-        elif self.time_counter == 0:
-            self.kill()
-            scene.updateables.remove(self)
-            self.body.position = (-10,-10)
-        self.time_counter -= 1
+        else:
+            if self.time_counter == 15:
+                coin_count += 1
+            elif self.time_counter == 0:
+                self.kill()
+                scene.updateables.remove(self)
+                self.body.position = (-10,-10)
+            self.time_counter -= 1
 
         self.rect.center = self.body.position[0] * b2p , height - self.body.position[1] * b2p
 
@@ -823,13 +832,13 @@ class Ground(egs.Game_objects.drawable):
     # float w is the width of the ground in meters
     # float y is the positition of the vertical center of the ground in meters
     # float h is the height of the ground in meters
-    def __init__(self, x, w, y=.64, h= 1.28):
+    def __init__(self, x, w, y=.64, h= 1.28, underground = False):
         super().__init__()
 
-        if os.name == 'nt':
-            filename = "image\\ground.png"
+        if underground:
+            filename = os.path.join("image", "underGround.png")
         else:
-            filename = 'image/ground.png'
+            filename = os.path.join("image", "ground.png")
 
         piece_ss = SpriteSheet(filename)
 
@@ -1361,6 +1370,7 @@ def createGround():
     grounds.append(Ground(50.24,9.6))
     grounds.append(Ground(77.44, 40.96))
     grounds.append(Ground(117.12, 35.84))
+    grounds.append(Ground(140.16, 10.24, underground = True))
 
     for e in grounds:
         groundGroup.add(e)
@@ -1424,6 +1434,10 @@ def createBricks():
     bricks.append(Brick((108.48, 3.52)))
     bricks.append(Brick((109.76, 3.52)))
 
+    # Underground Bricks
+    for i in range(3,14):
+        bricks.append(Brick((135.36, (i * .64) - .32), underground = True))
+
     for e in bricks:
         groundGroup.add(e)
         scene.drawables.add(e)
@@ -1438,6 +1452,8 @@ def createPipes():
     pipes.append(Pipe(37.12, 4, True, teleport = (135.04, 6)))
     pipes.append(Pipe(104.96, 2))
     pipes.append(Pipe(115.20, 2))
+    pipes.append(WallPipe((144.96, 4.8)))
+    pipes.append(Pipe(144, 2, True, True, (104.96, 6)))
     for item in pipes:
         groundGroup.add(item)
         scene.drawables.add(item)

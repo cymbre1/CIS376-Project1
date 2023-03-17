@@ -658,6 +658,7 @@ class Goomba(egs.Game_objects.drawupdateable):
             self.body.position = (-10.0, -10.0)
       
     def set_dead(self):
+        self.body.active = False
         self.dead = True
         self.counter = 0
         enemiesGroup.remove(self)
@@ -849,16 +850,22 @@ class KoopaShell(egs.Game_objects.drawupdateable):
             self.rect = self.image.get_rect()
             self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p 
 
-            # collidedWithEnemy = pygame.sprite.spritecollide(self, marioGroup, False)
-            # if(collidedWithEnemy):
-            #     for e in enemiesGroup:
-            #         if e.rect.collidepoint(self.rect.topright):
-            #             self.body.ApplyForce(b2Vec2(10, 0), self.body.position, True)
-            #             self.counter = 0
-            #         elif e.rect.collidepoint(self.rect.topleft):
-            #             self.body.ApplyForce(b2Vec2(-10, 0), self.body.position, True)
-            #             self.counter = 0
-                        
+        collidedWithGoomba = pygame.sprite.spritecollide(self, enemiesGroup, False)
+        if collidedWithGoomba:
+            for e in collidedWithGoomba:
+                if type(e) == Goomba:
+                    e.set_dead()
+        
+        collidedWithGround = pygame.sprite.spritecollide(self, groundGroup, False)
+        if collidedWithGround:
+            for e in collidedWithGround:
+                if e.rect.right - 2 < self.rect.left + 2:
+                    print("collided")
+                    self.body.ApplyLinearImpulse(b2Vec2(1.75, 0), self.body.position, True)
+                elif e.rect.left + 2 > self.rect.right - 2:
+                    print("collided")
+                    self.body.ApplyLinearImpulse(b2Vec2(-1.75, 0), self.body.position, True)
+
         self.counter += 1
         self.rect = self.image.get_rect()
         self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p

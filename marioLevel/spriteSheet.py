@@ -1,3 +1,7 @@
+# Kit Bazner and Cymbre Spoehr
+
+# Code pretty much copy pasted from https://ehmatthes.github.io/pcc_2e/beyond_pcc/pygame_sprite_sheets/
+
 import pygame
 
 class SpriteSheet:

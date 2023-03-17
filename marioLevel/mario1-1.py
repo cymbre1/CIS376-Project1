@@ -1,3 +1,5 @@
+# Kit Bazner and Cymbre Spoehr
+
 #!/usr/bin/env python
 import pygame
 from pygame.locals import *

@@ -1,3 +1,5 @@
+# Kit Bazner and Cymbre Spoehr
+
 import pygame
 from pygame.locals import *
 class Engine:

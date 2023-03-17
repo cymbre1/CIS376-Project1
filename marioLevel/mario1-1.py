@@ -46,12 +46,7 @@ class BaseMario(egs.Game_objects.drawable):
     fire = False
     star_count = -1
 
-    # Initializes a mario, sets up the images, and sets the position
-    # Params
-    # int tuple pos, the position where Mario will start
-    # int immunity controls how long mario will be invincible after his creation
-    # int tuple size communicates the size mario is, it is defaulted to the size of small mario
-    # string image_file is the file that mario's sprites will be pulled from. It is defaulted to small mario's sprites
+    # Initializes a mario, sets up the images, 
     def __init__(self, pos, immunity = 0, size=(68, 68), image_file='marioSprites.png'):
         super().__init__()  
 
@@ -75,7 +70,7 @@ class BaseMario(egs.Game_objects.drawable):
         self.rect = self.image.get_rect()
         self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p
 
-    # Updates mario
+
     def update(self):
         global mario
 
@@ -92,7 +87,33 @@ class BaseMario(egs.Game_objects.drawable):
                     
         self.handle_powerup()          
 
-        self.handle_keyboard_events()
+        collided = pygame.sprite.spritecollide(self, groundGroup, False)
+
+        for event in egs.Engine.events:
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_a:
+                    if collided:
+                        self.body.ApplyForce(b2Vec2(-75,0), self.body.position, True)
+                    else:
+                        self.body.ApplyForce(b2Vec2(-35, 0), self.body.position, True)                    
+                    self.flipped = True
+                if event.key == pygame.K_d:
+                    if collided:
+                        self.body.ApplyForce(b2Vec2(75,0), self.body.position, True)
+                    else:
+                        self.body.ApplyForce(b2Vec2(35, 0), self.body.position, True)
+                    self.flipped = False
+                if event.key == pygame.K_w:
+                    if collided:
+                        for c in collided:
+                            if c.rect.collidepoint(self.rect.midbottom):
+                                pygame.mixer.Sound.play(music.jump_small if self.rect.height == 68 else music.jump_big)
+                                if self.rect.height == 68:
+                                    self.body.ApplyLinearImpulse(b2Vec2(0,3.25), self.body.position, True)
+                                else:
+                                    self.body.ApplyLinearImpulse(b2Vec2(0,3.75), self.body.position, True)
+                if event.key == pygame.K_SPACE:
+                    self.shoot_fire()
         
         if self.rect.left <= 0:
             self.body.linearVelocity =(.1, self.body.linearVelocity[1])
@@ -101,9 +122,6 @@ class BaseMario(egs.Game_objects.drawable):
         self.immune -= 1
         self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p
 
-    # This function loads the images for the star mario as well as changes the music
-    # Params
-    # int tuple size, the size of the current mario, defaults to the size of small mario
     def convert_star(self, size=(68, 68)):
         pygame.mixer.music.stop()
         pygame.mixer.music.load(os.path.join('sound', 'invincible.mp3'))
@@ -111,10 +129,6 @@ class BaseMario(egs.Game_objects.drawable):
 
         self.load_images(size, 'starMario.png' if size[1] == 68 else 'starSuperMario.png')
 
-    # This function converts the sprites into the regular sprites (Not star mario) and changes the music back to the theme
-    # Params
-    # int tuple size, the size of the current mario, defaults to the size of small mario
-    # boolean fire, which just holds whether or not the current mario is fire mario, defaulted to false 
     def convert_fromStar(self, size=(68,68), fire=False):
         pygame.mixer.music.stop()
         pygame.mixer.music.load(os.path.join('sound', 'theme.mp3'))
@@ -129,7 +143,6 @@ class BaseMario(egs.Game_objects.drawable):
 
         self.load_images(size, filename)
 
-    # This function handles collision with enemies, whether or not mario dies, and whether or not the enemy itself dies.
     def check_enemy_collision(self):
         if self.star_count < 0:                
             for e in enemiesGroup:
@@ -168,7 +181,6 @@ class BaseMario(egs.Game_objects.drawable):
                 pygame.mixer.Sound.play(music.kick_sound)
                 e.set_dead()
 
-    # This function checks to see if the player has a star or if the star effect has expired
     def check_star(self):
         if self.star:
             self.star_count = 636
@@ -177,9 +189,6 @@ class BaseMario(egs.Game_objects.drawable):
         if self.star_count == 0:
             self.convert_fromStar()
 
-    # This function makes a new mario because mario has changed state and destroys the current mario
-    # Params
-    # BaseMario mario, the Mario that is going to be the new mario
     def replace_mario(self, mario):
         self.dead = True
         scene.drawables.add(mario)
@@ -189,10 +198,6 @@ class BaseMario(egs.Game_objects.drawable):
         scene.updateables.remove(self)
         self.body.position = (-10.0, -10.0)
 
-    # This function loads a given image into the different poses for mario
-    # Params
-    # int tuple size, the size of the sprite for the images to be loaded into
-    # string image_file is the file in the images folder that contains the desired sprites
     def load_images(self, size, image_file):
         s = 'image'
 
@@ -219,7 +224,6 @@ class BaseMario(egs.Game_objects.drawable):
         mario_rect = (340, 0, size[0], size[1])
         self.mario_dying = piece_ss.image_at(mario_rect)
 
-    # This function will animate Mario's movements based on how he is moving
     def update_animation(self):
         if not self.previous_bottom == self.rect.bottom:
             image = self.mario_jump
@@ -245,7 +249,7 @@ class BaseMario(egs.Game_objects.drawable):
         if(self.flipped):
             self.image = pygame.transform.flip(self.image, True, False)
 
-    # This function will change Mario's state given a powerup that he has acquired.
+
     def handle_powerup(self):
         global mario
 
@@ -260,38 +264,7 @@ class BaseMario(egs.Game_objects.drawable):
                 mario.convert_star() 
             self.replace_mario(mario) 
 
-    # This function will handle Mario's movements based on keyboard input.
-    def handle_keyboard_events(self):
-        collided = pygame.sprite.spritecollide(self, groundGroup, False)
-
-        for event in egs.Engine.events:
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_a:
-                    if collided:
-                        self.body.ApplyForce(b2Vec2(-75,0), self.body.position, True)
-                    else:
-                        self.body.ApplyForce(b2Vec2(-35, 0), self.body.position, True)                    
-                    self.flipped = True
-                if event.key == pygame.K_d:
-                    if collided:
-                        self.body.ApplyForce(b2Vec2(75,0), self.body.position, True)
-                    else:
-                        self.body.ApplyForce(b2Vec2(35, 0), self.body.position, True)
-                    self.flipped = False
-                if event.key == pygame.K_w:
-                    if collided:
-                        for c in collided:
-                            if c.rect.collidepoint(self.rect.midbottom):
-                                pygame.mixer.Sound.play(music.jump_small if self.rect.height == 68 else music.jump_big)
-                                if self.rect.height == 68:
-                                    self.body.ApplyLinearImpulse(b2Vec2(0,3.25), self.body.position, True)
-                                else:
-                                    self.body.ApplyLinearImpulse(b2Vec2(0,3.75), self.body.position, True)
-                if event.key == pygame.K_SPACE:
-                    self.shoot_fire()
-
  # A class that defines the interactable bricks.  Inherits from a drawable and updateable game object     
-
 class Brick(egs.Game_objects.drawupdateable):
     # Sets the initial state of the Brick class
     # Parameters:
@@ -585,6 +558,7 @@ class FireFlower(egs.Game_objects.drawupdateable):
 
         self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p
 
+    # updates and checks if mario has collided
     def update(self):
         global mario
         collidedWithMario = pygame.sprite.spritecollide(self, marioGroup, False)
@@ -600,20 +574,18 @@ class FireFlower(egs.Game_objects.drawupdateable):
 
         self.rect.center = self.body.position[0] * b2p , height - self.body.position[1] * b2p
 
-# A class that creates a mario that can throw fireballs
 class FireMario(BaseMario):
-    # Sets the initial state of the fire mario by specifying the size and the spritesheet
+    # Sets the initial state of the Square class
     def __init__(self, pos, immunity = 0):
         super().__init__(pos, immunity, size=(68,132),image_file='fireMario.png')
 
-    # Updates FireMario by calling the super class
     def update(self):
+        global mario
         if(self.dead):
             return
         
         super().update()
         
-    # Creates a new Mario object and replaces self with it when Fire Mario dies
     def die(self):
         global mario
 
@@ -621,7 +593,6 @@ class FireMario(BaseMario):
         mario = Mario(self.body.position, 500)
         self.replace_mario(mario)
 
-    # Shoots fire by creating fire objects
     def shoot_fire(self):
         pygame.mixer.Sound.play(music.fire_sound)
         if self.flipped:
@@ -632,20 +603,20 @@ class FireMario(BaseMario):
         scene.drawables.add(fireball)
         scene.updateables.append(fireball)
 
-    # Converts FireMario to be invincible
     def convert_star(self):
         super().convert_star((self.rect.width, self.rect.height))
 
-    # Converts FireMario from being invincible
     def convert_fromStar(self):
         super().convert_fromStar((self.rect.width, self.rect.height), True)
 
+# A class for creating the end of level flag
 class Flag(egs.Game_objects.drawupdateable):
     flag_sprites = []
     index = 0
     counter = 0
     sound_played = False
-    # Sets the initial state of the Square class
+   
+    # Creates a flag
     def __init__(self, pos):
         super().__init__()
 
@@ -664,6 +635,7 @@ class Flag(egs.Game_objects.drawupdateable):
         self.image = self.flag_sprites[self.index].convert_alpha()
         self.rect = self.image.get_rect()
 
+    # Checks if mario has collided and animates the flag lowering
     def update(self):
         self.image = self.flag_sprites[self.index].convert_alpha()
         self.rect = self.image.get_rect()
@@ -688,7 +660,8 @@ class Flag(egs.Game_objects.drawupdateable):
                 self.counter += 1
  
         self.rect.center = self.body.position[0] * b2p , height - self.body.position[1] * b2p
-                  
+
+ # A class that creates a goomba                 
 class Goomba(egs.Game_objects.drawupdateable):
     goomba_sprites = []
     counter = 0
@@ -696,7 +669,9 @@ class Goomba(egs.Game_objects.drawupdateable):
     force = -20
     last_center = None
     dead = False
-
+    # Creates a goomba
+    # Parameters:
+    # Tuple pos is the starting position of the middle of the goomba in meters
     def __init__(self, pos):
         super().__init__()
         if os.name == 'nt':
@@ -721,7 +696,7 @@ class Goomba(egs.Game_objects.drawupdateable):
         self.image = self.goomba_sprites[self.current_index % 2].convert_alpha()
         self.rect = self.image.get_rect()
 
-    # This function switches whether the square is black or colored
+    # Updates the goomba.  Checks if the goomba is dead, and moves if it's touching the ground
     def update(self):
         global mario
         if self.body.position.x - 16 > mario.body.position.x:
@@ -774,19 +749,23 @@ class Goomba(egs.Game_objects.drawupdateable):
 
         self.last_center = self.rect.center
         self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p
-      
+    
+    # starts the process of the goomba dying
     def set_dead(self):
         self.body.active = False
         self.dead = True
         self.counter = 0
         enemiesGroup.remove(self)
 
-    def collided_with_top(self, rect):
-        return rect.collidepoint(self.rect.topleft) or rect.collidepoint(self.rect.topright) or rect.collidepoint(self.rect.midtop)
-
+# Creates the ground that mario walks on
 class Ground(egs.Game_objects.drawable):
 
-    # Sets the initial state of the Square class
+    # Creates the ground
+    # Parameters:
+    # float x is the position of the horizontal center of the ground in meters
+    # float w is the width of the ground in meters
+    # float y is the positition of the vertical center of the ground in meters
+    # float h is the height of the ground in meters
     def __init__(self, x, w, y=.64, h= 1.28):
         super().__init__()
 
@@ -814,6 +793,7 @@ class Ground(egs.Game_objects.drawable):
         self.rect = self.image.get_rect()
         self.rect.center = self.body.position.x * b2p, height - self.body.position.y * b2p
 
+# Creates a kooopa
 class Koopa(egs.Game_objects.drawupdateable):
     flipped = False
     koopa_walking = []
@@ -822,7 +802,9 @@ class Koopa(egs.Game_objects.drawupdateable):
     step_counter = 0
     dead = False
 
-    # Sets the initial state of the Square class
+    # Creates a koopa
+    # Parameters:
+    # Tuple pos is the center of the koopa in meters
     def __init__(self, pos):
         super().__init__()
         
@@ -853,7 +835,7 @@ class Koopa(egs.Game_objects.drawupdateable):
         self.rect = self.image.get_rect()
         self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p
 
-    # This function switches whether the square is black or colored
+    # updates the koopa and moves when touching the ground
     def update(self):
         if self.dead:
             self.rect.center = -100 * b2p, height - -100 * b2p
@@ -884,6 +866,7 @@ class Koopa(egs.Game_objects.drawupdateable):
         self.rect = self.image.get_rect()
         self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p
 
+    # turns a koopa into a koopa shell
     def set_dead(self):
         self.dead = True
         koopa = KoopaShell(self.body.position)
@@ -895,15 +878,16 @@ class Koopa(egs.Game_objects.drawupdateable):
         scene.updateables.remove(self) 
         self.body.position = (-10.0, -10.0)
 
-    def collided_with_top(self, rect):
-        return rect.collidepoint(self.rect.topleft) or rect.collidepoint(self.rect.topright) or rect.collidepoint(self.rect.midtop)
 
+# Creates a Koopa Shell
 class KoopaShell(egs.Game_objects.drawupdateable):
     counter = 0
     dead = False
     stationary = False
 
-    # Sets the initial state of the Square class
+    # Creates a koopa shell
+    # Parameters:
+    # Tuple pos is the center of the koopa shell's starting position in meters
     def __init__(self, pos):
         super().__init__()
         
@@ -930,7 +914,7 @@ class KoopaShell(egs.Game_objects.drawupdateable):
 
         self.previous_pos = self.rect.center
 
-    # This function switches whether the square is black or colored
+    # Updates the koopa shell and checks if it kills a goomba, or bounces off a block
     def update(self):
         if self.dead:
             self.rect.center = -100 * b2p, height - -100 * b2p
@@ -977,12 +961,14 @@ class KoopaShell(egs.Game_objects.drawupdateable):
         self.rect = self.image.get_rect()
         self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p
 
+    # Function placed in order to call this on any enemy
     def set_dead(self):
         pass
 
-# This class creates a small mario
 class Mario(BaseMario):
-    # Updates Mario, sets his dying animation if he's dying, then calls the superclass update
+    def __init__(self, pos, immunity = 0):
+        super().__init__(pos, immunity)
+
     def update(self):
         if self.dead and self.counter < 30:
             self.image = self.mario_dying.convert_alpha()
@@ -1002,14 +988,12 @@ class Mario(BaseMario):
 
         super().update()
 
-    # This function will set the correct variables so that Mario's death animation will be run
     def die(self):
         pygame.mixer.Sound.play(music.mariodie_sound)
         pygame.mixer.music.stop()
         self.dead = True
         self.counter = 0
     
-    # This is just a stub function so that the baseclass can call shoot fire on any mario, but has no functionality
     def shoot_fire(self):
         return
 
@@ -1106,41 +1090,18 @@ class Star(egs.Game_objects.drawupdateable):
 
         self.rect.center = self.body.position[0] * b2p , height - self.body.position[1] * b2p
 
-class SolidStone(egs.Game_objects.drawable):
-     # Sets the initial state of the Square class
-    def __init__(self, pos, isUsed = False):
-        super().__init__()
-
-        filename = "image/tileset.png"
-
-        piece_ss = SpriteSheet(filename)
-
-        self.dirty = 2
-        if isUsed:
-            brick_rect = (68, 68, 68, 68)
-        else:
-            brick_rect = (0, 0, 68, 68)
-        ground_image = piece_ss.image_at(brick_rect)
-        self.image = ground_image.convert_alpha()
-        self.body = world.CreateStaticBody(position = pos, shapes = b2PolygonShape(box = (p2b*32, p2b*32)))
-        self.rect = self.image.get_rect()
-
-        self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p
-
-# This class creates a super mario
 class SuperMario(BaseMario):
-    # Sets up a new mario with the correct size and sprite sheet
+    # Sets the initial state of the Square class
     def __init__(self, pos, immunity = 0):
         super().__init__(pos, immunity, size=(68,132), image_file='superMarioSprites.png')
 
-    # Updates Mario
     def update(self):
+        global mario
         if(self.dead):
             return
 
         super().update()
 
-    # Creates a new small Mario when SuperMario dies and replaces SuperMario with the small Mario
     def die(self):
         global mario
 
@@ -1148,15 +1109,12 @@ class SuperMario(BaseMario):
         mario = Mario(self.body.position, 500)
         self.replace_mario(mario)
 
-    # Converts SuperMario to be invincible
     def convert_star(self):
         super().convert_star((self.rect.width, self.rect.height))
 
-    # Converts SuperMario from being invincible
     def convert_fromStar(self):
         super().convert_fromStar((self.rect.width, self.rect.height))
 
-    # This is just a stub function so that the baseclass can call shoot fire on any mario, but has no functionality
     def shoot_fire(self):
         return
 
@@ -1245,6 +1203,27 @@ class Pipe(egs.Game_objects.drawable):
         self.image = pipe_image.convert_alpha()
         self.rect = self.image.get_rect()
         self.rect.center = self.body.position.x * b2p, height - self.body.position.y * b2p
+                                        
+class SolidStone(egs.Game_objects.drawable):
+     # Sets the initial state of the Square class
+    def __init__(self, pos, isUsed = False):
+        super().__init__()
+
+        filename = "image/tileset.png"
+
+        piece_ss = SpriteSheet(filename)
+
+        self.dirty = 2
+        if isUsed:
+            brick_rect = (68, 68, 68, 68)
+        else:
+            brick_rect = (0, 0, 68, 68)
+        ground_image = piece_ss.image_at(brick_rect)
+        self.image = ground_image.convert_alpha()
+        self.body = world.CreateStaticBody(position = pos, shapes = b2PolygonShape(box = (p2b*32, p2b*32)))
+        self.rect = self.image.get_rect()
+
+        self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p
 
 class Updater(egs.Game_objects.updateable):
     def __init__(self):

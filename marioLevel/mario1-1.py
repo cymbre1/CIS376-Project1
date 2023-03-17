@@ -312,7 +312,7 @@ class FireMario(egs.Game_objects.drawupdateable):
     star = False
     star_count = -1
 
-    def __init__(self, pos):
+    def __init__(self, pos, immunity = 0):
         super().__init__()
 
         if os.name == 'nt':
@@ -335,6 +335,8 @@ class FireMario(egs.Game_objects.drawupdateable):
 
         mario_rect = (272, 0, 68, 132)
         self.mario_jump = piece_ss.image_at(mario_rect)
+
+        self.immune = immunity
 
         self.body = world.CreateDynamicBody(position=pos, fixedRotation = True)
         shape=b2PolygonShape(box=(p2b*32, p2b*64))
@@ -385,20 +387,39 @@ class FireMario(egs.Game_objects.drawupdateable):
         self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p
         collided = pygame.sprite.spritecollide(self, groundGroup, False)
         
-        if self.star_count < 0:
-            # Deal with Collisions with Enemies
+        if self.star_count < 0:                
             for e in enemiesGroup:
                 if self.rect.colliderect(e.rect):
-                    if not self.rect.bottom <= e.rect.top + 5 and not type(e) == "<class '__main__.KoopaShell'>":
-                        self.die()
-                        # e.set_dead()
-                        return
-                    elif not self.rect.bottom <= e.rect.top + 5 and type(e) == "<class '__main__.KoopaShell'>" and e.stationary:
-                        self.die()
-                        return
+                    if type(e) != KoopaShell:
+                        if self.rect.bottom > e.rect.centery:
+                            if self.immune <= 0:
+                                self.die()
+                        elif self.rect.centerx + 10 > e.rect.left or self.rect.centerx - 10 < e.rect.right:
+                            e.set_dead()
+                            self.body.ApplyLinearImpulse(b2Vec2(0, 4), self.body.position, True)
+                    else:
+                        koopa_force = 1.75
+                        if e.stationary:
+                            if self.rect.centerx < e.rect.centerx:
+                                e.body.ApplyLinearImpulse(b2Vec2(koopa_force,0), e.body.position, True)
+                            else:
+                                e.body.ApplyLinearImpulse(b2Vec2(0 - koopa_force, 0), e.body.position, True)
+                            if self.rect.bottom < e.rect.centery:
+                                self.body.ApplyLinearImpulse(b2Vec2(0, 4), self.body.position, True)
+                        else:
+                            if self.rect.bottom < e.rect.centery:
+                                if self.immune <= 0:
+                                    self.die()
+                            else:
+                                if self.rect.centerx < e.rect.centerx:
+                                    e.body.linearVelocity = (0,0)
+                                    e.body.ApplyLinearImpulse(b2Vec2(koopa_force,0), e.body.position, True)
+                                else:
+                                    e.body.linearVelocity = (0,0)
+                                    e.body.ApplyLinearImpulse(b2Vec2(0 - koopa_force, 0), e.body.position, True)
         else:
-            enemiesCollided = pygame.sprite.spritecollide(self, enemiesGroup, False)
-            for e in enemiesCollided:
+            collidedEnemies = pygame.sprite.spritecollide(self, enemiesGroup, False)
+            for e in collidedEnemies:
                 e.set_dead()
                 
         for event in egs.Engine.events:
@@ -423,6 +444,7 @@ class FireMario(egs.Game_objects.drawupdateable):
                     scene.drawables.add(fireball)
                     scene.updateables.append(fireball)
         
+        self.immune -= 1
         self.star_count -= 1
         self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p
 
@@ -741,13 +763,13 @@ class Koopa(egs.Game_objects.drawupdateable):
             self.counter = self.counter + 1
 
         
-        collidedWithEnemy = pygame.sprite.spritecollide(self, marioGroup, False)
-        if(collidedWithEnemy):
-            for e in enemiesGroup:
-                if self.rect.colliderect(e.rect):
-                    if e.rect.bottom > self.rect.top:
-                        self.set_dead()
-                        return
+        # collidedWithEnemy = pygame.sprite.spritecollide(self, marioGroup, False)
+        # if(collidedWithEnemy):
+        #     for e in enemiesGroup:
+        #         if self.rect.colliderect(e.rect):
+        #             if e.rect.bottom > self.rect.top:
+        #                 self.set_dead()
+        #                 return
 
         self.rect = self.image.get_rect()
         self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p
@@ -956,7 +978,6 @@ class Mario(egs.Game_objects.drawupdateable):
                         if type(e) != KoopaShell:
                             if self.rect.bottom > e.rect.centery:
                                 if self.immune <= 0:
-                                    print(self.immune)
                                     pygame.mixer.Sound.play(mariodie_sound)
                                     pygame.mixer.music.stop()
                                     self.dead = True
@@ -976,7 +997,6 @@ class Mario(egs.Game_objects.drawupdateable):
                             else:
                                 if self.rect.bottom > e.rect.centery:
                                     if self.immune <= 0:
-                                        print(self.immune)
                                         pygame.mixer.Sound.play(mariodie_sound)
                                         pygame.mixer.music.stop()
                                         self.dead = True
@@ -1235,26 +1255,44 @@ class SuperMario(egs.Game_objects.drawupdateable):
         self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p
         collided = pygame.sprite.spritecollide(self, groundGroup, False)
         
-        if self.star_count < 0:
-            # Deal with Collisions with Enemies
-            for e in enemiesGroup:
-                if self.rect.colliderect(e.rect):
-                    if not self.rect.bottom <= e.rect.top + 5 and not type(e) == "<class '__main__.KoopaShell'>":
-                        self.die()
-                        return
-                    elif not self.rect.bottom <= e.rect.top + 5 and type(e) == "<class '__main__.KoopaShell'>" and e.stationary:
-                        self.die()
-                        return
-                    
+        if self.star_count < 0:                
+                for e in enemiesGroup:
+                    if self.rect.colliderect(e.rect):
+                        if type(e) != KoopaShell:
+                            if self.rect.bottom > e.rect.centery:
+                                if self.immune <= 0:
+                                    self.die()
+                            elif self.rect.centerx + 10 > e.rect.left or self.rect.centerx - 10 < e.rect.right:
+                                e.set_dead()
+                                self.body.ApplyLinearImpulse(b2Vec2(0, 4), self.body.position, True)
+                        else:
+                            koopa_force = 1.75
+                            if e.stationary:
+                                if self.rect.centerx < e.rect.centerx:
+                                    e.body.ApplyLinearImpulse(b2Vec2(koopa_force,0), e.body.position, True)
+                                else:
+                                    e.body.ApplyLinearImpulse(b2Vec2(0 - koopa_force, 0), e.body.position, True)
+                                if self.rect.bottom < e.rect.centery:
+                                    self.body.ApplyLinearImpulse(b2Vec2(0, 4), self.body.position, True)
+                            else:
+                                if self.rect.bottom < e.rect.centery:
+                                    if self.immune <= 0:
+                                        self.die()
+                                else:
+                                    if self.rect.centerx < e.rect.centerx:
+                                        e.body.linearVelocity = (0,0)
+                                        e.body.ApplyLinearImpulse(b2Vec2(koopa_force,0), e.body.position, True)
+                                    else:
+                                        e.body.linearVelocity = (0,0)
+                                        e.body.ApplyLinearImpulse(b2Vec2(0 - koopa_force, 0), e.body.position, True)
         else:
             collidedEnemies = pygame.sprite.spritecollide(self, enemiesGroup, False)
-            if collidedEnemies:
-                for e in collidedEnemies:
-                    e.set_dead()
+            for e in collidedEnemies:
+                e.set_dead()
 
         if self.fire:
             self.dead = True
-            mario = FireMario(self.body.position)
+            mario = FireMario(self.body.position, self.immune)
             mario.star_count = self.star_count
             if self.star_count > 0:
                 mario.convert_star()
@@ -1723,12 +1761,12 @@ view = Camera()
 
 background = Background()
 
-mario = Mario((2.24, 3.52), 120)
+mario = FireMario((2.24, 3.52))
 # star = Star((8, 1.76))
 # goomba = Goomba((4,3.52))
 flag = Flag((126.72,4.8))
 castle = Castle((130.88, 2.88))
-# koopa = Koopa((5,1.76))
+koopa = Koopa((5,1.76))
 
 groundGroup = pygame.sprite.Group()
 
@@ -1736,7 +1774,7 @@ fireGroup = pygame.sprite.Group()
 
 enemiesGroup = pygame.sprite.Group()
 # enemiesGroup.add(goomba)
-# enemiesGroup.add(koopa)
+enemiesGroup.add(koopa)
 
 marioGroup = pygame.sprite.Group()
 marioGroup.add(mario)
@@ -1746,7 +1784,7 @@ scene.drawables.add(castle)
 scene.drawables.add(mario)
 # scene.drawables.add(star)
 # scene.drawables.add(goomba)
-# scene.drawables.add(koopa)
+scene.drawables.add(koopa)
 scene.drawables.add(flag)
 
 
@@ -1756,7 +1794,7 @@ scene.updateables.append(mario)
 # scene.updateables.append(star)
 
 # scene.updateables.append(goomba)
-# scene.updateables.append(koopa)
+scene.updateables.append(koopa)
 scene.updateables.append(castle)
 
 createGround()

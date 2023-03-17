@@ -15,7 +15,9 @@ vec_iters, pos_iters = 6,2
 p2b = 1/100
 b2p = 100
 
+# A class to hold the background.  Inherits from a drawable game object
 class Background(egs.Game_objects.drawable):
+    # Creates the background
     def __init__(self):
         super().__init__()
         
@@ -29,9 +31,13 @@ class Background(egs.Game_objects.drawable):
         self.image = pygame.image.load(filename)
         self.rect = self.image.get_rect()
         self.rect.center = self.body.position.x * b2p, height - self.body.position.y * b2p
-        
+
+ # A class that defines the interactable bricks.  Inherits from a drawable and updateable game object     
 class Brick(egs.Game_objects.drawupdateable):
-    # Sets the initial state of the Square class
+    # Sets the initial state of the Brick class
+    # Parameters:
+    # Tuple pos is the starting position of the brick of the level in meters
+    # String contents is the name of what the brick contains
     def __init__(self, pos, contents = ""):
         super().__init__()
 
@@ -56,10 +62,11 @@ class Brick(egs.Game_objects.drawupdateable):
 
         self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p
 
-    # This function switches whether the square is black or colored
+    # Updates the brick
     def update(self):
         collidedWithMario = pygame.sprite.spritecollide(self, groundGroup, False)
 
+        # handles collisions with mario.  Behavior depends on mario type and contents
         if collidedWithMario:
             for m in marioGroup:
                 if m.rect.collidepoint(self.rect.midbottom):
@@ -97,11 +104,16 @@ class Brick(egs.Game_objects.drawupdateable):
                         self.kill()
                         scene.updateables.remove(self)
                         self.body.position = (-10.0, -10.0)
+        # only decrements the coin counter if it's a coin brick
         if self.contents == "coin":
             self.coinCounter -= 1  
+        # sets the position of self.rect to reflect the changes from box2d
         self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p   
 
+# A class that helps move the screen based player movement.  Inherits from an updateable game object
 class Camera(egs.Game_objects.updateable):
+    
+    # initializes the Camera class
     def __init__(self):
         super().__init__()
 
@@ -109,6 +121,7 @@ class Camera(egs.Game_objects.updateable):
         self.total_offset = 0.0
         self.offset = 0.0
     
+    # updates the camera object based on mario's position
     def update(self):
 
         if self.total_offset < 124.80 and mario.rect.right > 384:
@@ -116,13 +129,19 @@ class Camera(egs.Game_objects.updateable):
         elif not self.levelFinished:
             self.offset = 0.0
         self.total_offset += self.offset
+
+        # loops through all visible objects and updates b2 body position based on offset 
         for e in scene.drawables:
             e.body.position = (e.body.position[0] - self.offset, e.body.position[1])
             e.rect.center = e.body.position[0] * b2p, height - e.body.position[1] * b2p
             if type(e) == Castle:
                 e.door_rect.center = e.body.position.x * b2p, height - e.body.position.y * b2p + 97
 
+# A class that creates the castle
 class Castle(egs.Game_objects.drawupdateable):
+    # This function creates the castle
+    # Parameters:
+    # Tuple pos is the position of the middle of the castle in meters
     def __init__(self, pos):
         super().__init__()
         if os.name == 'nt':
@@ -145,6 +164,7 @@ class Castle(egs.Game_objects.drawupdateable):
         self.door_rect.center = self.body.position.x * b2p, height - self.body.position.y * b2p + 97
         self.rect.center = self.body.position.x * b2p, height - self.body.position.y * b2p
 
+    # This function checks if mario has reached the castle door, and jumps to a completed screen
     def update(self):
         if not self.levelFinished and self.door_rect.colliderect(mario.rect):
             pygame.mixer.music.stop()
@@ -154,9 +174,13 @@ class Castle(egs.Game_objects.drawupdateable):
             view.offset = 10.24
         elif self.levelFinished:
             view.offset = 0.0
-        #if mario collides within castle rectange jump to a "demo completed" screen
-        
+
+# A class that creates a coin in the world   
 class Coin(egs.Game_objects.drawupdateable):
+    
+    # Creates the coin in the world
+    # Parameters:
+    # Tuple pos is the position of the center of the coin in meters
     def __init__(self, pos):
         super().__init__()
 
@@ -180,7 +204,7 @@ class Coin(egs.Game_objects.drawupdateable):
 
         self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p
 
-    # This function switches whether the square is black or colored
+    # This function adds to the coin count and makes the coin dissapear after the time counter is finished
     def update(self):
         global coin_count
 
@@ -194,11 +218,16 @@ class Coin(egs.Game_objects.drawupdateable):
 
         self.rect.center = self.body.position[0] * b2p , height - self.body.position[1] * b2p
 
+# A class that creates a fireball
 class FireBall(egs.Game_objects.drawupdateable):
     lifetime = 100
     images = []
     image_index = 0
     
+    # Creates the fireball
+    # Parameters:
+    # Tuple pos is the position of the middle of the fireball
+    # int direction is the position the fireball will shoot in.  Should be -1 or 1
     def __init__(self, pos, direction = 1):
         super().__init__()
 
@@ -240,6 +269,7 @@ class FireBall(egs.Game_objects.drawupdateable):
 
         self.rect.center = self.body.position[0] * b2p, height - self.body.position[1] * b2p
 
+    #  Updates,checks to see if it collided with an enemy, and cycles the animation
     def update(self):
         global mario
         
@@ -268,7 +298,11 @@ class FireBall(egs.Game_objects.drawupdateable):
         self.lifetime -= 1
         self.rect.center = self.body.position[0] * b2p , height - self.body.position[1] * b2p
 
+# A class that creates a fire flower
 class FireFlower(egs.Game_objects.drawupdateable):
+    # Creates the fire flower
+    # Parameters:
+    # Tuple pos is the position of the middle of the flower in meters
     def __init__(self, pos):
         super().__init__()
 

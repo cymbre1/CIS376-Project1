@@ -316,6 +316,7 @@ class Brick(egs.Game_objects.drawupdateable):
     # Parameters:
     # Tuple pos is the starting position of the brick of the level in meters
     # String contents is the name of what the brick contains
+    # Boolean underground is true if the brick is part of the underground bricks
     def __init__(self, pos, contents = "", underground = False):
         super().__init__()
 
@@ -843,6 +844,7 @@ class Ground(egs.Game_objects.drawable):
     # float w is the width of the ground in meters
     # float y is the positition of the vertical center of the ground in meters
     # float h is the height of the ground in meters
+    # Boolean underground is true if the ground is part of the bonus level
     def __init__(self, x, w, y=.64, h= 1.28, underground = False):
         super().__init__()
 
@@ -1305,6 +1307,9 @@ class Pipe(egs.Game_objects.drawable):
     # Params
     # int xpos is the horizontal position of the pipe, every pipe is on the ground 
     # int h is how tall the pipe will be
+    # Boolean active is true if this pipe will teleport mario
+    # Boolean underground is true if this pipe is in the bonus level
+    # Tuple teleport is the location the pipe will teleport mario to
     def __init__(self, xpos, h, active = False, underground = False, teleport = (0.0, 0.0)):
         super().__init__()
 
@@ -1334,16 +1339,6 @@ class Pipe(egs.Game_objects.drawable):
         self.rect = self.image.get_rect()
         self.rect.center = self.body.position.x * b2p, height - self.body.position.y * b2p
 
-    # def update(self):
-    #     if self.active:
-    #         collided = pygame.sprite.spritecollide(self, marioGroup, False)
-
-    #         if collided:
-    #             for e in collided:
-    #                 if self.underground and 
-    #                 elif :
-
-
 # This class updates Box2d
 class Updater(egs.Game_objects.updateable):
     def __init__(self):
@@ -1356,7 +1351,12 @@ class Updater(egs.Game_objects.updateable):
         except:
             print("Oh no")
 
+# Creates the pipe that runs along a wall underground
 class WallPipe(egs.Game_objects.drawable):
+
+    # This class initializes the wall pipe
+    # Parameters:
+    # Tuple pos is the position of the pipe
     def __init__(self, pos):
         super().__init__()
 

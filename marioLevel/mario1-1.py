@@ -279,6 +279,7 @@ class BaseMario(egs.Game_objects.drawable):
                         for c in collided:
                             if type(c) == Pipe:
                                 if c.underground:
+                                    pygame.mixer.Sound.play(music.pipe_sound)
                                     view.loaded = False
                                     view.offset = c.teleport_point[0] - view.total_offset
                                     self.body.linearVelocity = (0,0)
@@ -301,6 +302,7 @@ class BaseMario(egs.Game_objects.drawable):
                         for c in collided:
                             if type(c) == Pipe:
                                 if c.active and self.rect.bottom + 2 > c.rect.top - 2:
+                                    pygame.mixer.Sound.play(music.pipe_sound)
                                     view.pipe = True
                                     view.loaded = False
                                     self.body.linearVelocity = (0,0)
@@ -486,7 +488,6 @@ class Coin(egs.Game_objects.drawupdateable):
             filename = os.path.join("image", "tileset.png")
 
         piece_ss = SpriteSheet(filename)
-        pygame.mixer.Sound.play(music.coin_sound)
 
 
         self.dirty = 2
@@ -511,12 +512,14 @@ class Coin(egs.Game_objects.drawupdateable):
             # This needs to be fixed.  Coin count is constantly increasing.
             collided = pygame.sprite.spritecollide(self, marioGroup, False)
             if collided:
+                pygame.mixer.Sound.play(music.coin_sound)
                 coin_count += 1
                 self.kill()
                 scene.updateables.remove(self)
                 self.body.position = (-10, -10)
         else:
             if self.time_counter == 15:
+                pygame.mixer.Sound.play(music.coin_sound)
                 coin_count += 1
             elif self.time_counter == 0:
                 self.kill()
@@ -1134,6 +1137,7 @@ class Music():
         self.stomp_sound = pygame.mixer.Sound(os.path.join(s, 'smb_stomp.wav'))
         self.kick_sound = pygame.mixer.Sound(os.path.join(s, 'smb_kick.wav'))
         self.level_finished_sound = pygame.mixer.Sound(os.path.join(s, 'smb_stage_clear.wav'))
+        self.pipe_sound = pygame.mixer.Sound(os.path.join(s, 'smb_pipe.wav'))
 
         if os.name == 'nt':
             filename = "sound\\theme.mp3"

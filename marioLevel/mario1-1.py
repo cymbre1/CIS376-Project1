@@ -29,7 +29,7 @@ class Background(egs.Game_objects.drawable):
             filename = "image/background.png"
 
         self.dirty = 2
-        self.body = world.CreateStaticBody(position = (165.76/2, height*p2b/2), active = False, shapes = b2PolygonShape(box = (165.76/2, height*p2b/2))) # body should be 121.92 meters.  Use active = false
+        self.body = world.CreateStaticBody(position = (165.76/2, height*p2b/2), active = False, shapes = b2PolygonShape(box = (165.76/2, height*p2b/2)))
         self.image = pygame.image.load(filename)
         self.rect = self.image.get_rect()
         self.rect.center = self.body.position.x * b2p, height - self.body.position.y * b2p
@@ -475,6 +475,7 @@ class Coin(egs.Game_objects.drawupdateable):
     # Creates the coin in the world
     # Parameters:
     # Tuple pos is the position of the center of the coin in meters
+    # Boolean underground is whether it should be a bonus level coin
     def __init__(self, pos, underground = False):
         super().__init__()
 
@@ -491,12 +492,12 @@ class Coin(egs.Game_objects.drawupdateable):
         self.time_counter = 15
         self.underground = underground
         if self.underground:
-            coin_rect(68, 0, 68, 68)
+            coin_rect = (68, 0, 68, 68)
         else:
             coin_rect = (134, 0, 68, 68)
         ground_image = piece_ss.image_at(coin_rect)
         self.image = ground_image.convert_alpha()
-        self.body = world.CreateStaticBody(position = pos, shapes = b2PolygonShape(box = (p2b*32, p2b*32)))
+        self.body = world.CreateStaticBody(position = pos, active = False, shapes = b2PolygonShape(box = (p2b*32, p2b*32)))
         self.rect = self.image.get_rect()
 
 
@@ -506,7 +507,13 @@ class Coin(egs.Game_objects.drawupdateable):
     def update(self):
         global coin_count
         if self.underground:
-            coin_count += 1
+            # This needs to be fixed.  Coin count is constantly increasing.
+            collided = pygame.sprite.spritecollide(self, marioGroup, False)
+            if collided:
+                coin_count += 1
+                self.kill()
+                scene.updateables.remove(self)
+                self.body.position = (-10, -10)
         else:
             if self.time_counter == 15:
                 coin_count += 1
@@ -794,7 +801,7 @@ class Goomba(egs.Game_objects.drawupdateable):
             return
 
         if self.body.position[0] <= 11.52:
-            if self.rect.right > -2432:
+            if self.rect.right > -2624:
                 if self.counter == 15:
                     self.current_index = self.current_index + 1
                     self.counter = 0
@@ -1442,6 +1449,12 @@ def createBricks():
     for i in range(3,14):
         bricks.append(Brick((135.36, (i * .64) - .32), underground = True))
 
+    for i in range(4, 11):
+        bricks.append(Brick((135.36 + (i*.64), 1.6), underground = True))
+        bricks.append(Brick((135.36 + (i*.64), 2.24), underground = True))
+        bricks.append(Brick((135.36 + (i*.64), 2.88), underground = True))
+        bricks.append(Brick((135.36 + (i*.64), 8), underground = True))        
+
     for e in bricks:
         groundGroup.add(e)
         scene.drawables.add(e)
@@ -1589,6 +1602,19 @@ def createSolids():
         groundGroup.add(item)
         scene.drawables.add(item)
 
+# Creates all the coins in the bonus level
+def createCoins():
+    coins = []
+
+    for i in range(4, 11):
+        coins.append(Coin((135.36 + (i*.64), 3.52), underground = True))
+        coins.append(Coin((135.36 + (i*.64), 4.8), underground = True))
+        if i != 4 and i != 10:
+            coins.append(Coin((135.36 + (i*.64), 6.08), underground = True)) 
+    
+    for e in coins:
+        scene.drawables.add(e)
+        scene.updateables.append(e)
 # Creates all the enemies in the level
 def createEnemies():
     enemies = []
@@ -1636,6 +1662,7 @@ def create_level():
     createBricks()
     createPipes()
     createSolids()
+    createCoins()
     createEnemies()
 
 width = 1024
